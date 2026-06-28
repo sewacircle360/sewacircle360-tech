@@ -34,7 +34,7 @@ export function Logo({ className = "", size = "md", showText = true }: LogoProps
       />
 
       {showText && (
-        <span className={`${textSizes[size]} font-bold tracking-tight font-display text-slate-900 dark:text-white flex items-center gap-1 shrink-0`}>
+        <span className={`${textSizes[size]} font-bold tracking-tight font-display text-[#0f172a] dark:text-white flex items-center gap-1 shrink-0`}>
           <span>SewaCircle360</span>
           <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-black">Tech</span>
         </span>

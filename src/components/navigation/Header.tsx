@@ -79,7 +79,7 @@ export function Header() {
                   className={`relative text-sm font-medium transition-colors duration-300 ${
                     isActive
                       ? "text-primary dark:text-accent"
-                      : "text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-accent"
+                      : "text-[#334155] dark:text-[#cbd5e1] hover:text-primary dark:hover:text-accent"
                   }`}
                 >
                   {link.label}

@@ -133,7 +133,7 @@ function HeroSection({ content }: { content: any }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-slate-900 dark:text-white font-display leading-[1.1]"
+            className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-[#0f172a] dark:text-white font-display leading-[1.1]"
           >
             {content.headline || "We Build"} <br />
             <span className="gradient-text font-extrabold">{currentText}</span>
@@ -144,7 +144,7 @@ function HeroSection({ content }: { content: any }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-lg text-slate-600 dark:text-slate-300 leading-relaxed max-w-xl"
+            className="text-lg text-[#334155] dark:text-[#cbd5e1] leading-relaxed max-w-xl"
           >
             {content.description || "Transform your vision into high-performance enterprise platforms. We engineering scalable software architecture, custom website experiences, and modular SaaS ecosystems."}
           </motion.p>

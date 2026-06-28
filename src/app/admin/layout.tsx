@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { Sidebar } from "@/components/dashboard/Sidebar";
+import { ScrollLock } from "@/components/dashboard/ScrollLock";
 
 export default async function AdminLayout({
   children,
@@ -15,7 +16,8 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="flex h-screen w-full overflow-hidden scroll-lock-root bg-slate-100 dark:bg-[#020617] text-slate-900 dark:text-slate-100">
+    <div className="flex h-screen w-full overflow-hidden bg-slate-100 dark:bg-[#020617] text-slate-900 dark:text-slate-100">
+      <ScrollLock />
       {/* Sidebar Navigation Panel */}
       <Sidebar />
 

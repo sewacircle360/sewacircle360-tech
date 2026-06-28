@@ -108,20 +108,16 @@
   --font-display: var(--font-display);
 }
 
-html {
-  height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
+html, body {
   max-width: 100%;
+  overflow-x: hidden;
 }
 
 body {
-  min-height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
   background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+  min-height: 100vh;
 }
 
 /* Glassmorphism Premium Utilities */

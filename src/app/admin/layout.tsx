@@ -15,7 +15,7 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-slate-100 dark:bg-[#020617] text-slate-900 dark:text-slate-100">
+    <div className="flex h-screen w-full overflow-hidden bg-slate-100 dark:bg-[#020617] text-slate-900 dark:text-slate-100">
       {/* Sidebar Navigation Panel */}
       <Sidebar />
 

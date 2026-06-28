@@ -3,28 +3,28 @@ import { redirect } from "next/navigation";
 import { getClientByUserId } from "@/modules/clients/actions/clients";
 import { Logo } from "@/components/ui/Logo";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { FolderCheck, Receipt, FileText, LayoutDashboard, LogOut } from "lucide-react";
+import { FolderCheck, Receipt, FileText, LayoutDashboard, LogOut, User } from "lucide-react";
 import Link from "next/link";
 import { db } from "@/lib/db";
-
+ 
 export default async function PortalLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const session = await auth();
-
+ 
   if (!session || !session.user?.id) {
     redirect("/auth/login");
   }
-
+ 
   const userId = session.user.id;
   const userName = session.user.name || "Preview Owner";
   const userEmail = session.user.email || "preview@client.com";
-
+ 
   // Fetch client profile linked to the logged-in user
   let client: any = await getClientByUserId(userId);
-
+ 
   // Admin portal preview fallback to avoid blocking developers/super-admins
   if (!client && (session.user as any).role === "SUPER_ADMIN") {
     // Check if we can map a temporary mock client
@@ -48,7 +48,7 @@ export default async function PortalLayout({
       };
     }
   }
-
+ 
   if (!client) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-6">
@@ -62,7 +62,7 @@ export default async function PortalLayout({
       </div>
     );
   }
-
+ 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-[#020617] text-slate-900 dark:text-slate-100 transition-colors duration-300">
       {/* Portal Header */}
@@ -78,7 +78,7 @@ export default async function PortalLayout({
             </span>
           </div>
         </div>
-
+ 
         <div className="flex items-center gap-4">
           <ThemeToggle />
           <div className="text-xs font-semibold text-slate-550 dark:text-slate-400 hidden md:block">
@@ -93,7 +93,7 @@ export default async function PortalLayout({
           </Link>
         </div>
       </header>
-
+ 
       {/* Viewport content */}
       <div className="flex-grow pt-16 flex flex-col">
         {/* Navigation row specifically for portal sections */}
@@ -105,6 +105,10 @@ export default async function PortalLayout({
           <Link href="/portal" className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-650 hover:text-primary dark:text-slate-300 dark:hover:text-accent transition-colors">
             <FolderCheck className="h-3.5 w-3.5" />
             Projects
+          </Link>
+          <Link href="/portal/profile" className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-650 hover:text-primary dark:text-slate-300 dark:hover:text-accent transition-colors">
+            <User className="h-3.5 w-3.5" />
+            Profile Settings
           </Link>
         </div>
 

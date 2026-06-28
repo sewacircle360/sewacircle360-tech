@@ -62,6 +62,7 @@ const NAV_GROUPS = [
     title: "Administrative",
     links: [
       { label: "Meetings Calendar", href: "/admin/meetings", icon: Calendar },
+      { label: "My Profile", href: "/admin/profile", icon: ShieldCheck },
       { label: "Media Library", href: "/admin/media", icon: ImageIcon },
       { label: "Audit Trails", href: "/admin/audit", icon: Activity },
       { label: "System Config", href: "/admin/settings", icon: Settings },
@@ -198,13 +199,16 @@ export function Sidebar() {
 
       {/* User Session Profile & Sign Out Actions */}
       <div className="p-4 border-t border-slate-800 flex flex-col gap-3">
-        <div className={`flex items-center gap-3 ${isCollapsed ? "justify-center" : ""}`}>
+        <Link 
+          href="/admin/profile"
+          className={`flex items-center gap-3 hover:bg-slate-800/40 p-1.5 rounded-xl transition-colors cursor-pointer w-full ${isCollapsed ? "justify-center" : ""}`}
+        >
           <div className="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-slate-200 shrink-0 uppercase">
             {session?.user?.name ? session.user.name.substring(0, 2) : "AD"}
           </div>
           
           {!isCollapsed && (
-            <div className="flex flex-col overflow-hidden">
+            <div className="flex flex-col overflow-hidden text-left">
               <span className="text-sm font-semibold text-white truncate block">
                 {session?.user?.name || "Administrator"}
               </span>
@@ -213,7 +217,7 @@ export function Sidebar() {
               </span>
             </div>
           )}
-        </div>
+        </Link>
 
         <button
           onClick={() => signOut({ callbackUrl: "/auth/login" })}

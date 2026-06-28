@@ -26,14 +26,12 @@ export function Logo({ className = "", size = "md", showText = true }: LogoProps
       href="/" 
       className={`flex items-center gap-2.5 bg-slate-900/[0.04] dark:bg-white/[0.04] hover:bg-slate-900/[0.08] dark:hover:bg-white/[0.08] p-1.5 px-3 rounded-full border border-slate-200/60 dark:border-slate-800/40 transition-all duration-300 hover:scale-102 shrink-0 ${className}`}
     >
-      {/* Premium Circular Tech Monogram */}
-      <div className={`${logoHeights[size]} rounded-full bg-gradient-to-tr from-primary to-accent p-0.5 flex items-center justify-center shadow-inner relative group shrink-0`}>
-        <div className="w-full h-full rounded-full bg-white dark:bg-slate-950 flex items-center justify-center text-[8px] sm:text-[9px] font-black text-slate-800 dark:text-white font-display tracking-tighter">
-          360°
-        </div>
-        {/* Subtle glow on hover */}
-        <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-primary to-accent opacity-0 group-hover:opacity-30 transition-opacity blur-sm pointer-events-none" />
-      </div>
+      {/* Premium Circular Tech Emblem Image */}
+      <img 
+        src="/logo.png" 
+        alt="SewaCircle360 Tech Logo"
+        className={`${logoHeights[size]} rounded-full object-cover shrink-0`} 
+      />
 
       {showText && (
         <span className={`${textSizes[size]} font-bold tracking-tight font-display text-slate-900 dark:text-white flex items-center gap-1 shrink-0`}>

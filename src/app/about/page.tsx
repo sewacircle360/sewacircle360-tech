@@ -56,7 +56,7 @@ export default function AboutPage() {
             <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">The architects behind SewaCircle360's digital innovations.</p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="max-w-xl mx-auto">
             {/* Founder Deepak */}
             <div className="glass-card rounded-3xl p-8 border relative overflow-hidden flex flex-col items-center text-center gap-4">
               <div className="absolute top-0 left-0 w-24 h-24 bg-primary/5 rounded-full blur-2xl pointer-events-none" />
@@ -69,21 +69,6 @@ export default function AboutPage() {
               </div>
               <p className="text-sm text-slate-600 dark:text-ccslate-350 leading-relaxed italic">
                 “At SewaCircle360, our mission is to build integrated business operating systems that help founders automate customer tracking, sign contracts, and manage billing within one sleek workspace.”
-              </p>
-            </div>
-
-            {/* Co-Founder Riya Garg */}
-            <div className="glass-card rounded-3xl p-8 border relative overflow-hidden flex flex-col items-center text-center gap-4">
-              <div className="absolute top-0 left-0 w-24 h-24 bg-accent/5 rounded-full blur-2xl pointer-events-none" />
-              <div className="w-20 h-20 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center font-bold text-2xl text-accent font-display border-2 border-accent/20 shrink-0">
-                R
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white font-display">Riya Garg</h3>
-                <p className="text-xs font-semibold text-primary dark:text-accent uppercase tracking-wider mt-0.5">Co-Founder & Business Manager</p>
-              </div>
-              <p className="text-sm text-slate-600 dark:text-ccslate-350 leading-relaxed italic">
-                “We strive to bridge the gap between complex software backend engineering and clean visual UX, ensuring that scaling digital solutions is effortless for modern organizations.”
               </p>
             </div>
           </div>

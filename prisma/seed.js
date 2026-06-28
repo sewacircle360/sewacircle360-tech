@@ -64,23 +64,40 @@ async function main() {
   }
   console.log("Linked all permissions to SUPER_ADMIN.");
 
-  // Create default Super Admin User
-  const adminEmail = "sewacircle360@gmail.com";
-  const hashedPassword = await bcrypt.hash("password360", 10);
+  // Create custom Super Admin and Co-Founder credentials
+  const hashedPassword = await bcrypt.hash("Admin@123", 10);
 
   const superAdmin = await prisma.user.upsert({
-    where: { email: adminEmail },
-    update: {},
+    where: { email: "deepakbawa0004@gmail.com" },
+    update: {
+      passwordHash: hashedPassword,
+      roleId: seededRoles["SUPER_ADMIN"].id
+    },
     create: {
-      name: "Super Admin",
-      email: adminEmail,
+      name: "Deepak",
+      email: "deepakbawa0004@gmail.com",
       passwordHash: hashedPassword,
       roleId: seededRoles["SUPER_ADMIN"].id,
       status: "ACTIVE"
     }
   });
+  console.log(`Super Admin created/updated: ${superAdmin.email} (password: Admin@123)`);
 
-  console.log(`Default Super Admin created: ${superAdmin.email} (password: password360)`);
+  const coFounder = await prisma.user.upsert({
+    where: { email: "riyagargofficial@gmail.com" },
+    update: {
+      passwordHash: hashedPassword,
+      roleId: seededRoles["ADMIN"].id
+    },
+    create: {
+      name: "Riya Garg",
+      email: "riyagargofficial@gmail.com",
+      passwordHash: hashedPassword,
+      roleId: seededRoles["ADMIN"].id,
+      status: "ACTIVE"
+    }
+  });
+  console.log(`Co-Founder Admin created/updated: ${coFounder.email} (password: Admin@123)`);
   console.log("Seeding complete!");
 }
 

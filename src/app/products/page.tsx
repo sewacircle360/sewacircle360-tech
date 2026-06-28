@@ -167,7 +167,8 @@ export default async function ProductsPage() {
                   </Link>
 
                   <Link 
-                    href={`/products/${prod.slug}`}
+                    href={prod.slug === "sewacircle360" ? "https://sewacircle360.online/" : `/products/${prod.slug}`}
+                    target={prod.slug === "sewacircle360" ? "_blank" : undefined}
                     className="w-full flex items-center justify-center gap-2 py-3 px-4 font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-950 hover:bg-slate-100 border border-border/80 rounded-xl transition-all cursor-pointer"
                   >
                     View Product Specs

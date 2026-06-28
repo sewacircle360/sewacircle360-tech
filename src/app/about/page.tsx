@@ -49,31 +49,41 @@ export default function AboutPage() {
           </p>
         </div>
 
-        {/* Founder Message Section */}
+        {/* Leadership Team Section */}
         <div className="max-w-5xl mx-auto px-4 sm:px-6 mb-24">
-          <div className="glass-card rounded-2xl p-8 sm:p-12 border relative overflow-hidden grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
-            {/* Spotlight backdrop */}
-            <div className="absolute top-0 left-0 w-48 h-48 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
-
-            <div className="md:col-span-4 flex flex-col items-center text-center">
-              <div className="w-24 h-24 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center font-bold text-3xl text-primary font-display border-2 border-primary/20">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold font-display text-slate-900 dark:text-white">Our Leadership</h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">The architects behind SewaCircle360's digital innovations.</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Founder Deepak */}
+            <div className="glass-card rounded-3xl p-8 border relative overflow-hidden flex flex-col items-center text-center gap-4">
+              <div className="absolute top-0 left-0 w-24 h-24 bg-primary/5 rounded-full blur-2xl pointer-events-none" />
+              <div className="w-20 h-20 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center font-bold text-2xl text-primary font-display border-2 border-primary/20 shrink-0">
                 D
               </div>
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white font-display mt-4">
-                Deepak
-              </h3>
-              <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">
-                Founder & Lead Architect
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white font-display">Deepak</h3>
+                <p className="text-xs font-semibold text-primary dark:text-accent uppercase tracking-wider mt-0.5">Founder & Lead Architect</p>
+              </div>
+              <p className="text-sm text-slate-600 dark:text-slate-350 leading-relaxed italic">
+                “At SewaCircle360, our mission is to build integrated business operating systems that help founders automate customer tracking, sign contracts, and manage billing within one sleek workspace.”
               </p>
             </div>
 
-            <div className="md:col-span-8 flex flex-col gap-4 text-left border-t md:border-t-0 md:border-l border-border/85 pt-6 md:pt-0 md:pl-8">
-              <span className="text-primary dark:text-accent font-extrabold text-3xl font-display leading-none">“</span>
-              <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 italic leading-relaxed">
-                At SewaCircle360 Technologies, our goal is not just to build websites, but to build complete digital operating systems. We architect applications that allow businesses to automate leads tracking, manage projects, execute digital agreements, and launch future SaaS modules seamlessly from one central dashboard. We prioritize clean code, responsive UX, and scalable MongoDB databases.
-              </p>
-              <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                — Deepak, Founder of SewaCircle360 Tech
+            {/* Co-Founder Riya Garg */}
+            <div className="glass-card rounded-3xl p-8 border relative overflow-hidden flex flex-col items-center text-center gap-4">
+              <div className="absolute top-0 left-0 w-24 h-24 bg-accent/5 rounded-full blur-2xl pointer-events-none" />
+              <div className="w-20 h-20 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center font-bold text-2xl text-accent font-display border-2 border-accent/20 shrink-0">
+                R
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white font-display">Riya Garg</h3>
+                <p className="text-xs font-semibold text-primary dark:text-accent uppercase tracking-wider mt-0.5">Co-Founder & Business Manager</p>
+              </div>
+              <p className="text-sm text-slate-600 dark:text-slate-350 leading-relaxed italic">
+                “We strive to bridge the gap between complex software backend engineering and clean visual UX, ensuring that scaling digital solutions is effortless for modern organizations.”
               </p>
             </div>
           </div>

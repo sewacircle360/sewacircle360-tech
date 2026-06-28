@@ -1,7 +1,7 @@
 import { MetadataRoute } from "next";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = "https://sewacircle360tech.com";
+  const baseUrl = "https://sewacircle360tech.online";
   
   // Core marketing routes
   const routes = [

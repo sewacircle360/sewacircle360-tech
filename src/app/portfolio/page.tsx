@@ -11,7 +11,7 @@ const DEFAULT_PORTFOLIO = [
     category: "Website & CRM Integration",
     description: "Designed a premium storefront using Next.js, customized Stripe checkout, automated invoice generation using Server Actions, and synchronized order statistics to an administrative CRM dashboard.",
     technologies: ["Next.js", "React", "Tailwind CSS", "Stripe", "Prisma", "PostgreSQL"],
-    liveUrl: "https://shop.sewacircle360tech.com",
+    liveUrl: "https://shop.sewacircle360tech.online",
     coverUrl: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
   },
   {
@@ -20,7 +20,7 @@ const DEFAULT_PORTFOLIO = [
     category: "Custom Software",
     description: "Developed a secure student ERP system. Embedded student registry fields, dynamic class schedule grids, itemized fee receipts, and built a custom parent portal with email alerts.",
     technologies: ["React", "TypeScript", "Node.js", "MongoDB", "Express", "Docker"],
-    liveUrl: "https://school.sewacircle360tech.com",
+    liveUrl: "https://school.sewacircle360tech.online",
     coverUrl: "https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
   },
   {
@@ -29,7 +29,7 @@ const DEFAULT_PORTFOLIO = [
     category: "Mobile Application",
     description: "Engineered a cross-platform iOS & Android mobile app. Configured instant messaging, doctor schedule calendar sync, secure medical document vault storage, and offline prescription lists.",
     technologies: ["React Native", "Expo", "SQLite", "Firebase", "Node.js"],
-    liveUrl: "https://clinic.sewacircle360tech.com",
+    liveUrl: "https://clinic.sewacircle360tech.online",
     coverUrl: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
   }
 ];

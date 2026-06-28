@@ -131,7 +131,7 @@ export function Header() {
           <div className="flex items-center gap-3 lg:hidden">
             <button
               onClick={() => setIsSearchOpen(true)}
-              className="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-850 rounded-full transition-colors cursor-pointer"
+              className="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-ccslate-850 rounded-full transition-colors cursor-pointer"
               aria-label="Open search"
             >
               <Search className="h-5 w-5" />

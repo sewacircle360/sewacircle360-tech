@@ -71,7 +71,7 @@ export default async function BlogPage() {
           {postsList.map((post: any, idx: number) => (
             <div 
               key={post.id || idx}
-              className="bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-slate-850 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-350 group flex flex-col justify-between"
+              className="bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-ccslate-850 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-350 group flex flex-col justify-between"
             >
               <div>
                 {/* Visual Cover */}

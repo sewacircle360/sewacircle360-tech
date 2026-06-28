@@ -96,7 +96,7 @@ export function KanbanBoard({ initialLeads }: KanbanProps) {
               <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide">
                 {col.name}
               </span>
-              <span className="text-[10px] font-extrabold bg-slate-200 dark:bg-slate-850 px-2 py-0.5 rounded-full text-slate-500 dark:text-slate-400">
+              <span className="text-[10px] font-extrabold bg-slate-200 dark:bg-ccslate-850 px-2 py-0.5 rounded-full text-slate-500 dark:text-slate-400">
                 {colLeads.length}
               </span>
             </div>
@@ -107,7 +107,7 @@ export function KanbanBoard({ initialLeads }: KanbanProps) {
                 <motion.div
                   key={lead.id}
                   layout
-                  className="bg-white dark:bg-slate-950 p-4 rounded-xl border dark:border-slate-850 shadow-sm relative group"
+                  className="bg-white dark:bg-slate-950 p-4 rounded-xl border dark:border-ccslate-850 shadow-sm relative group"
                 >
                   {/* Lead Info */}
                   <div className="flex flex-col gap-2">
@@ -143,7 +143,7 @@ export function KanbanBoard({ initialLeads }: KanbanProps) {
                       <select
                         value={lead.status}
                         onChange={(e) => handleStatusChange(lead.id, e.target.value)}
-                        className="text-[10px] font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 border-0 outline-none rounded px-2 py-1 text-slate-600 dark:text-slate-350 cursor-pointer"
+                        className="text-[10px] font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 border-0 outline-none rounded px-2 py-1 text-slate-600 dark:text-ccslate-350 cursor-pointer"
                       >
                         {COLUMNS.map((c) => (
                           <option key={c.id} value={c.id}>{c.id.replace(/_/g, ' ')}</option>
@@ -165,7 +165,7 @@ export function KanbanBoard({ initialLeads }: KanbanProps) {
 
               {colLeads.length === 0 && (
                 <div className="flex-grow flex items-center justify-center py-10 border border-dashed rounded-xl">
-                  <span className="text-[10px] font-semibold text-slate-450 dark:text-slate-500 uppercase tracking-wider">
+                  <span className="text-[10px] font-semibold text-ccslate-450 dark:text-slate-500 uppercase tracking-wider">
                     Empty Bin
                   </span>
                 </div>

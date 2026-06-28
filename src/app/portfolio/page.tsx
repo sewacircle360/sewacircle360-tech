@@ -65,7 +65,7 @@ export default async function PortfolioPage() {
           {portfolioList.map((project: any, idx: number) => (
             <div 
               key={project.id || idx}
-              className="bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-slate-850 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col justify-between"
+              className="bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-ccslate-850 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col justify-between"
             >
               <div>
                 {/* Cover Image mock container */}

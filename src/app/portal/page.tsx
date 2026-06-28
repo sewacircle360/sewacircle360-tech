@@ -125,7 +125,7 @@ export default async function ClientPortalPage() {
                       <h4 className="font-bold text-sm text-slate-900 dark:text-white font-display">
                         {proj.name}
                       </h4>
-                      <span className="text-[10px] text-slate-450 uppercase font-semibold">
+                      <span className="text-[10px] text-ccslate-450 uppercase font-semibold">
                         Status: {proj.status}
                       </span>
                     </div>
@@ -166,9 +166,9 @@ export default async function ClientPortalPage() {
             ) : (
               <div className="space-y-3">
                 {agreements.map((ag) => (
-                  <div key={ag.id} className="flex items-center justify-between p-3 border dark:border-slate-850 rounded-xl bg-slate-50/50 dark:bg-slate-950/20">
+                  <div key={ag.id} className="flex items-center justify-between p-3 border dark:border-ccslate-850 rounded-xl bg-slate-50/50 dark:bg-slate-950/20">
                     <div className="flex flex-col overflow-hidden">
-                      <span className="text-xs font-bold text-slate-850 dark:text-slate-200 truncate">
+                      <span className="text-xs font-bold text-ccslate-850 dark:text-slate-200 truncate">
                         {ag.title}
                       </span>
                       <span className="text-[9px] text-slate-400 mt-0.5">Ref: {ag.agreementNumber}</span>
@@ -205,9 +205,9 @@ export default async function ClientPortalPage() {
             ) : (
               <div className="space-y-3">
                 {invoices.map((inv) => (
-                  <div key={inv.id} className="flex items-center justify-between p-3 border dark:border-slate-850 rounded-xl bg-slate-50/50 dark:bg-slate-950/20">
+                  <div key={inv.id} className="flex items-center justify-between p-3 border dark:border-ccslate-850 rounded-xl bg-slate-50/50 dark:bg-slate-950/20">
                     <div className="flex flex-col">
-                      <span className="text-xs font-bold text-slate-850 dark:text-slate-200">
+                      <span className="text-xs font-bold text-ccslate-850 dark:text-slate-200">
                         {inv.invoiceNumber}
                       </span>
                       <span className="text-[10px] font-extrabold text-primary dark:text-accent mt-0.5">₹{inv.grandTotal.toFixed(2)}</span>

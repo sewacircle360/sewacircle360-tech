@@ -43,7 +43,7 @@ export function ProfileForm({ initialUser }: ProfileFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 w-full max-w-2xl bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-slate-850 p-6 sm:p-8 rounded-3xl shadow-md backdrop-blur-sm">
+    <form onSubmit={handleSubmit} className="space-y-6 w-full max-w-2xl bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-ccslate-850 p-6 sm:p-8 rounded-3xl shadow-md backdrop-blur-sm">
       <div className="flex flex-col sm:flex-row items-center gap-6 pb-6 border-b border-border/80 dark:border-slate-800/80">
         {/* Profile Avatar Preview */}
         <div className="w-20 h-20 rounded-full border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-950 flex items-center justify-center font-bold text-2xl text-primary font-display uppercase overflow-hidden shrink-0">
@@ -145,7 +145,7 @@ export function ProfileForm({ initialUser }: ProfileFormProps) {
               type="text"
               readOnly
               value={initialUser.roleName.replace(/_/g, ' ')}
-              className="w-full pl-9 pr-4 py-2.5 text-sm bg-slate-100 dark:bg-slate-850/80 border border-border/80 dark:border-slate-800 rounded-xl outline-none text-slate-400 dark:text-slate-500 select-none uppercase font-extrabold tracking-wider"
+              className="w-full pl-9 pr-4 py-2.5 text-sm bg-slate-100 dark:bg-ccslate-850/80 border border-border/80 dark:border-slate-800 rounded-xl outline-none text-slate-400 dark:text-slate-500 select-none uppercase font-extrabold tracking-wider"
             />
           </div>
         </div>

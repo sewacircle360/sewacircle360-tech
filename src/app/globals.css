@@ -97,11 +97,11 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   
-  --color-slate-350: var(--slate-350);
-  --color-slate-450: var(--slate-450);
-  --color-slate-550: var(--slate-550);
-  --color-slate-650: var(--slate-650);
-  --color-slate-850: var(--slate-850);
+  --color-cslate-350: var(--slate-350);
+  --color-cslate-450: var(--slate-450);
+  --color-cslate-550: var(--slate-550);
+  --color-cslate-650: var(--slate-650);
+  --color-cslate-850: var(--slate-850);
   
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);

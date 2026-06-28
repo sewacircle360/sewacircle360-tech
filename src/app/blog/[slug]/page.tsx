@@ -164,7 +164,7 @@ export default async function BlogPostDetailPage({ params }: { params: Promise<{
             )}
 
             {/* Content Markdown/RichText representation */}
-            <div className="prose prose-slate dark:prose-invert max-w-none pt-4 text-slate-650 dark:text-slate-300 leading-relaxed space-y-6">
+            <div className="prose prose-slate dark:prose-invert max-w-none pt-4 text-cslate-650 dark:text-slate-300 leading-relaxed space-y-6">
               {post.content.split("\n\n").map((para: string, idx: number) => {
                 if (para.startsWith("# ")) {
                   return (
@@ -202,11 +202,11 @@ export default async function BlogPostDetailPage({ params }: { params: Promise<{
             {/* Tags footer */}
             {post.tags && post.tags.length > 0 && (
               <div className="flex flex-wrap items-center gap-2 border-t border-border/60 dark:border-slate-800/80 pt-6 mt-8">
-                <Tag className="h-4 w-4 text-slate-450 shrink-0" />
+                <Tag className="h-4 w-4 text-cslate-450 shrink-0" />
                 {post.tags.map((tag: string) => (
                   <span 
                     key={tag}
-                    className="text-xs font-semibold px-3 py-1 bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-350 rounded-lg border"
+                    className="text-xs font-semibold px-3 py-1 bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-cslate-350 rounded-lg border"
                   >
                     #{tag}
                   </span>

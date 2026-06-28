@@ -81,7 +81,7 @@ export default async function PortalLayout({
  
         <div className="flex items-center gap-4">
           <ThemeToggle />
-          <div className="text-xs font-semibold text-slate-550 dark:text-slate-400 hidden md:block">
+          <div className="text-xs font-semibold text-ccslate-550 dark:text-slate-400 hidden md:block">
             {client.ownerName}
           </div>
           <Link 
@@ -97,16 +97,16 @@ export default async function PortalLayout({
       {/* Viewport content */}
       <div className="flex-grow pt-16 flex flex-col">
         {/* Navigation row specifically for portal sections */}
-        <div className="bg-white dark:bg-[#090d1f]/35 border-b border-border/80 dark:border-slate-850 px-6 py-2.5 flex gap-5 overflow-x-auto">
-          <Link href="/portal" className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-650 hover:text-primary dark:text-slate-300 dark:hover:text-accent transition-colors">
+        <div className="bg-white dark:bg-[#090d1f]/35 border-b border-border/80 dark:border-ccslate-850 px-6 py-2.5 flex gap-5 overflow-x-auto">
+          <Link href="/portal" className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-ccslate-650 hover:text-primary dark:text-slate-300 dark:hover:text-accent transition-colors">
             <LayoutDashboard className="h-3.5 w-3.5" />
             Dashboard
           </Link>
-          <Link href="/portal" className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-650 hover:text-primary dark:text-slate-300 dark:hover:text-accent transition-colors">
+          <Link href="/portal" className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-ccslate-650 hover:text-primary dark:text-slate-300 dark:hover:text-accent transition-colors">
             <FolderCheck className="h-3.5 w-3.5" />
             Projects
           </Link>
-          <Link href="/portal/profile" className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-650 hover:text-primary dark:text-slate-300 dark:hover:text-accent transition-colors">
+          <Link href="/portal/profile" className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-ccslate-650 hover:text-primary dark:text-slate-300 dark:hover:text-accent transition-colors">
             <User className="h-3.5 w-3.5" />
             Profile Settings
           </Link>

@@ -33,7 +33,7 @@ export default function ForgotPasswordPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-slate-850 rounded-3xl p-8 sm:p-10 shadow-xl backdrop-blur-md relative z-10"
+        className="w-full max-w-md bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-ccslate-850 rounded-3xl p-8 sm:p-10 shadow-xl backdrop-blur-md relative z-10"
       >
         <div className="flex flex-col items-center gap-2 mb-8 text-center">
           <Logo size="lg" showText={false} className="mb-2" />
@@ -97,7 +97,7 @@ export default function ForgotPasswordPage() {
                 Check Your Inbox
               </h3>
               <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-                If an account exists for <span className="font-semibold text-slate-700 dark:text-slate-350">{email}</span>, we have sent a secure password reset link to it.
+                If an account exists for <span className="font-semibold text-slate-700 dark:text-ccslate-350">{email}</span>, we have sent a secure password reset link to it.
               </p>
             </div>
           </motion.div>

@@ -39,7 +39,7 @@ export default async function AdminClientsPage() {
             <span className="text-sm font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
               No Clients Found
             </span>
-            <p className="text-xs text-slate-550 dark:text-slate-400 max-w-xs mx-auto mt-2">
+            <p className="text-xs text-ccslate-550 dark:text-slate-400 max-w-xs mx-auto mt-2">
               Register clients to generate invoices, assign milestones, and setup portal credentials.
             </p>
           </div>
@@ -55,7 +55,7 @@ export default async function AdminClientsPage() {
                   <th className="py-4 px-6 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border/60 dark:divide-slate-850/60">
+              <tbody className="divide-y divide-border/60 dark:divide-ccslate-850/60">
                 {clients.map((client) => (
                   <tr key={client.id} className="hover:bg-slate-50/30 dark:hover:bg-slate-900/10 transition-colors">
                     <td className="py-4 px-6">
@@ -69,13 +69,13 @@ export default async function AdminClientsPage() {
                       </div>
                     </td>
                     <td className="py-4 px-6">
-                      <div className="flex flex-col gap-0.5 text-slate-650 dark:text-slate-300">
+                      <div className="flex flex-col gap-0.5 text-ccslate-650 dark:text-slate-300">
                         <span className="text-sm font-semibold">{client.ownerName}</span>
                         <span className="text-xs text-slate-400">{client.email}</span>
                       </div>
                     </td>
                     <td className="py-4 px-6">
-                      <span className="text-xs font-bold bg-slate-100 dark:bg-slate-800/80 px-2.5 py-1 rounded-full text-slate-600 dark:text-slate-350">
+                      <span className="text-xs font-bold bg-slate-100 dark:bg-slate-800/80 px-2.5 py-1 rounded-full text-slate-600 dark:text-ccslate-350">
                         {client._count?.projects || 0} Projects
                       </span>
                     </td>

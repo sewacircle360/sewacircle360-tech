@@ -100,7 +100,7 @@ export default async function SearchPage({ searchParams }: SearchProps) {
                           <h4 className="font-bold text-slate-800 dark:text-slate-200 group-hover:text-primary dark:group-hover:text-accent text-sm sm:text-base font-display">
                             {srv.title}
                           </h4>
-                          <p className="text-xs text-slate-450 dark:text-slate-400 mt-1">
+                          <p className="text-xs text-ccslate-450 dark:text-slate-400 mt-1">
                             {srv.desc}
                           </p>
                         </div>

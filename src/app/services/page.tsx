@@ -83,7 +83,7 @@ export default function ServicesPage() {
             return (
               <div 
                 key={idx}
-                className="p-8 bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-slate-850 rounded-3xl shadow-sm hover:shadow-xl hover:border-primary/10 transition-all duration-500 flex flex-col justify-between"
+                className="p-8 bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-ccslate-850 rounded-3xl shadow-sm hover:shadow-xl hover:border-primary/10 transition-all duration-500 flex flex-col justify-between"
               >
                 <div>
                   <div className="p-3.5 bg-primary/5 dark:bg-accent/5 text-primary dark:text-accent rounded-2xl w-fit mb-6">
@@ -104,7 +104,7 @@ export default function ServicesPage() {
                   </span>
                   <div className="grid grid-cols-2 gap-2">
                     {srv.benefits.map((b, bIdx) => (
-                      <div key={bIdx} className="flex items-center gap-2 text-xs font-semibold text-slate-700 dark:text-slate-350">
+                      <div key={bIdx} className="flex items-center gap-2 text-xs font-semibold text-slate-700 dark:text-ccslate-350">
                         <div className="w-1.5 h-1.5 rounded-full bg-primary dark:bg-accent shrink-0" />
                         <span>{b}</span>
                       </div>

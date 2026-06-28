@@ -67,7 +67,7 @@ export default function AboutPage() {
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white font-display">Deepak</h3>
                 <p className="text-xs font-semibold text-primary dark:text-accent uppercase tracking-wider mt-0.5">Founder & Lead Architect</p>
               </div>
-              <p className="text-sm text-slate-600 dark:text-slate-350 leading-relaxed italic">
+              <p className="text-sm text-slate-600 dark:text-ccslate-350 leading-relaxed italic">
                 “At SewaCircle360, our mission is to build integrated business operating systems that help founders automate customer tracking, sign contracts, and manage billing within one sleek workspace.”
               </p>
             </div>
@@ -82,7 +82,7 @@ export default function AboutPage() {
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white font-display">Riya Garg</h3>
                 <p className="text-xs font-semibold text-primary dark:text-accent uppercase tracking-wider mt-0.5">Co-Founder & Business Manager</p>
               </div>
-              <p className="text-sm text-slate-600 dark:text-slate-350 leading-relaxed italic">
+              <p className="text-sm text-slate-600 dark:text-ccslate-350 leading-relaxed italic">
                 “We strive to bridge the gap between complex software backend engineering and clean visual UX, ensuring that scaling digital solutions is effortless for modern organizations.”
               </p>
             </div>
@@ -106,7 +106,7 @@ export default function AboutPage() {
               return (
                 <div 
                   key={idx}
-                  className="p-6 bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-slate-850 rounded-2xl shadow-sm flex flex-col gap-4 hover:shadow-md hover:border-primary/10 transition-all duration-300"
+                  className="p-6 bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-ccslate-850 rounded-2xl shadow-sm flex flex-col gap-4 hover:shadow-md hover:border-primary/10 transition-all duration-300"
                 >
                   <div className="p-3 bg-primary/5 dark:bg-accent/5 text-primary dark:text-accent rounded-xl w-fit">
                     <Icon className="h-5 w-5" />

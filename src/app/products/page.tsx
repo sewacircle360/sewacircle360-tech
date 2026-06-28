@@ -97,7 +97,7 @@ export default async function ProductsPage() {
             return (
               <div 
                 key={prod.id || idx}
-                className="bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-slate-850 rounded-3xl p-8 sm:p-10 shadow-sm hover:shadow-lg transition-all duration-500 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative overflow-hidden"
+                className="bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-ccslate-850 rounded-3xl p-8 sm:p-10 shadow-sm hover:shadow-lg transition-all duration-500 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative overflow-hidden"
               >
                 {/* Details Column */}
                 <div className="lg:col-span-8 flex flex-col gap-5">
@@ -131,7 +131,7 @@ export default async function ProductsPage() {
                     </span>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {features.slice(0, 4).map((f: any, fIdx: number) => (
-                        <div key={fIdx} className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-600 dark:text-slate-350">
+                        <div key={fIdx} className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-600 dark:text-ccslate-350">
                           <Check className="h-4 w-4 text-green-500 shrink-0" />
                           <span>{typeof f === "string" ? f : f.title}</span>
                         </div>

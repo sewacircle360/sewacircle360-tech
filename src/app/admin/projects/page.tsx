@@ -37,7 +37,7 @@ export default async function AdminProjectsPage() {
           <span className="text-sm font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
             No Active Projects
           </span>
-          <p className="text-xs text-slate-550 dark:text-slate-400 max-w-xs mx-auto mt-2">
+          <p className="text-xs text-ccslate-550 dark:text-slate-400 max-w-xs mx-auto mt-2">
             Initiate a project to assign tasks, define progress milestones, and track deadlines.
           </p>
         </div>
@@ -56,12 +56,12 @@ export default async function AdminProjectsPage() {
             return (
               <div 
                 key={project.id}
-                className="bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-slate-850 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between"
+                className="bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-ccslate-850 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between"
               >
                 <div className="flex flex-col gap-4">
                   {/* Status & Deadline */}
                   <div className="flex justify-between items-center">
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ${statusColors[project.status] || "bg-slate-500/10 text-slate-550"}`}>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ${statusColors[project.status] || "bg-slate-500/10 text-ccslate-550"}`}>
                       {project.status}
                     </span>
                     <span className="text-[10px] font-semibold text-slate-400 flex items-center gap-1">
@@ -77,7 +77,7 @@ export default async function AdminProjectsPage() {
                     <h3 className="text-lg font-bold text-slate-900 dark:text-white font-display leading-tight line-clamp-1 mb-1">
                       {project.name}
                     </h3>
-                    <span className="text-xs text-slate-450 dark:text-slate-400 font-medium block">
+                    <span className="text-xs text-ccslate-450 dark:text-slate-400 font-medium block">
                       Client: {project.client.companyName}
                     </span>
                   </div>

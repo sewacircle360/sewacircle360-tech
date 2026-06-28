@@ -75,13 +75,13 @@ export default function CareersPage() {
             {JOBS.map((job, idx) => (
               <div 
                 key={idx}
-                className="bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-slate-850 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between gap-6"
+                className="bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-ccslate-850 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between gap-6"
               >
                 <div className="flex flex-col gap-2.5">
                   <h3 className="text-lg font-bold text-slate-900 dark:text-white font-display leading-snug">
                     {job.title}
                   </h3>
-                  <p className="text-xs text-slate-550 dark:text-slate-450 leading-relaxed max-w-xl">
+                  <p className="text-xs text-ccslate-550 dark:text-ccslate-450 leading-relaxed max-w-xl">
                     {job.description}
                   </p>
                   <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-400">
@@ -104,7 +104,7 @@ export default function CareersPage() {
 
         {/* Application Form */}
         <div id="apply-form" className="max-w-2xl mx-auto px-4 sm:px-6">
-          <div className="bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-slate-850 p-8 rounded-3xl shadow-lg backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-ccslate-850 p-8 rounded-3xl shadow-lg backdrop-blur-sm">
             <h2 className="text-xl font-bold font-display text-slate-900 dark:text-white mb-2">Submit Application</h2>
             <p className="text-xs text-slate-500 mb-6">Complete the details below, and our recruitment team will get back to you shortly.</p>
 

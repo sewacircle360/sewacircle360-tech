@@ -96,7 +96,7 @@ export function AgreementSigner({ agreement }: AgreementSignerProps) {
         </div>
 
         {/* Contract Text */}
-        <div className="prose prose-slate dark:prose-invert max-w-none text-slate-650 dark:text-slate-350 text-sm sm:text-base leading-relaxed bg-slate-50 dark:bg-slate-950/40 p-6 rounded-2xl border dark:border-slate-850/80 min-h-[300px]">
+        <div className="prose prose-slate dark:prose-invert max-w-none text-ccslate-650 dark:text-ccslate-350 text-sm sm:text-base leading-relaxed bg-slate-50 dark:bg-slate-950/40 p-6 rounded-2xl border dark:border-ccslate-850/80 min-h-[300px]">
           {agreement.content.split("\n\n").map((para, idx) => (
             <p key={idx} className="mb-4 last:mb-0">
               {para}
@@ -119,7 +119,7 @@ export function AgreementSigner({ agreement }: AgreementSignerProps) {
             <h3 className="font-bold text-slate-900 dark:text-white font-display">
               Agreement Executed
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-450 leading-relaxed">
+            <p className="text-xs text-slate-500 dark:text-ccslate-450 leading-relaxed">
               This document has been electronically signed and timestamped. Copies are archived in the client portal vault.
             </p>
             
@@ -156,7 +156,7 @@ export function AgreementSigner({ agreement }: AgreementSignerProps) {
                   <span className="font-serif italic font-light text-2xl tracking-wide text-primary dark:text-accent pt-3 pb-1">
                     {signatureName}
                   </span>
-                  <div className="w-full border-t border-dashed border-slate-350 dark:border-slate-800/80" />
+                  <div className="w-full border-t border-dashed border-ccslate-350 dark:border-slate-800/80" />
                 </div>
               )}
             </div>

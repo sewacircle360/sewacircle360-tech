@@ -210,7 +210,7 @@ export default async function ClientPortalPage() {
                       <span className="text-xs font-bold text-slate-850 dark:text-slate-200">
                         {inv.invoiceNumber}
                       </span>
-                      <span className="text-[10px] font-extrabold text-primary dark:text-accent mt-0.5">${inv.grandTotal.toFixed(2)}</span>
+                      <span className="text-[10px] font-extrabold text-primary dark:text-accent mt-0.5">₹{inv.grandTotal.toFixed(2)}</span>
                     </div>
 
                     <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded ${

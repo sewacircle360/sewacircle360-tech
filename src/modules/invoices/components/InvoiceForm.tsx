@@ -142,7 +142,7 @@ export function InvoiceForm({ clients }: InvoiceFormProps) {
 
               {/* Price */}
               <div className="sm:col-span-2 flex flex-col gap-1">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Price ($)</span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Price (₹)</span>
                 <input
                   type="number"
                   placeholder="0.00"
@@ -255,7 +255,7 @@ export function InvoiceForm({ clients }: InvoiceFormProps) {
 
         {/* Discount */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Discount ($)</label>
+          <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Discount (₹)</label>
           <input
             type="number"
             value={discount || ""}
@@ -270,21 +270,21 @@ export function InvoiceForm({ clients }: InvoiceFormProps) {
         <div className="bg-slate-50 dark:bg-slate-950/40 p-4 border rounded-xl flex flex-col gap-2 mt-2">
           <div className="flex justify-between items-center text-xs font-semibold text-slate-500">
             <span>Subtotal</span>
-            <span>${subtotal.toFixed(2)}</span>
+            <span>₹{subtotal.toFixed(2)}</span>
           </div>
           <div className="flex justify-between items-center text-xs font-semibold text-slate-500">
             <span>Taxes</span>
-            <span>+${taxAmount.toFixed(2)}</span>
+            <span>+₹{taxAmount.toFixed(2)}</span>
           </div>
           {discount > 0 && (
             <div className="flex justify-between items-center text-xs font-semibold text-red-500">
               <span>Discount</span>
-              <span>-${discount.toFixed(2)}</span>
+              <span>-₹{discount.toFixed(2)}</span>
             </div>
           )}
           <div className="flex justify-between items-center text-sm font-bold text-slate-900 dark:text-white border-t border-dashed border-border/80 pt-2 mt-2">
             <span>Total</span>
-            <span className="text-primary dark:text-accent font-extrabold">${grandTotal.toFixed(2)}</span>
+            <span className="text-primary dark:text-accent font-extrabold">₹{grandTotal.toFixed(2)}</span>
           </div>
         </div>
 

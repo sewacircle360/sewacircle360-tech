@@ -20,8 +20,8 @@ const DEFAULT_PRODUCTS = [
       "SMTP Transactional Email Alerts"
     ],
     pricingPlans: [
-      { name: "Starter", price: "$49/mo" },
-      { name: "Enterprise", price: "$199/mo" }
+      { name: "Starter", price: "₹2,999/mo" },
+      { name: "Enterprise", price: "₹9,999/mo" }
     ]
   },
   {

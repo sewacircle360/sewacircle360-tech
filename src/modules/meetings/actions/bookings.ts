@@ -2,6 +2,7 @@
 
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { sendEmail } from "@/lib/mail";
 
 export async function getMeetings() {
   try {
@@ -58,6 +59,25 @@ export async function bookMeetingAction(data: {
     revalidatePath("/admin/crm");
     
     console.log(`Meetings Alert: Consultation scheduled for ${data.email}. Sync'd into CRM pipeline.`);
+
+    // 3. Send booking confirmation email via Resend
+    await sendEmail({
+      to: data.email,
+      subject: "Consultation Scheduled | SewaCircle360 Tech",
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
+          <h2 style="color: #2563eb; margin-bottom: 20px;">Consultation Confirmed</h2>
+          <p>Hello <strong>${data.name}</strong>,</p>
+          <p>We have successfully scheduled your consultation. Our solutions engineering team will contact you shortly.</p>
+          <div style="background-color: #f8fafc; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <p style="margin: 5px 0;"><strong>Type:</strong> ${data.meetingType}</p>
+            <p style="margin: 5px 0;"><strong>Date:</strong> ${new Date(data.preferredDate).toLocaleDateString()}</p>
+            <p style="margin: 5px 0;"><strong>Time Slot:</strong> ${data.preferredTime} (${data.timezone})</p>
+          </div>
+          <p style="font-size: 12px; color: #64748b;">This email was automatically sent from the SewaCircle360 Tech business operating system.</p>
+        </div>
+      `
+    }).catch(err => console.error("Consultation confirmation email failed to send:", err));
 
     return { success: "Consultation booked successfully! We will contact you soon.", meetingId: meeting.id };
   } catch (error) {

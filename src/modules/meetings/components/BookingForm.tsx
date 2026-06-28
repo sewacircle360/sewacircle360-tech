@@ -237,10 +237,10 @@ export function BookingForm() {
               className="w-full px-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-950/80 border border-border/80 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-primary/20 dark:focus:ring-accent/20 focus:border-primary dark:focus:border-accent text-foreground transition-all cursor-pointer"
             >
               <option value="Flexible">Flexible / Not Decided</option>
-              <option value="Under $5,000">Under $5,000</option>
-              <option value="$5,000 - $15,000">$5,000 - $15,005</option>
-              <option value="$15,000 - $35,000">$15,000 - $35,000</option>
-              <option value="$35,000+">$35,000+</option>
+              <option value="Under ₹50,000">Under ₹50,000</option>
+              <option value="₹50,000 - ₹2,00,000">₹50,000 - ₹2,00,000</option>
+              <option value="₹2,00,000 - ₹5,00,000">₹2,00,000 - ₹5,00,000</option>
+              <option value="₹5,00,000+">₹5,00,000+</option>
             </select>
           </div>
         </div>

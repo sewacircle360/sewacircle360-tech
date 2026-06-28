@@ -21,7 +21,7 @@ export function DashboardCharts() {
             Revenue Performance
           </h4>
           <span className="text-2xl font-extrabold font-display text-slate-800 dark:text-white mt-1 block">
-            $12,000.00
+            ₹12,000.00
           </span>
         </div>
         
@@ -35,7 +35,7 @@ export function DashboardCharts() {
                 </linearGradient>
               </defs>
               <XAxis dataKey="month" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} />
-              <YAxis stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} tickFormatter={(v) => `$${v}`} />
+              <YAxis stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} tickFormatter={(v) => `₹${v}`} />
               <Tooltip contentStyle={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: "8px", color: "#fff", fontSize: "12px" }} />
               <Area type="monotone" dataKey="revenue" stroke="#2563eb" strokeWidth={2.5} fillOpacity={1} fill="url(#colorRev)" />
             </AreaChart>

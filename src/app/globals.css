@@ -29,6 +29,12 @@
   --input: #e2e8f0;
   --ring: #2563eb;
   
+  --slate-350: #475569;
+  --slate-450: #334155;
+  --slate-550: #1e293b;
+  --slate-650: #0f172a;
+  --slate-850: #cbd5e1;
+
   --font-sans: var(--font-geist-sans), sans-serif;
   --font-mono: var(--font-geist-mono), monospace;
   --font-display: var(--font-space-grotesk), sans-serif;
@@ -62,6 +68,12 @@
   --border: #1e293b;
   --input: #1e293b;
   --ring: #06b6d4;
+  
+  --slate-350: #cbd5e1;
+  --slate-450: #94a3b8;
+  --slate-550: #64748b;
+  --slate-650: #cbd5e1;
+  --slate-850: #1e293b;
 }
 
 @theme inline {
@@ -84,6 +96,12 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  
+  --color-slate-350: var(--slate-350);
+  --color-slate-450: var(--slate-450);
+  --color-slate-550: var(--slate-550);
+  --color-slate-650: var(--slate-650);
+  --color-slate-850: var(--slate-850);
   
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);

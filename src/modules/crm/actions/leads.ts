@@ -3,6 +3,7 @@
 import { db } from "@/lib/db";
 import { LeadSchema, LeadInput } from "../schemas";
 import { revalidatePath } from "next/cache";
+import { sendEmail } from "@/lib/mail";
 
 export async function getLeads() {
   try {
@@ -45,8 +46,28 @@ export async function createLeadAction(values: LeadInput) {
     // Revalidate CRM views
     revalidatePath("/admin/crm");
     
-    // In production, trigger Render SMTP email automation here
     console.log(`CRM Alert: New Lead created with ID ${lead.id}. Email: ${lead.email}`);
+
+    // Send confirmation email via Resend
+    await sendEmail({
+      to: lead.email,
+      subject: "Project Inquiry Received | SewaCircle360 Tech",
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
+          <h2 style="color: #2563eb; margin-bottom: 20px;">Inquiry Received</h2>
+          <p>Hello <strong>${lead.name}</strong>,</p>
+          <p>Thank you for reaching out to SewaCircle360 Tech. We have received your project details and registered them in our CRM pipeline.</p>
+          <div style="background-color: #f8fafc; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <p style="margin: 5px 0;"><strong>Requested Service:</strong> ${lead.service}</p>
+            <p style="margin: 5px 0;"><strong>Est. Budget:</strong> ${lead.budget}</p>
+            <p style="margin: 5px 0;"><strong>Est. Timeline:</strong> ${lead.timeline}</p>
+          </div>
+          <p>A solutions architect will review your project scope and contact you shortly.</p>
+          <br/>
+          <p style="font-size: 12px; color: #64748b;">This is an automated notification from SewaCircle360 Tech.</p>
+        </div>
+      `
+    }).catch(err => console.error("Lead confirmation email failed to send:", err));
 
     return { success: "Thank you! Your project request has been submitted.", leadId: lead.id };
   } catch (error) {

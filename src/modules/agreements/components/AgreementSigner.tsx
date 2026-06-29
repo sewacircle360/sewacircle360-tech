@@ -70,45 +70,138 @@ export function AgreementSigner({ agreement }: AgreementSignerProps) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
       {/* Contract Viewer */}
-      <div className="lg:col-span-8 bg-white dark:bg-[#090d1f]/60 border dark:border-slate-800/80 rounded-3xl p-6 sm:p-10 shadow-sm">
-        <div className="border-b border-border/80 pb-5 mb-6 flex flex-wrap justify-between items-center gap-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-primary/10 text-primary dark:text-accent rounded-xl border border-primary/20">
-              <FileCheck className="h-5 w-5" />
+      <div className="lg:col-span-8 bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-3xl overflow-hidden shadow-xl">
+        {/* Cover Page Header Block */}
+        <div className="bg-[#050B14] p-8 sm:p-12 text-left relative overflow-hidden border-b border-slate-850">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+          
+          <div className="flex items-center gap-2 mb-8">
+            <span className="h-6 w-1 bg-primary inline-block" />
+            <span className="text-white font-bold font-display tracking-widest text-sm sm:text-base">
+              SewaCircle360 TECHNOLOGY
+            </span>
+          </div>
+
+          <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-primary block mb-2">
+            CORPORATE MASTER AGREEMENT
+          </span>
+          <h1 className="text-2xl sm:text-4xl font-extrabold font-display text-white tracking-tight leading-tight">
+            SOFTWARE DEVELOPMENT<br />AGREEMENT
+          </h1>
+
+          <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs border-t border-slate-800 pt-6">
+            <div className="flex flex-col gap-1">
+              <span className="text-slate-500 uppercase tracking-wider font-semibold">Project Title</span>
+              <span className="text-slate-200 font-bold">{agreement.title || "Custom Stock Management System"}</span>
             </div>
-            <div>
-              <h2 className="text-xl font-bold font-display text-slate-900 dark:text-white">
-                {agreement.title}
-              </h2>
-              <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider block mt-0.5">
-                Ref: {agreement.agreementNumber}
-              </span>
+            <div className="flex flex-col gap-1">
+              <span className="text-slate-500 uppercase tracking-wider font-semibold">Service Provider</span>
+              <span className="text-slate-200 font-bold">SewaCircle360 Technology</span>
+            </div>
+            <div className="flex flex-col gap-1 mt-2">
+              <span className="text-slate-500 uppercase tracking-wider font-semibold">Executive Leadership</span>
+              <span className="text-slate-200 font-medium">Deepak Bawa (Founder) & Riya Garg (Co-Founder)</span>
+            </div>
+            <div className="flex flex-col gap-1 mt-2">
+              <span className="text-slate-500 uppercase tracking-wider font-semibold">Agreement Reference</span>
+              <span className="text-primary font-bold font-mono">{agreement.agreementNumber}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Index & Clauses Container */}
+        <div className="p-6 sm:p-10 text-left">
+          {/* Index Section */}
+          <div className="mb-10 pb-8 border-b dark:border-slate-800">
+            <h3 className="text-sm font-bold uppercase tracking-widest text-slate-500 mb-4">
+              Document Outline
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-semibold text-slate-650 dark:text-slate-350">
+              <div className="flex justify-between border-b border-dashed dark:border-slate-800 pb-1">
+                <span>1. Parties to the Agreement</span>
+                <span className="text-primary">Page 3</span>
+              </div>
+              <div className="flex justify-between border-b border-dashed dark:border-slate-800 pb-1">
+                <span>2. Definitions & Interpretation</span>
+                <span className="text-primary">Page 3</span>
+              </div>
+              <div className="flex justify-between border-b border-dashed dark:border-slate-800 pb-1">
+                <span>3. Project Scope & Purpose</span>
+                <span className="text-primary">Page 4</span>
+              </div>
+              <div className="flex justify-between border-b border-dashed dark:border-slate-800 pb-1">
+                <span>4. Core Stock Management Features</span>
+                <span className="text-primary">Page 4</span>
+              </div>
+              <div className="flex justify-between border-b border-dashed dark:border-slate-800 pb-1">
+                <span>5. Cloud Hosting & Handover Policy</span>
+                <span className="text-primary">Page 5</span>
+              </div>
+              <div className="flex justify-between border-b border-dashed dark:border-slate-800 pb-1">
+                <span>6. Governing Law & Signatures</span>
+                <span className="text-primary">Page 9</span>
+              </div>
             </div>
           </div>
 
-          <span className={`text-[10px] font-bold px-2.5 py-1 rounded uppercase tracking-wider ${
-            isSigned 
-              ? "bg-green-500/10 text-green-500" 
-              : "bg-amber-500/10 text-amber-500"
-          }`}>
-            {isSigned ? "SIGNED & ACTIVE" : "PENDING SIGNATURE"}
-          </span>
-        </div>
+          {/* Contract Content */}
+          <div className="prose prose-slate dark:prose-invert max-w-none text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed bg-slate-50 dark:bg-slate-950/40 p-6 sm:p-8 rounded-2xl border dark:border-slate-800/80 min-h-[300px]">
+            {agreement.content.split("\n\n").map((para, idx) => (
+              <p key={idx} className="mb-4 last:mb-0">
+                {para}
+              </p>
+            ))}
+          </div>
 
-        {/* Contract Text */}
-        <div className="prose prose-slate dark:prose-invert max-w-none text-ccslate-650 dark:text-ccslate-350 text-sm sm:text-base leading-relaxed bg-slate-50 dark:bg-slate-950/40 p-6 rounded-2xl border dark:border-ccslate-850/80 min-h-[300px]">
-          {agreement.content.split("\n\n").map((para, idx) => (
-            <p key={idx} className="mb-4 last:mb-0">
-              {para}
-            </p>
-          ))}
+          {/* Corporate Signatures Footer Block */}
+          <div className="mt-12 pt-8 border-t dark:border-slate-800 grid grid-cols-1 sm:grid-cols-2 gap-8 text-xs">
+            {/* Developer Sign Block */}
+            <div className="flex flex-col gap-3 p-4 bg-slate-50 dark:bg-slate-950/40 rounded-xl border dark:border-slate-800/80">
+              <span className="font-bold text-slate-500 uppercase tracking-wider block border-b dark:border-slate-800 pb-1.5">
+                On Behalf of Developer
+              </span>
+              <div className="py-2">
+                <span className="font-serif italic text-lg text-slate-800 dark:text-slate-200">Deepak Bawa</span>
+                <div className="w-24 border-t border-slate-300 dark:border-slate-800 mt-1" />
+              </div>
+              <div className="flex flex-col gap-0.5">
+                <span className="text-slate-400">By: Deepak Bawa</span>
+                <span className="text-slate-400">Title: Founder & Executive Director</span>
+                <span className="text-slate-400">SewaCircle360 Technology</span>
+              </div>
+            </div>
+
+            {/* Client Sign Block */}
+            <div className="flex flex-col gap-3 p-4 bg-slate-50 dark:bg-slate-950/40 rounded-xl border dark:border-slate-800/80">
+              <span className="font-bold text-slate-500 uppercase tracking-wider block border-b dark:border-slate-800 pb-1.5">
+                On Behalf of Client
+              </span>
+              <div className="py-2">
+                {isSigned ? (
+                  <div 
+                    className="h-10 w-fit overflow-hidden"
+                    dangerouslySetInnerHTML={{ __html: agreement.clientSignature || "" }}
+                  />
+                ) : (
+                  <span className="text-slate-400 italic">Signature Pending...</span>
+                )}
+              </div>
+              <div className="flex flex-col gap-0.5">
+                <span className="text-slate-400">By: {signatureName || agreement.clientSignature ? "Authorized Client" : "________________"}</span>
+                <span className="text-slate-400">Title: Representative / Owner</span>
+                <span className="text-slate-400">
+                  Signed At: {agreement.signedAt ? new Date(agreement.signedAt).toLocaleString() : "Pending"}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Signature Execution Panel */}
-      <div className="lg:col-span-4 bg-white dark:bg-[#090d1f]/60 border dark:border-slate-800/80 rounded-2xl p-6 shadow-sm flex flex-col gap-6">
-        <span className="text-sm font-bold uppercase tracking-wider text-slate-400 border-b border-border/80 pb-3">
-          Sign Contract
+      <div className="lg:col-span-4 bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-3xl p-6 shadow-xl flex flex-col gap-6 text-left">
+        <span className="text-sm font-bold uppercase tracking-wider text-slate-400 border-b dark:border-slate-800 pb-3">
+          Execute Contract
         </span>
 
         {isSigned ? (
@@ -119,17 +212,9 @@ export function AgreementSigner({ agreement }: AgreementSignerProps) {
             <h3 className="font-bold text-slate-900 dark:text-white font-display">
               Agreement Executed
             </h3>
-            <p className="text-xs text-slate-500 dark:text-ccslate-450 leading-relaxed">
+            <p className="text-xs text-slate-505 dark:text-slate-400 leading-relaxed">
               This document has been electronically signed and timestamped. Copies are archived in the client portal vault.
             </p>
-            
-            {/* Display SVG Signature */}
-            {agreement.clientSignature && (
-              <div 
-                className="p-3 border dark:border-slate-800 bg-white dark:bg-slate-950 rounded-xl mt-4 w-full flex items-center justify-center"
-                dangerouslySetInnerHTML={{ __html: agreement.clientSignature }}
-              />
-            )}
           </div>
         ) : (
           <form onSubmit={handleSign} className="space-y-5">

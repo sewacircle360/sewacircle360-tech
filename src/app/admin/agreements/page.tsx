@@ -1,20 +1,35 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { getAgreements } from "@/modules/admin/actions/dashboard";
-import { FileCheck2, Eye, Calendar, UserCheck, Plus } from "lucide-react";
+import { useState, useEffect, useTransition } from "react";
+import { getAgreements, sendAgreementEmailAction } from "@/modules/admin/actions/dashboard";
+import { FileCheck2, Eye, Calendar, UserCheck, Plus, Send } from "lucide-react";
 import Link from "next/link";
 
 export default function AdminAgreementsPage() {
   const [agreements, setAgreements] = useState<any[]>([]);
+  const [isPending, startTransition] = useTransition();
+
+  const loadAgreements = async () => {
+    const data = await getAgreements();
+    setAgreements(data);
+  };
 
   useEffect(() => {
-    async function load() {
-      const data = await getAgreements();
-      setAgreements(data);
-    }
-    load();
+    loadAgreements();
   }, []);
+
+  const handleSendEmail = (agreementId: string) => {
+    if (!confirm("Are you sure you want to email this agreement to the client?")) return;
+    startTransition(async () => {
+      const res = await sendAgreementEmailAction(agreementId);
+      if (res.error) {
+        alert(res.error);
+      } else {
+        alert(res.success || "Agreement sent!");
+        loadAgreements();
+      }
+    });
+  };
 
   return (
     <div className="flex flex-col gap-6 text-left">
@@ -52,7 +67,7 @@ export default function AdminAgreementsPage() {
                   <th className="py-4 px-6">Client Profile</th>
                   <th className="py-4 px-6">Sign Status</th>
                   <th className="py-4 px-6">Signature Date</th>
-                  <th className="py-4 px-6 text-right">View</th>
+                  <th className="py-4 px-6 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/60 dark:divide-slate-800/60">
@@ -73,6 +88,7 @@ export default function AdminAgreementsPage() {
                     <td className="py-4 px-6">
                       <span className={`text-[9px] font-bold px-2 py-0.5 rounded uppercase ${
                         agr.status === "SIGNED" ? "bg-green-500/15 text-green-500 border border-green-500/20" :
+                        agr.status === "DRAFT" ? "bg-amber-500/15 text-amber-500 border border-amber-500/20" :
                         "bg-slate-500/15 text-slate-500 border border-slate-500/20"
                       }`}>
                         {agr.status}
@@ -82,12 +98,26 @@ export default function AdminAgreementsPage() {
                       {agr.signedAt ? new Date(agr.signedAt).toLocaleDateString() : "—"}
                     </td>
                     <td className="py-4 px-6 text-right">
-                      <Link
-                        href={`/portal/agreements/${agr.id}`}
-                        className="inline-flex p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-400 hover:text-slate-750 transition-all cursor-pointer"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Link>
+                      <div className="flex justify-end gap-2 items-center">
+                        <Link
+                          href={`/portal/agreements/${agr.id}`}
+                          target="_blank"
+                          className="inline-flex p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-400 hover:text-slate-750 transition-all cursor-pointer"
+                          title="View SLA Review Sheet"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Link>
+                        {agr.status === "DRAFT" && (
+                          <button
+                            onClick={() => handleSendEmail(agr.id)}
+                            disabled={isPending}
+                            className="inline-flex p-1.5 hover:bg-primary/10 rounded-lg text-slate-400 hover:text-primary transition-all cursor-pointer bg-transparent border-0 disabled:opacity-50"
+                            title="Email to Client"
+                          >
+                            <Send className="h-4 w-4" />
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}

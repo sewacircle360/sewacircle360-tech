@@ -36,6 +36,7 @@ export default function NewAgreementPage() {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [statusOption, setStatusOption] = useState<"DRAFT" | "SENT">("SENT");
   const router = useRouter();
 
   useEffect(() => {
@@ -98,7 +99,8 @@ export default function NewAgreementPage() {
         currency,
         milestone1Percent: percent1,
         milestone2Percent: percent2,
-        milestone3Percent: percent3
+        milestone3Percent: percent3,
+        status: statusOption
       });
 
       if (result.error) {
@@ -377,25 +379,41 @@ export default function NewAgreementPage() {
             )}
 
             {/* Actions */}
-            <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800/85">
+            <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800/85 flex-wrap">
               <Link
                 href="/admin/agreements"
-                className="px-5 py-2.5 text-xs font-bold text-slate-500 hover:text-slate-700 bg-slate-100 dark:bg-slate-900 border rounded-xl"
+                className="px-4 py-2.5 text-xs font-bold text-slate-500 hover:text-slate-700 bg-slate-100 dark:bg-slate-900 border rounded-xl"
               >
                 Cancel
               </Link>
               <button
                 type="submit"
+                onClick={() => setStatusOption("DRAFT")}
                 disabled={isPending || (clientType === "registered" && clients.length === 0)}
-                className="px-5 py-2.5 text-xs font-bold text-white bg-primary hover:bg-primary/90 rounded-xl flex items-center gap-2 cursor-pointer disabled:opacity-75 disabled:pointer-events-none"
+                className="px-4 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-xl hover:bg-slate-50 transition-all cursor-pointer disabled:opacity-75 disabled:pointer-events-none"
               >
-                {isPending ? (
+                {isPending && statusOption === "DRAFT" ? (
                   <>
                     <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    Generating SLA...
+                    Saving...
                   </>
                 ) : (
-                  "Create & Email Agreement"
+                  "Save Draft Only"
+                )}
+              </button>
+              <button
+                type="submit"
+                onClick={() => setStatusOption("SENT")}
+                disabled={isPending || (clientType === "registered" && clients.length === 0)}
+                className="px-4 py-2.5 text-xs font-bold text-white bg-primary hover:bg-primary/90 rounded-xl flex items-center gap-2 cursor-pointer disabled:opacity-75 disabled:pointer-events-none"
+              >
+                {isPending && statusOption === "SENT" ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin font-medium" />
+                    Sending Email...
+                  </>
+                ) : (
+                  "Create & Email Client"
                 )}
               </button>
             </div>

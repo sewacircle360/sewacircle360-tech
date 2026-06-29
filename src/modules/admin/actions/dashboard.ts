@@ -2,6 +2,7 @@
 
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { sendEmail } from "@/lib/mail";
 
 // Clients
 export async function getClients() {
@@ -128,6 +129,7 @@ export async function createAgreementAction(data: {
   milestone1Percent: number;
   milestone2Percent: number;
   milestone3Percent: number;
+  status?: string; // DRAFT or SENT
 }) {
   try {
     let clientId = data.clientId;
@@ -265,6 +267,7 @@ In consideration of the custom software development services provided by SewaCir
 - This Agreement and its interpretation shall be governed by and construed in accordance with the laws of India. All legal matters fall under the exclusive territorial jurisdiction of the courts located in the state of the Developer's corporate headquarters.`;
 
     const agreementNumber = "SCA-" + Math.floor(100000 + Math.random() * 900000);
+    const agreementStatus = data.status || "SENT";
 
     const agreement = await db.agreement.create({
       data: {
@@ -272,14 +275,77 @@ In consideration of the custom software development services provided by SewaCir
         clientId,
         title: data.projectName + " Software Development Agreement",
         content: documentText,
-        status: "SENT",
+        status: agreementStatus,
       }
     });
 
+    if (agreementStatus === "SENT") {
+      await sendEmail({
+        to: client.email,
+        subject: `Review & Sign: ${data.projectName} Software Development Agreement`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 12px;">
+            <h2 style="color: #6366f1; text-align: center;">Software Development Agreement</h2>
+            <p>Hello ${client.ownerName},</p>
+            <p>A Software Development Agreement has been generated for your project: <strong>${data.projectName}</strong>.</p>
+            <p>Please click the button below to review the document terms, milestones, and sign it electronically:</p>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="https://sewacircle360tech.online/portal/agreements/${agreement.id}" style="background-color: #6366f1; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Review & Sign Agreement</a>
+            </div>
+            <hr style="border: 0; border-top: 1px solid #e0e0e0; margin: 20px 0;" />
+            <p style="font-size: 10px; color: #9ca3af; text-align: center;">© SewaCircle360 Technologies.</p>
+          </div>
+        `
+      }).catch(err => console.error("Agreement email trigger failed:", err));
+    }
+
     revalidatePath("/admin/agreements");
-    return { success: "Agreement created and sent successfully!", agreementId: agreement.id };
+    return { success: agreementStatus === "DRAFT" ? "Draft saved successfully!" : "Agreement sent successfully!", agreementId: agreement.id };
   } catch (error) {
     console.error("createAgreementAction error:", error);
     return { error: "Failed to create agreement." };
+  }
+}
+
+// Manual email dispatch for Draft Agreements
+export async function sendAgreementEmailAction(agreementId: string) {
+  try {
+    const agreement = await db.agreement.findUnique({
+      where: { id: agreementId },
+      include: { client: true }
+    });
+
+    if (!agreement || !agreement.client) {
+      return { error: "Agreement or Client not found." };
+    }
+
+    await sendEmail({
+      to: agreement.client.email,
+      subject: `Review & Sign: ${agreement.title}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 12px;">
+          <h2 style="color: #6366f1; text-align: center;">Software Development Agreement</h2>
+          <p>Hello ${agreement.client.ownerName},</p>
+          <p>A Software Development Agreement is ready for your project: <strong>${agreement.title}</strong>.</p>
+          <p>Please click the button below to review the document terms, milestones, and sign it electronically:</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="https://sewacircle360tech.online/portal/agreements/${agreement.id}" style="background-color: #6366f1; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Review & Sign Agreement</a>
+          </div>
+          <hr style="border: 0; border-top: 1px solid #e0e0e0; margin: 20px 0;" />
+          <p style="font-size: 10px; color: #9ca3af; text-align: center;">© SewaCircle360 Technologies.</p>
+        </div>
+      `
+    });
+
+    await db.agreement.update({
+      where: { id: agreementId },
+      data: { status: "SENT" }
+    });
+
+    revalidatePath("/admin/agreements");
+    return { success: "Agreement email sent to client!" };
+  } catch (error) {
+    console.error("sendAgreementEmailAction error:", error);
+    return { error: "Failed to send email." };
   }
 }

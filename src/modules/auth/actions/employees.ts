@@ -3,6 +3,7 @@
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import bcrypt from "bcryptjs";
+import { sendEmail } from "@/lib/mail";
 
 export async function createEmployee(data: { name: string; email: string }) {
   try {
@@ -33,6 +34,27 @@ export async function createEmployee(data: { name: string; email: string }) {
         mustChangePassword: true, // Forces password update on first login
       }
     });
+
+    // Send email with credentials to employee
+    await sendEmail({
+      to: data.email,
+      subject: "Your SewaCircle360 Employee Portal Account",
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 12px;">
+          <h2 style="color: #6366f1; text-align: center;">Welcome to SewaCircle360 Team</h2>
+          <p>Hello ${data.name},</p>
+          <p>An employee portal account has been created for you. You can log in using the details below to view assigned tasks, client project boards, and consultations:</p>
+          <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <p style="margin: 5px 0;"><strong>Portal URL:</strong> <a href="https://sewacircle360tech.online/auth/login">https://sewacircle360tech.online/auth/login</a></p>
+            <p style="margin: 5px 0;"><strong>Username / Email:</strong> ${data.email}</p>
+            <p style="margin: 5px 0;"><strong>Temporary Password:</strong> 123456789</p>
+          </div>
+          <p style="color: #ef4444; font-size: 11px;">Note: You will be prompted to change your password immediately upon your first login for security.</p>
+          <hr style="border: 0; border-top: 1px solid #e0e0e0; margin: 20px 0;" />
+          <p style="font-size: 10px; color: #9ca3af; text-align: center;">© SewaCircle360 Technologies.</p>
+        </div>
+      `
+    }).catch(err => console.error("Employee email trigger failed:", err));
 
     revalidatePath("/admin/employees");
     return { success: "Employee registered successfully! Default login password is: 123456789", employee };

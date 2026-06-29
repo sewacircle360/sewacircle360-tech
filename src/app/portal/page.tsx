@@ -31,7 +31,7 @@ export default async function ClientPortalPage() {
     redirect("/auth/login");
   }
 
-  const currentUserId = session.user.id;
+  const currentUserId = session.user.id || "client-id";
   const currentUserName = session.user.name || "Client Owner";
 
   let client = await getClientByUserId(session.user.id);

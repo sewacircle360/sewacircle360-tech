@@ -28,7 +28,8 @@ import {
   Search,
   Activity,
   Award,
-  GraduationCap
+  GraduationCap,
+  LifeBuoy
 } from "lucide-react";
 
 // Sidebar Links categorized by logical business function
@@ -43,6 +44,7 @@ const NAV_GROUPS = [
       { label: "Students Directory", href: "/admin/students", icon: GraduationCap },
       { label: "Academic Requests", href: "/admin/academic-requests", icon: Award },
       { label: "Projects Pipeline", href: "/admin/projects", icon: Briefcase },
+      { label: "Support Tickets", href: "/admin/tickets", icon: LifeBuoy },
     ]
   },
   {

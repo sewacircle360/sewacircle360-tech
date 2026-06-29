@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { getClientByUserId } from "@/modules/clients/actions/clients";
 import { Logo } from "@/components/ui/Logo";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { FolderCheck, Receipt, FileText, LayoutDashboard, LogOut, User } from "lucide-react";
+import { FolderCheck, Receipt, FileText, LayoutDashboard, LogOut, User, LifeBuoy } from "lucide-react";
 import Link from "next/link";
 import { db } from "@/lib/db";
  
@@ -105,6 +105,10 @@ export default async function PortalLayout({
           <Link href="/portal" className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-ccslate-650 hover:text-primary dark:text-slate-300 dark:hover:text-accent transition-colors">
             <FolderCheck className="h-3.5 w-3.5" />
             Projects
+          </Link>
+          <Link href="/portal/tickets" className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-ccslate-650 hover:text-primary dark:text-slate-300 dark:hover:text-accent transition-colors">
+            <LifeBuoy className="h-3.5 w-3.5" />
+            Support Desk
           </Link>
           <Link href="/portal/profile" className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-ccslate-650 hover:text-primary dark:text-slate-300 dark:hover:text-accent transition-colors">
             <User className="h-3.5 w-3.5" />

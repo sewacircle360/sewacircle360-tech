@@ -5,16 +5,18 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { LoginSchema, LoginInput } from "../schemas";
-import { loginAction } from "../actions/login";
 import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight, AlertCircle, CheckCircle2 } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import Link from "next/link";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   const {
     register,
@@ -35,18 +37,25 @@ export function LoginForm() {
 
     startTransition(async () => {
       try {
-        const result = await loginAction(data);
-        if (result?.error) {
-          setError(result.error);
-        } else if (result?.redirectTo) {
-          setSuccess(result.success || "Logged in successfully!");
+        const res = await signIn("credentials", {
+          email: data.email,
+          password: data.password,
+          redirect: false,
+        });
+
+        if (res?.error) {
+          setError("Invalid email or password. Please check your credentials.");
+        } else {
+          setSuccess("Logged in successfully! Redirecting...");
+          // We can read user session info to redirect or let middleware route it.
+          // Since we want to redirect to /admin, we push there.
           setTimeout(() => {
-            window.location.href = result.redirectTo;
+            window.location.href = "/admin";
           }, 800);
         }
       } catch (err) {
         console.error("Client side login error:", err);
-        setError(`Connection Error: ${err instanceof Error ? err.message : String(err)}`);
+        setError("An unexpected authentication error occurred.");
       }
     });
   };

@@ -1,6 +1,7 @@
 import type { NextAuthConfig } from "next-auth";
 
 export const authConfig: NextAuthConfig = {
+  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
   pages: {
     signIn: "/auth/login",
   },
@@ -30,17 +31,17 @@ export const authConfig: NextAuthConfig = {
           if (isOnDashboard && (role !== "SUPER_ADMIN" && role !== "ADMIN" && role !== "EMPLOYEE")) {
             if (role === "CLIENT") return Response.redirect(new URL("/portal", nextUrl));
             if (role === "STUDENT") return Response.redirect(new URL("/student", nextUrl));
-            return false;
+            return Response.redirect(new URL(`/auth/login?middleware_error=DashboardRoleMismatch&role=${role}`, nextUrl));
           }
           if (isOnClientPortal && role !== "CLIENT" && role !== "SUPER_ADMIN" && role !== "ADMIN") {
-            return Response.redirect(new URL("/auth/login", nextUrl));
+            return Response.redirect(new URL(`/auth/login?middleware_error=ClientRoleMismatch&role=${role}`, nextUrl));
           }
           if (isOnStudentPortal && role !== "STUDENT" && role !== "SUPER_ADMIN" && role !== "ADMIN") {
-            return Response.redirect(new URL("/auth/login", nextUrl));
+            return Response.redirect(new URL(`/auth/login?middleware_error=StudentRoleMismatch&role=${role}`, nextUrl));
           }
           return true;
         }
-        return false; // Redirect to login
+        return Response.redirect(new URL("/auth/login?middleware_error=NotLoggedIn", nextUrl));
       }
       return true;
     },

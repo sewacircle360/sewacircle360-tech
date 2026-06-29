@@ -21,6 +21,9 @@ const spaceGrotesk = Space_Grotesk({
 export const metadata: Metadata = {
   title: "SewaCircle360 Technologies | Engineering Digital Excellence",
   description: "Enterprise software development, SaaS products, custom websites, and digital transformation services.",
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || "",
+  }
 };
 
 export default function RootLayout({

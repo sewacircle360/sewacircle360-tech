@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { signAgreementAction } from "../actions/agreements";
-import { FileCheck, Save, Loader2, AlertCircle, Sparkles, User, Info } from "lucide-react";
+import { FileCheck, Save, Loader2, AlertCircle, Sparkles, User, Info, Printer } from "lucide-react";
 
 interface Agreement {
   id: string;
@@ -68,7 +68,50 @@ export function AgreementSigner({ agreement }: AgreementSignerProps) {
   const isSigned = agreement.status === "SIGNED" || !!success;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    <div className="flex flex-col gap-4 text-left">
+      {/* Print styles override */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media print {
+          body {
+            background: white !important;
+            color: black !important;
+          }
+          .no-print, button, aside, nav, header, [role="navigation"] {
+            display: none !important;
+          }
+          main {
+            padding: 0 !important;
+            margin: 0 !important;
+            background: white !important;
+          }
+          .grid {
+            display: block !important;
+          }
+          .lg\\:col-span-8 {
+            width: 100% !important;
+            max-width: 100% !important;
+            border: none !important;
+            box-shadow: none !important;
+            background: white !important;
+            padding: 0 !important;
+          }
+          .lg\\:col-span-4 {
+            display: none !important;
+          }
+        }
+      `}} />
+
+      {/* Download PDF Button */}
+      <div className="flex justify-end gap-2 mb-2 no-print">
+        <button
+          onClick={() => window.print()}
+          className="flex items-center gap-1.5 py-2 px-4 text-xs font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-xl hover:bg-slate-50 transition-all cursor-pointer shadow-sm"
+        >
+          <Printer className="h-4 w-4" /> Download PDF / Print
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
       {/* Contract Viewer */}
       <div className="lg:col-span-8 bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-3xl overflow-hidden shadow-xl">
         {/* Cover Page Header Block */}
@@ -290,6 +333,7 @@ export function AgreementSigner({ agreement }: AgreementSignerProps) {
           </form>
         )}
       </div>
+    </div>
     </div>
   );
 }

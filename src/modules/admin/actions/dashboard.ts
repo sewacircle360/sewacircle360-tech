@@ -108,3 +108,178 @@ export async function getAuditLogs() {
     return [];
   }
 }
+
+// Agreement Creator & Auto Client Creation
+export async function createAgreementAction(data: {
+  clientType: "registered" | "manual";
+  clientId?: string;
+  manualClient?: {
+    companyName: string;
+    ownerName: string;
+    email: string;
+    phone?: string;
+    address?: string;
+    gst?: string;
+  };
+  projectName: string;
+  timeline: string;
+  totalBudget: number;
+  currency: string;
+  milestone1Percent: number;
+  milestone2Percent: number;
+  milestone3Percent: number;
+}) {
+  try {
+    let clientId = data.clientId;
+
+    // Create client profile on the fly if manual unregistered client option was used
+    if (data.clientType === "manual" && data.manualClient) {
+      // Check if client with this email already exists
+      const existingClient = await db.client.findUnique({
+        where: { email: data.manualClient.email }
+      });
+
+      if (existingClient) {
+        clientId = existingClient.id;
+      } else {
+        const client = await db.client.create({
+          data: {
+            companyName: data.manualClient.companyName,
+            ownerName: data.manualClient.ownerName,
+            email: data.manualClient.email,
+            phone: data.manualClient.phone || null,
+            address: data.manualClient.address || null,
+            gst: data.manualClient.gst || null,
+          }
+        });
+        clientId = client.id;
+      }
+    }
+
+    if (!clientId) {
+      return { error: "No valid client profile selected or created." };
+    }
+
+    // Retrieve client details for the document assembly
+    const client = await db.client.findUnique({
+      where: { id: clientId }
+    });
+
+    if (!client) {
+      return { error: "Client not found in database." };
+    }
+
+    // Calculate Milestone amounts
+    const amt1 = (data.totalBudget * data.milestone1Percent) / 100;
+    const amt2 = (data.totalBudget * data.milestone2Percent) / 100;
+    const amt3 = (data.totalBudget * data.milestone3Percent) / 100;
+    const formatCurrency = (val: number) => `${data.currency} ${val.toLocaleString("en-IN")}`;
+
+    // Auto-Generate Software Development Agreement Document Text
+    const documentText = `SOFTWARE DEVELOPMENT AGREEMENT
+
+This Software Development Agreement (hereinafter referred to as the "Agreement") is entered into and made effective as of ${new Date().toLocaleDateString("en-IN")}, by and between the following contracting parties:
+
+1. PARTIES TO THE AGREEMENT
+DEVELOPER / SERVICE PROVIDER: SewaCircle360 Technology, operating under the executive leadership of Deepak Bawa (Founder) and Riya Garg (Co-Founder) (hereinafter referred to as the "Developer").
+AND
+THE CLIENT: ${client.ownerName} representing ${client.companyName}, having its primary place of business operations at ${client.address || "Client Address"} (hereinafter referred to as the "Client").
+
+2. DEFINITIONS & INTERPRETATION
+- "System" / "Software": Refers explicitly to the Custom ${data.projectName} System developed tailored for the Client's specific requirements.
+- "Specifications": The documented list of software requirements, user dashboards, and technical protocols explicitly articulated in this document.
+- "Deliverables": The specific functional code packages, active deployment setups, or architectural configurations scheduled for handover.
+
+3. PROJECT SCOPE & PURPOSE
+The core objective of this corporate engagement is the engineering and deployment of a secure, professional Custom ${data.projectName} System. The software is designed to provide comprehensive, automated, and centralized visibility into the Client's business workflow.
+
+4. CORE STOCK MANAGEMENT FEATURES
+The Developer explicitly agrees to build, configure, and integrate the following functional modules making up the comprehensive core architecture:
+- Core UI Layout & Custom User Workflows.
+- Database Infrastructure & Schema Mapping.
+- Interactive Dashboard Reports.
+- Role-based Security Permissions & Data Auditing.
+
+5. CLOUD HOSTING, INFRASTRUCTURE & CREDENTIALS POLICY
+To establish operational security and corporate transparency, the deployment infrastructure rules are declared as follows:
+- Third-Party Infrastructure & Billing: All external server fees, domain rates, or computing costs are the sole financial responsibility of the Client.
+- Render Cloud / Hosting Charges: The system will initially be deployed using hosting infrastructure configurations via Render or Vercel.
+- Secure Technical Handover: Following successful live deployment and final project submission, all account controls will be formally delivered to the Client starting exactly one (1) week following final deployment.
+
+6. DELIVERABLES
+- Custom software build deployed live on the client's cloud environment.
+- Normalized relational database schema.
+- Operations manual covering credentials and control guidelines.
+
+7. PROJECT TIMELINE & MILESTONES
+- Phase I (Setup): Account linking, database architecture, and initial backend setup (Weeks 1 - 2).
+- Phase II (Core Build): Core system building and dashboards (Weeks 3 - 5).
+- Phase III (QA): Integration checks, bug testing, and permission locks (Weeks 6 - 7).
+- Phase IV (Launch): Handover and production deployment (${data.timeline}).
+
+8. PAYMENT TERMS & FINANCIAL SCHEDULE
+In consideration of the custom software development services provided by SewaCircle360 Technology, the Client agrees to make payments according to the following corporate milestone schedule:
+- Milestone 1: ${data.milestone1Percent}% Advance Payment - Amount: ${formatCurrency(amt1)}. Due immediately upon execution of this Agreement prior to the start of development. This payment is strictly non-refundable.
+- Milestone 2: ${data.milestone2Percent}% Demo Stage Payment - Amount: ${formatCurrency(amt2)}. Due immediately following completion of core system demonstrations and dashboard screens.
+- Milestone 3: ${data.milestone3Percent}% Final Submission Payment - Amount: ${formatCurrency(amt3)}. Due immediately prior to the final production live release and credential handover.
+
+9. CLIENT RESPONSIBILITIES
+- Providing all baseline content, branding assets, and server access credentials within seven (7) days of project launch.
+- Providing timely feedback during review intervals, ensuring developer queries are answered within 48 business hours.
+
+10. REVISION POLICY
+- The Client is entitled to a maximum of three (3) iterative rounds of revisions. Revisions are restricted to user interface fine-tuning, layout structuring, or minor field adjustments.
+- Any request for entirely new functional features or structural logic changes will require a separate written addendum outlining additional engineering costs.
+
+11. TESTING & USER ACCEPTANCE (UAT)
+- The Client shall have seven (7) calendar days to evaluate the system on a staging setup.
+- If the Client fails to provide formal defect feedback within this 7-day Testing Window, the system will be legally deemed accepted, and the final payment milestone will become due.
+
+12. WARRANTY & SUPPORT
+- The Developer grants a 30-day post-launch technical warranty. This warranty covers resolving database bugs or system crashes at no extra charge.
+
+13. MAINTENANCE & AMC
+- Following the expiration of the 30-day warranty, the Client can opt for a structured Annual Maintenance Contract (AMC) negotiated independently.
+
+14. CONFIDENTIALITY (NDA)
+- Both parties agree to hold all shared corporate data, business processes, and source code in strict confidence.
+
+15. INTELLECTUAL PROPERTY RIGHTS
+- Pre-Existing Materials: The Developer retains ownership over all pre-existing utility frameworks used.
+- Custom Deliverables: Upon clear receipt of the final payment milestone, ownership of the custom frontend system layout and database configuration will transfer to the Client.
+
+16. DATA PROTECTION
+- The Developer will implement secure database protection parameters during development. The Client maintains ownership over all database entries logged into the system.
+
+17. LIMITATION OF LIABILITY
+- In no event shall either party be liable for any indirect or consequential damages. The maximum financial liability of the Developer under this Agreement shall be strictly capped at the total amount actually paid by the Client.
+
+18. FORCE MAJEURE
+- Neither party shall be held liable for failure or delays caused by events beyond their reasonable control, including natural disasters, national lockouts, or civil unrest.
+
+19. TERMINATION & CANCELLATION
+- For Convenience: The Client may terminate this agreement by providing fourteen (14) days advance written notice. All advance payments up to that point remain non-refundable.
+- For Material Breach: Either party may terminate if the other party fails to cure a material breach within fourteen (14) days of receiving written notice.
+
+20. GOVERNING LAW & JURISDICTION
+- This Agreement and its interpretation shall be governed by and construed in accordance with the laws of India. All legal matters fall under the exclusive territorial jurisdiction of the courts located in the state of the Developer's corporate headquarters.`;
+
+    const agreementNumber = "SCA-" + Math.floor(100000 + Math.random() * 900000);
+
+    const agreement = await db.agreement.create({
+      data: {
+        agreementNumber,
+        clientId,
+        title: data.projectName + " Software Development Agreement",
+        content: documentText,
+        status: "SENT",
+      }
+    });
+
+    revalidatePath("/admin/agreements");
+    return { success: "Agreement created and sent successfully!", agreementId: agreement.id };
+  } catch (error) {
+    console.error("createAgreementAction error:", error);
+    return { error: "Failed to create agreement." };
+  }
+}

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { getAgreements } from "@/modules/admin/actions/dashboard";
-import { FileCheck2, Eye, Calendar, UserCheck } from "lucide-react";
+import { FileCheck2, Eye, Calendar, UserCheck, Plus } from "lucide-react";
 import Link from "next/link";
 
 export default function AdminAgreementsPage() {
@@ -18,13 +18,21 @@ export default function AdminAgreementsPage() {
 
   return (
     <div className="flex flex-col gap-6 text-left">
-      <div>
-        <h1 className="text-2xl font-bold font-display text-slate-900 dark:text-white leading-none">
-          Client Agreements
-        </h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-          Review legal contracts, verify client e-signatures, and monitor active master service agreements.
-        </p>
+      <div className="flex justify-between items-center flex-wrap gap-4">
+        <div>
+          <h1 className="text-2xl font-bold font-display text-slate-900 dark:text-white leading-none">
+            Client Agreements
+          </h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            Review legal contracts, verify client e-signatures, and monitor active master service agreements.
+          </p>
+        </div>
+        <Link
+          href="/admin/agreements/new"
+          className="flex items-center gap-1.5 py-2.5 px-4 text-xs font-bold text-white bg-primary hover:bg-primary/95 rounded-xl transition-all duration-300 shadow-md shadow-primary/10 cursor-pointer"
+        >
+          <Plus className="h-4 w-4" /> Create Agreement
+        </Link>
       </div>
 
       <div className="bg-white dark:bg-[#090d1f]/60 border dark:border-slate-800/80 rounded-2xl shadow-sm overflow-hidden">

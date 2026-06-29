@@ -3,6 +3,27 @@
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
+// Generate a URL-friendly slug from a project name
+function generateSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .slice(0, 60);
+}
+
+// Ensure slug is unique by appending a number if needed
+async function uniqueSlug(base: string): Promise<string> {
+  let slug = base;
+  let counter = 1;
+  while (await db.project.findFirst({ where: { slug } })) {
+    slug = `${base}-${counter++}`;
+  }
+  return slug;
+}
+
 // Project Query and Mutation Actions
 export async function getProjects() {
   try {
@@ -33,10 +54,34 @@ export async function getProjectById(id: string) {
           orderBy: { dueDate: "asc" },
           include: { assignedTo: true }
         },
+        invoices: { orderBy: { createdAt: "desc" } },
       }
     });
   } catch (error) {
     console.error("getProjectById error:", error);
+    return null;
+  }
+}
+
+export async function getProjectBySlug(slug: string) {
+  try {
+    return await db.project.findUnique({
+      where: { slug },
+      include: {
+        client: true,
+        manager: true,
+        developers: true,
+        designers: true,
+        milestones: { orderBy: { dueDate: "asc" } },
+        tasks: { 
+          orderBy: { dueDate: "asc" },
+          include: { assignedTo: true }
+        },
+        invoices: { orderBy: { createdAt: "desc" } },
+      }
+    });
+  } catch (error) {
+    console.error("getProjectBySlug error:", error);
     return null;
   }
 }
@@ -48,13 +93,18 @@ export async function createProject(data: {
   startDate?: Date;
   deadline?: Date;
   budget?: number;
+  status?: string;
   developerIds?: string[];
   designerIds?: string[];
 }) {
   try {
+    const baseSlug = generateSlug(data.name);
+    const slug = await uniqueSlug(baseSlug);
+
     const project = await db.project.create({
       data: {
         name: data.name,
+        slug,
         clientId: data.clientId,
         managerId: data.managerId || null,
         startDate: data.startDate || null,
@@ -62,13 +112,13 @@ export async function createProject(data: {
         budget: data.budget || null,
         developerIds: data.developerIds || [],
         designerIds: data.designerIds || [],
-        status: "PLANNING",
+        status: data.status || "PLANNING",
         progress: 0,
       }
     });
 
     revalidatePath("/admin/projects");
-    return { success: "Project created successfully!", projectId: project.id };
+    return { success: "Project created successfully!", projectId: project.id, slug: project.slug };
   } catch (error) {
     console.error("createProject error:", error);
     return { error: "Failed to create project." };
@@ -81,7 +131,7 @@ export async function updateProjectStatus(id: string, status: string) {
       where: { id },
       data: { status }
     });
-    revalidatePath(`/admin/projects/${id}`);
+    revalidatePath(`/admin/projects/${project.slug}`);
     revalidatePath("/admin/projects");
     return { success: "Project status updated!", project };
   } catch (error) {
@@ -96,7 +146,7 @@ export async function updateProjectProgress(id: string, progress: number) {
       where: { id },
       data: { progress }
     });
-    revalidatePath(`/admin/projects/${id}`);
+    revalidatePath(`/admin/projects/${project.slug}`);
     revalidatePath("/admin/projects");
     return { success: "Project progress updated!", project };
   } catch (error) {
@@ -122,7 +172,7 @@ export async function createMilestone(data: {
         status: "PENDING",
       }
     });
-    revalidatePath(`/admin/projects/${data.projectId}`);
+    revalidatePath(`/admin/projects`);
     return { success: "Milestone created successfully!", milestone };
   } catch (error) {
     console.error("createMilestone error:", error);
@@ -136,7 +186,7 @@ export async function updateMilestoneStatus(id: string, projectId: string, statu
       where: { id },
       data: { status }
     });
-    revalidatePath(`/admin/projects/${projectId}`);
+    revalidatePath(`/admin/projects`);
     return { success: "Milestone status updated!", milestone };
   } catch (error) {
     console.error("updateMilestoneStatus error:", error);
@@ -165,7 +215,7 @@ export async function createTask(data: {
         dueDate: data.dueDate || null,
       }
     });
-    revalidatePath(`/admin/projects/${data.projectId}`);
+    revalidatePath(`/admin/projects`);
     return { success: "Task created successfully!", task };
   } catch (error) {
     console.error("createTask error:", error);
@@ -179,7 +229,7 @@ export async function updateTaskStatus(id: string, projectId: string, status: st
       where: { id },
       data: { status }
     });
-    revalidatePath(`/admin/projects/${projectId}`);
+    revalidatePath(`/admin/projects`);
     return { success: "Task status updated!", task };
   } catch (error) {
     console.error("updateTaskStatus error:", error);

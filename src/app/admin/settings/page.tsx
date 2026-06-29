@@ -1,9 +1,11 @@
 import { db } from "@/lib/db";
 import { getPageBySlug } from "@/modules/cms/actions/pages";
 import { VisualEditor } from "@/modules/cms/components/VisualEditor";
+import { SettingsTabs } from "@/components/dashboard/SettingsTabs";
+import { BrandingCustomizer } from "@/components/dashboard/BrandingCustomizer";
 
 export const metadata = {
-  title: "Website Builder Settings | SewaCircle360 OS",
+  title: "System Config & Branding | SewaCircle360 OS",
 };
 
 export default async function AdminSettingsPage() {
@@ -69,25 +71,30 @@ export default async function AdminSettingsPage() {
     content: s.content
   })) : [];
 
+  const pageBuilderNode = page ? (
+    <VisualEditor 
+      pageId={page.id} 
+      initialSections={sectionsList} 
+    />
+  ) : <p>CMS builder is temporarily offline.</p>;
+
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 text-left">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold font-display text-slate-900 dark:text-white leading-none">
-          Page Builder & Settings
+          System Configuration & Settings
         </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-          Customize website visual blocks, update section content, and reorder public elements.
+          Configure website CMS content sections or manage company PDF invoice/agreement color schemes and digital stamps.
         </p>
       </div>
 
-      {/* Page Builder CMS */}
-      {page && (
-        <VisualEditor 
-          pageId={page.id} 
-          initialSections={sectionsList} 
-        />
-      )}
+      {/* Tabs */}
+      <SettingsTabs 
+        pageBuilder={pageBuilderNode} 
+        brandingCustomizer={<BrandingCustomizer />} 
+      />
     </div>
   );
 }

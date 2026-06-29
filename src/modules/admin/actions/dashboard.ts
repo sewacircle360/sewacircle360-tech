@@ -18,6 +18,15 @@ export async function getClients() {
 }
 
 // Projects
+function makeSlug(name: string): string {
+  return name
+    .toLowerCase().trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .slice(0, 60);
+}
+
 export async function createProjectAction(data: {
   name: string;
   clientId: string;
@@ -27,20 +36,30 @@ export async function createProjectAction(data: {
   status?: string;
 }) {
   try {
+    // Auto-generate unique slug
+    let slug = makeSlug(data.name);
+    let counter = 1;
+    while (await db.project.findFirst({ where: { slug } })) {
+      slug = `${makeSlug(data.name)}-${counter++}`;
+    }
+
     const project = await db.project.create({
       data: {
         name: data.name,
+        slug,
         clientId: data.clientId,
         startDate: data.startDate ? new Date(data.startDate) : undefined,
         deadline: data.deadline ? new Date(data.deadline) : undefined,
         budget: data.budget || 0,
         status: data.status || "PLANNING",
-        progress: 0
+        progress: 0,
+        developerIds: [],
+        designerIds: [],
       }
     });
 
     revalidatePath("/admin/projects");
-    return { success: "Project created successfully!", project };
+    return { success: "Project created successfully!", project, slug: project.slug };
   } catch (error) {
     console.error("createProjectAction error:", error);
     return { error: "Failed to create project." };

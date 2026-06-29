@@ -75,7 +75,11 @@ const NAV_GROUPS = [
   }
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+  isMobileClose?: () => void;
+}
+
+export function Sidebar({ isMobileClose }: SidebarProps = {}) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [filterQuery, setFilterQuery] = useState("");
   const pathname = usePathname();
@@ -205,6 +209,7 @@ export function Sidebar() {
                     <li key={link.href}>
                       <Link
                         href={link.href}
+                        onClick={() => isMobileClose?.()}
                         className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors group relative ${
                           isActive 
                             ? "bg-primary text-white" 
@@ -236,7 +241,8 @@ export function Sidebar() {
       {/* User Session Profile & Sign Out Actions */}
       <div className="p-4 border-t border-slate-800 flex flex-col gap-3">
         <Link 
-          href="/admin/profile"
+          href={isEmployee ? "/employee/profile" : "/admin/profile"}
+          onClick={() => isMobileClose?.()}
           className={`flex items-center gap-3 hover:bg-slate-800/40 p-1.5 rounded-xl transition-colors cursor-pointer w-full ${isCollapsed ? "justify-center" : ""}`}
         >
           <div className="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-slate-200 shrink-0 uppercase">

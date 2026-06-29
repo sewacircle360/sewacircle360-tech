@@ -236,11 +236,12 @@ export function BookingForm() {
               disabled={isPending}
               className="w-full px-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-950/80 border border-border/80 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-primary/20 dark:focus:ring-accent/20 focus:border-primary dark:focus:border-accent text-foreground transition-all cursor-pointer"
             >
-              <option value="Flexible">Flexible / Not Decided</option>
-              <option value="Under ₹50,000">Under ₹50,000</option>
-              <option value="₹50,000 - ₹2,00,000">₹50,000 - ₹2,00,000</option>
-              <option value="₹2,00,000 - ₹5,00,000">₹2,00,000 - ₹5,00,000</option>
-              <option value="₹5,00,000+">₹5,00,000+</option>
+              <option value="Under ₹20,000">Under ₹20,000</option>
+              <option value="₹20K – ₹40K">₹20,000 – ₹40,000</option>
+              <option value="₹40K – ₹60K">₹40,000 – ₹60,000</option>
+              <option value="₹60K – ₹80K">₹60,000 – ₹80,000</option>
+              <option value="₹80K – ₹1 Lakh">₹80,000 – ₹1 Lakh</option>
+              <option value="₹1 Lakh+">₹1 Lakh+</option>
             </select>
           </div>
         </div>

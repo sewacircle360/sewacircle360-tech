@@ -111,6 +111,7 @@ model Client {
 model Project {
   id           String    @id @default(auto()) @map("_id") @db.ObjectId
   name         String
+  slug         String?   @unique
   clientId     String    @db.ObjectId
   client       Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
   managerId    String?   @db.ObjectId
@@ -129,6 +130,7 @@ model Project {
 
   milestones   Milestone[]
   tasks        Task[]
+  invoices     Invoice[]
 }
 
 model Milestone {
@@ -162,6 +164,8 @@ model Invoice {
   invoiceNumber String    @unique
   clientId      String    @db.ObjectId
   client        Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  projectId     String?   @db.ObjectId
+  project       Project?  @relation(fields: [projectId], references: [id])
   date          DateTime
   dueDate       DateTime
   items         Json      // Line items [{ description, quantity, price, tax }]

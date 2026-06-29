@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useEffect, useTransition } from "react";
 import { signAgreementAction } from "../actions/agreements";
-import { FileCheck, Save, Loader2, AlertCircle, Sparkles, User, Info, Printer } from "lucide-react";
+import { FileCheck, Save, Loader2, AlertCircle, Sparkles, User, Info, Printer, ShieldCheck } from "lucide-react";
 
 interface Agreement {
   id: string;
@@ -26,6 +26,32 @@ export function AgreementSigner({ agreement }: AgreementSignerProps) {
   const [signatureName, setSignatureName] = useState("");
   const [isAgreed, setIsAgreed] = useState(false);
 
+  const [branding, setBranding] = useState({
+    brandColor: "#2563eb",
+    brandName: "SewaCircle360 TECHNOLOGY",
+    executiveLeadership: "Deepak Bawa (Founder) & Riya Garg (Co-Founder)",
+    companyAddress: "Phase 7, Mohali, Punjab",
+    companyEmail: "contact@sewacircle360.online",
+    gstNumber: "03SEWAC360T1Z2",
+    digitalSeal: "CIRCULAR_BLUE",
+  });
+
+  useEffect(() => {
+    function load() {
+      const saved = localStorage.getItem("brandingSettings");
+      if (saved) {
+        try {
+          setBranding((prev) => ({ ...prev, ...JSON.parse(saved) }));
+        } catch (err) {
+          console.error("Failed to parse branding config:", err);
+        }
+      }
+    }
+    load();
+    window.addEventListener("brandingChanged", load);
+    return () => window.removeEventListener("brandingChanged", load);
+  }, []);
+
   const handleSign = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -42,10 +68,10 @@ export function AgreementSigner({ agreement }: AgreementSignerProps) {
 
     startTransition(async () => {
       try {
-        // Embed name inside digital signature SVG payload
+        // Embed name inside digital signature SVG payload (matching brand colors!)
         const signatureSVG = `
           <svg width="250" height="80" xmlns="http://www.w3.org/2000/svg">
-            <text x="20" y="50" font-family="'Brush Script MT', cursive, sans-serif" font-size="32" fill="#2563EB" font-style="italic">
+            <text x="20" y="50" font-family="'Brush Script MT', cursive, sans-serif" font-size="32" fill="${branding.brandColor}" font-style="italic">
               ${signatureName.trim()}
             </text>
             <line x1="10" y1="65" x2="240" y2="65" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,4"/>
@@ -99,13 +125,24 @@ export function AgreementSigner({ agreement }: AgreementSignerProps) {
             display: none !important;
           }
         }
+        
+        .brand-bg-color {
+          background-color: ${branding.brandColor} !important;
+        }
+        .brand-text-color {
+          color: ${branding.brandColor} !important;
+        }
+        .brand-border-color {
+          border-color: ${branding.brandColor} !important;
+        }
       `}} />
 
       {/* Download PDF Button */}
       <div className="flex justify-end gap-2 mb-2 no-print">
         <button
+          type="button"
           onClick={() => window.print()}
-          className="flex items-center gap-1.5 py-2 px-4 text-xs font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-xl hover:bg-slate-50 transition-all cursor-pointer shadow-sm"
+          className="flex items-center gap-1.5 py-2 px-4 text-xs font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-xl hover:bg-slate-50 transition-all cursor-pointer shadow-sm animate-pulse"
         >
           <Printer className="h-4 w-4" /> Download PDF / Print
         </button>
@@ -119,13 +156,13 @@ export function AgreementSigner({ agreement }: AgreementSignerProps) {
           <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
           
           <div className="flex items-center gap-2 mb-8">
-            <span className="h-6 w-1 bg-primary inline-block" />
+            <span className="h-6 w-1 brand-bg-color inline-block" />
             <span className="text-white font-bold font-display tracking-widest text-sm sm:text-base">
-              SewaCircle360 TECHNOLOGY
+              {branding.brandName}
             </span>
           </div>
 
-          <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-primary block mb-2">
+          <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest brand-text-color block mb-2">
             CORPORATE MASTER AGREEMENT
           </span>
           <h1 className="text-2xl sm:text-4xl font-extrabold font-display text-white tracking-tight leading-tight">
@@ -139,15 +176,15 @@ export function AgreementSigner({ agreement }: AgreementSignerProps) {
             </div>
             <div className="flex flex-col gap-1">
               <span className="text-slate-500 uppercase tracking-wider font-semibold">Service Provider</span>
-              <span className="text-slate-200 font-bold">SewaCircle360 Technology</span>
+              <span className="text-slate-200 font-bold">{branding.brandName}</span>
             </div>
             <div className="flex flex-col gap-1 mt-2">
               <span className="text-slate-500 uppercase tracking-wider font-semibold">Executive Leadership</span>
-              <span className="text-slate-200 font-medium">Deepak Bawa (Founder) & Riya Garg (Co-Founder)</span>
+              <span className="text-slate-200 font-medium">{branding.executiveLeadership}</span>
             </div>
             <div className="flex flex-col gap-1 mt-2">
               <span className="text-slate-500 uppercase tracking-wider font-semibold">Agreement Reference</span>
-              <span className="text-primary font-bold font-mono">{agreement.agreementNumber}</span>
+              <span className="brand-text-color font-bold font-mono">{agreement.agreementNumber}</span>
             </div>
           </div>
         </div>
@@ -162,27 +199,27 @@ export function AgreementSigner({ agreement }: AgreementSignerProps) {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-semibold text-slate-650 dark:text-slate-350">
               <div className="flex justify-between border-b border-dashed dark:border-slate-800 pb-1">
                 <span>1. Parties to the Agreement</span>
-                <span className="text-primary">Page 3</span>
+                <span className="brand-text-color">Page 3</span>
               </div>
               <div className="flex justify-between border-b border-dashed dark:border-slate-800 pb-1">
                 <span>2. Definitions & Interpretation</span>
-                <span className="text-primary">Page 3</span>
+                <span className="brand-text-color">Page 3</span>
               </div>
               <div className="flex justify-between border-b border-dashed dark:border-slate-800 pb-1">
                 <span>3. Project Scope & Purpose</span>
-                <span className="text-primary">Page 4</span>
+                <span className="brand-text-color">Page 4</span>
               </div>
               <div className="flex justify-between border-b border-dashed dark:border-slate-800 pb-1">
                 <span>4. Core Stock Management Features</span>
-                <span className="text-primary">Page 4</span>
+                <span className="brand-text-color">Page 4</span>
               </div>
               <div className="flex justify-between border-b border-dashed dark:border-slate-800 pb-1">
                 <span>5. Cloud Hosting & Handover Policy</span>
-                <span className="text-primary">Page 5</span>
+                <span className="brand-text-color">Page 5</span>
               </div>
               <div className="flex justify-between border-b border-dashed dark:border-slate-800 pb-1">
                 <span>6. Governing Law & Signatures</span>
-                <span className="text-primary">Page 9</span>
+                <span className="brand-text-color">Page 9</span>
               </div>
             </div>
           </div>
@@ -199,18 +236,44 @@ export function AgreementSigner({ agreement }: AgreementSignerProps) {
           {/* Corporate Signatures Footer Block */}
           <div className="mt-12 pt-8 border-t dark:border-slate-800 grid grid-cols-1 sm:grid-cols-2 gap-8 text-xs">
             {/* Developer Sign Block */}
-            <div className="flex flex-col gap-3 p-4 bg-slate-50 dark:bg-slate-950/40 rounded-xl border dark:border-slate-800/80">
+            <div className="flex flex-col gap-3 p-4 bg-slate-50 dark:bg-slate-950/40 rounded-xl border dark:border-slate-800/80 relative overflow-hidden">
               <span className="font-bold text-slate-500 uppercase tracking-wider block border-b dark:border-slate-800 pb-1.5">
                 On Behalf of Developer
               </span>
-              <div className="py-2">
-                <span className="font-serif italic text-lg text-slate-800 dark:text-slate-200">Deepak Bawa</span>
-                <div className="w-24 border-t border-slate-300 dark:border-slate-800 mt-1" />
+              <div className="py-2 flex justify-between items-center">
+                <div>
+                  <span className="font-serif italic text-lg text-slate-800 dark:text-slate-200">
+                    {branding.executiveLeadership.split(" (")[0]}
+                  </span>
+                  <div className="w-24 border-t border-slate-300 dark:border-slate-800 mt-1" />
+                </div>
+                
+                {/* Dynamic Corporate Seal display */}
+                <div className="h-14 w-14 shrink-0 flex items-center justify-center -mr-2 -mt-2">
+                  {branding.digitalSeal === "CIRCULAR_BLUE" && (
+                    <svg width="52" height="52" viewBox="0 0 100 100" style={{ color: branding.brandColor }} className="opacity-80">
+                      <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="3,3" />
+                      <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" strokeWidth="4" />
+                      <polygon points="50,28 53,38 63,38 55,44 58,54 50,48 42,54 45,44 37,38 47,38" fill="currentColor" />
+                      <circle cx="50" cy="50" r="22" fill="none" stroke="currentColor" strokeWidth="1" />
+                    </svg>
+                  )}
+                  {branding.digitalSeal === "VERIFIED_BADGE" && (
+                    <div className="flex items-center gap-1 p-0.5 rounded-lg bg-slate-100 dark:bg-slate-950 border dark:border-slate-800 w-fit opacity-80">
+                      <ShieldCheck className="h-4 w-4" style={{ color: branding.brandColor }} />
+                    </div>
+                  )}
+                  {branding.digitalSeal === "RED_STAMP" && (
+                    <div className="border border-red-500 text-red-500 font-black text-[6px] px-1.5 py-0.5 uppercase rounded tracking-widest rotate-6 select-none font-mono opacity-80">
+                      APPROVED
+                    </div>
+                  )}
+                </div>
               </div>
               <div className="flex flex-col gap-0.5">
-                <span className="text-slate-400">By: Deepak Bawa</span>
-                <span className="text-slate-400">Title: Founder & Executive Director</span>
-                <span className="text-slate-400">SewaCircle360 Technology</span>
+                <span className="text-slate-400">By: {branding.executiveLeadership}</span>
+                <span className="text-slate-400">Title: Authorized Signatory</span>
+                <span className="text-slate-400">{branding.brandName}</span>
               </div>
             </div>
 
@@ -222,18 +285,25 @@ export function AgreementSigner({ agreement }: AgreementSignerProps) {
               <div className="py-2">
                 {isSigned ? (
                   <div 
-                    className="h-10 w-fit overflow-hidden"
-                    dangerouslySetInnerHTML={{ __html: agreement.clientSignature || "" }}
+                    className="h-10 w-fit overflow-hidden animate-fade-in"
+                    dangerouslySetInnerHTML={{ __html: agreement.clientSignature || success ? `
+                      <svg width="250" height="80" xmlns="http://www.w3.org/2000/svg">
+                        <text x="20" y="50" font-family="'Brush Script MT', cursive, sans-serif" font-size="32" fill="${branding.brandColor}" font-style="italic">
+                          ${signatureName.trim() || "Signed"}
+                        </text>
+                        <line x1="10" y1="65" x2="240" y2="65" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,4"/>
+                      </svg>
+                    ` : "" }}
                   />
                 ) : (
                   <span className="text-slate-400 italic">Signature Pending...</span>
                 )}
               </div>
               <div className="flex flex-col gap-0.5">
-                <span className="text-slate-400">By: {signatureName || agreement.clientSignature ? "Authorized Client" : "________________"}</span>
+                <span className="text-slate-400">By: {signatureName || isSigned ? "Authorized Client" : "________________"}</span>
                 <span className="text-slate-400">Title: Representative / Owner</span>
                 <span className="text-slate-400">
-                  Signed At: {agreement.signedAt ? new Date(agreement.signedAt).toLocaleString() : "Pending"}
+                  Signed At: {agreement.signedAt ? new Date(agreement.signedAt).toLocaleString() : isSigned ? new Date().toLocaleString() : "Pending"}
                 </span>
               </div>
             </div>
@@ -242,7 +312,7 @@ export function AgreementSigner({ agreement }: AgreementSignerProps) {
       </div>
 
       {/* Signature Execution Panel */}
-      <div className="lg:col-span-4 bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-3xl p-6 shadow-xl flex flex-col gap-6 text-left">
+      <div className="lg:col-span-4 bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-3xl p-6 shadow-xl flex flex-col gap-6 text-left no-print">
         <span className="text-sm font-bold uppercase tracking-wider text-slate-400 border-b dark:border-slate-800 pb-3">
           Execute Contract
         </span>
@@ -255,7 +325,7 @@ export function AgreementSigner({ agreement }: AgreementSignerProps) {
             <h3 className="font-bold text-slate-900 dark:text-white font-display">
               Agreement Executed
             </h3>
-            <p className="text-xs text-slate-505 dark:text-slate-400 leading-relaxed">
+            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
               This document has been electronically signed and timestamped. Copies are archived in the client portal vault.
             </p>
           </div>
@@ -281,7 +351,7 @@ export function AgreementSigner({ agreement }: AgreementSignerProps) {
                   <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest absolute top-2 left-3">
                     Digital Preview
                   </span>
-                  <span className="font-serif italic font-light text-2xl tracking-wide text-primary dark:text-accent pt-3 pb-1">
+                  <span className="font-serif italic font-light text-2xl tracking-wide pt-3 pb-1" style={{ color: branding.brandColor }}>
                     {signatureName}
                   </span>
                   <div className="w-full border-t border-dashed border-ccslate-350 dark:border-slate-800/80" />

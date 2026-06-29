@@ -1,5 +1,5 @@
 import { getProjects } from "@/modules/projects/actions/projects";
-import { Briefcase, Calendar, Plus, ChevronRight, Eye } from "lucide-react";
+import { Briefcase, Calendar, Plus, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 export const metadata = {
@@ -37,7 +37,7 @@ export default async function AdminProjectsPage() {
           <span className="text-sm font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
             No Active Projects
           </span>
-          <p className="text-xs text-ccslate-550 dark:text-slate-400 max-w-xs mx-auto mt-2">
+          <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xs mx-auto mt-2">
             Initiate a project to assign tasks, define progress milestones, and track deadlines.
           </p>
         </div>
@@ -53,21 +53,26 @@ export default async function AdminProjectsPage() {
               COMPLETED: "bg-green-500/10 text-green-500",
             };
 
+            // Use slug if available, fallback to id for legacy projects
+            const projectHref = project.slug 
+              ? `/admin/projects/${project.slug}` 
+              : `/admin/projects/${project.id}`;
+
             return (
               <div 
                 key={project.id}
-                className="bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-ccslate-850 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between"
+                className="bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between"
               >
                 <div className="flex flex-col gap-4">
                   {/* Status & Deadline */}
                   <div className="flex justify-between items-center">
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ${statusColors[project.status] || "bg-slate-500/10 text-ccslate-550"}`}>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ${statusColors[project.status] || "bg-slate-500/10 text-slate-500"}`}>
                       {project.status}
                     </span>
                     <span className="text-[10px] font-semibold text-slate-400 flex items-center gap-1">
                       <Calendar className="h-3.5 w-3.5" />
                       {project.deadline 
-                        ? new Date(project.deadline).toLocaleDateString("en-US", { month: "short", day: "numeric" }) 
+                        ? new Date(project.deadline).toLocaleDateString("en-IN", { month: "short", day: "numeric" }) 
                         : "No Limit"}
                     </span>
                   </div>
@@ -77,9 +82,14 @@ export default async function AdminProjectsPage() {
                     <h3 className="text-lg font-bold text-slate-900 dark:text-white font-display leading-tight line-clamp-1 mb-1">
                       {project.name}
                     </h3>
-                    <span className="text-xs text-ccslate-450 dark:text-slate-400 font-medium block">
+                    <span className="text-xs text-slate-400 dark:text-slate-400 font-medium block">
                       Client: {project.client.companyName}
                     </span>
+                    {project.budget && (
+                      <span className="text-xs text-slate-400 dark:text-slate-400 font-medium block">
+                        Budget: ₹{project.budget.toLocaleString("en-IN")}
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -97,7 +107,7 @@ export default async function AdminProjectsPage() {
                   </div>
                   
                   <Link
-                    href={`/admin/projects/${project.id}`}
+                    href={projectHref}
                     className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-accent mt-2 pt-2 border-t border-dashed border-border/50 group cursor-pointer"
                   >
                     <span>View Dashboard</span>

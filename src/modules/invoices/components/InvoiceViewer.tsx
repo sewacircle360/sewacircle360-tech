@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Printer, Receipt, Calendar, User, ShieldCheck } from "lucide-react";
 
 interface InvoiceItem {
@@ -35,6 +36,32 @@ interface InvoiceViewerProps {
 }
 
 export function InvoiceViewer({ invoice }: InvoiceViewerProps) {
+  const [branding, setBranding] = useState({
+    brandColor: "#2563eb",
+    brandName: "SewaCircle360 TECHNOLOGY",
+    executiveLeadership: "Deepak Bawa (Founder) & Riya Garg (Co-Founder)",
+    companyAddress: "Phase 7, Mohali, Punjab",
+    companyEmail: "contact@sewacircle360.online",
+    gstNumber: "03SEWAC360T1Z2",
+    digitalSeal: "CIRCULAR_BLUE",
+  });
+
+  useEffect(() => {
+    function load() {
+      const saved = localStorage.getItem("brandingSettings");
+      if (saved) {
+        try {
+          setBranding((prev) => ({ ...prev, ...JSON.parse(saved) }));
+        } catch (err) {
+          console.error("Failed to parse branding config:", err);
+        }
+      }
+    }
+    load();
+    window.addEventListener("brandingChanged", load);
+    return () => window.removeEventListener("brandingChanged", load);
+  }, []);
+
   const lineItems: InvoiceItem[] = Array.isArray(invoice.items) 
     ? invoice.items 
     : JSON.parse(invoice.items || "[]");
@@ -65,13 +92,24 @@ export function InvoiceViewer({ invoice }: InvoiceViewerProps) {
             max-width: 100% !important;
           }
         }
+        
+        .brand-bg-color {
+          background-color: ${branding.brandColor} !important;
+        }
+        .brand-text-color {
+          color: ${branding.brandColor} !important;
+        }
+        .brand-border-color {
+          border-color: ${branding.brandColor} !important;
+        }
       `}} />
 
       {/* Action Row */}
       <div className="flex justify-end gap-2 no-print">
         <button
+          type="button"
           onClick={() => window.print()}
-          className="flex items-center gap-1.5 py-2 px-4 text-xs font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-xl hover:bg-slate-50 transition-all cursor-pointer shadow-sm"
+          className="flex items-center gap-1.5 py-2 px-4 text-xs font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-xl hover:bg-slate-50 transition-all cursor-pointer shadow-sm animate-pulse"
         >
           <Printer className="h-4 w-4" /> Print / Download PDF
         </button>
@@ -83,20 +121,20 @@ export function InvoiceViewer({ invoice }: InvoiceViewerProps) {
         <div className="flex flex-col sm:flex-row justify-between gap-6 border-b dark:border-slate-800 pb-8">
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-2">
-              <span className="h-5 w-1 bg-primary inline-block" />
+              <span className="h-5 w-1 brand-bg-color inline-block" />
               <span className="text-slate-900 dark:text-white font-extrabold font-display tracking-wider text-sm sm:text-base">
-                SewaCircle360 TECHNOLOGY
+                {branding.brandName}
               </span>
             </div>
-            <div className="text-xs text-slate-500 space-y-0.5">
-              <p>Phase 7, Mohali, Punjab</p>
-              <p>Email: contact@sewacircle360.online</p>
-              <p>GSTIN: 03SEWAC360T1Z2</p>
+            <div className="text-xs text-slate-500 space-y-0.5 font-semibold">
+              <p>{branding.companyAddress}</p>
+              <p>Email: {branding.companyEmail}</p>
+              <p>GSTIN: {branding.gstNumber}</p>
             </div>
           </div>
 
           <div className="flex flex-col sm:items-end gap-2 sm:text-right">
-            <span className="text-xs font-bold text-primary uppercase tracking-widest">
+            <span className="text-xs font-bold brand-text-color uppercase tracking-widest">
               TAX INVOICE
             </span>
             <h1 className="text-2xl font-black font-mono text-slate-800 dark:text-white leading-none">
@@ -189,6 +227,37 @@ export function InvoiceViewer({ invoice }: InvoiceViewerProps) {
             </span>
             <p>Please clear payments within the specified due date.</p>
             <p><strong>Bank details:</strong> HDFC Bank, Mohali, SCA: 50200012345678, IFSC: HDFC0001234</p>
+            
+            {/* Digital Seal displays */}
+            <div className="pt-4 flex flex-col gap-1.5">
+              <span className="font-bold uppercase tracking-widest text-[8px] text-slate-400 block">
+                Authorized Corporate Seal
+              </span>
+              <div className="h-16 w-16 shrink-0 flex items-center justify-start text-slate-700 dark:text-slate-200">
+                {branding.digitalSeal === "CIRCULAR_BLUE" && (
+                  <svg width="56" height="56" viewBox="0 0 100 100" style={{ color: branding.brandColor }}>
+                    <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="3,3" />
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" strokeWidth="4" />
+                    <polygon points="50,28 53,38 63,38 55,44 58,54 50,48 42,54 45,44 37,38 47,38" fill="currentColor" />
+                    <circle cx="50" cy="50" r="22" fill="none" stroke="currentColor" strokeWidth="1" />
+                  </svg>
+                )}
+                {branding.digitalSeal === "VERIFIED_BADGE" && (
+                  <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-50 dark:bg-slate-950 border dark:border-slate-800 w-fit">
+                    <ShieldCheck className="h-5 w-5" style={{ color: branding.brandColor }} />
+                    <span className="text-[6px] font-black uppercase tracking-wider text-slate-500">VERIFIED AUTH</span>
+                  </div>
+                )}
+                {branding.digitalSeal === "RED_STAMP" && (
+                  <div className="border-2 border-red-500 text-red-500 font-black text-[9px] px-2.5 py-1 uppercase rounded tracking-widest rotate-6 select-none font-mono">
+                    APPROVED
+                  </div>
+                )}
+                {branding.digitalSeal === "NONE" && (
+                  <span className="text-[9px] text-slate-400 italic">No Seal</span>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Pricing Totals */}
@@ -209,7 +278,7 @@ export function InvoiceViewer({ invoice }: InvoiceViewerProps) {
             )}
             <div className="flex justify-between font-black text-slate-900 dark:text-white border-t dark:border-slate-800 pt-2 text-sm">
               <span>Grand Total:</span>
-              <span>₹{invoice.grandTotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+              <span className="brand-text-color">₹{invoice.grandTotal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
             </div>
           </div>
         </div>

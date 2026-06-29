@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useTransition } from "react";
 import { getClients, createProjectAction } from "@/modules/admin/actions/dashboard";
-import { Briefcase, ArrowLeft, Calendar, DollarSign, Users, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { Briefcase, ArrowLeft, Calendar, IndianRupee, Users, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -57,8 +57,10 @@ export default function NewProjectPage() {
       } else {
         setSuccess(result.success || "Project created!");
         setTimeout(() => {
-          router.push("/admin/projects");
-        }, 1500);
+          // Redirect to slug URL if available, else projects list
+          const slug = (result as any).slug || (result as any).project?.slug;
+          router.push(slug ? `/admin/projects/${slug}` : "/admin/projects");
+        }, 1200);
       }
     });
   };
@@ -161,12 +163,12 @@ export default function NewProjectPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Budget */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Project Budget (USD)</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Project Budget (INR ₹)</label>
               <div className="relative">
-                <DollarSign className="absolute left-3.5 top-3 h-4 w-4 text-slate-450" />
+                <IndianRupee className="absolute left-3.5 top-3 h-4 w-4 text-slate-450" />
                 <input
                   type="number"
-                  placeholder="5000"
+                  placeholder="50000"
                   value={formData.budget}
                   onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
                   disabled={isPending}

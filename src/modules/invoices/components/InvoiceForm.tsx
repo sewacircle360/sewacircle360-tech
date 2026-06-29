@@ -10,8 +10,15 @@ interface Client {
   companyName: string;
 }
 
+interface Project {
+  id: string;
+  name: string;
+  clientId: string;
+}
+
 interface InvoiceFormProps {
   clients: Client[];
+  projects?: Project[];
 }
 
 interface InvoiceItem {
@@ -21,16 +28,20 @@ interface InvoiceItem {
   tax: number;
 }
 
-export function InvoiceForm({ clients }: InvoiceFormProps) {
+export function InvoiceForm({ clients, projects = [] }: InvoiceFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   
   const [clientId, setClientId] = useState("");
+  const [projectId, setProjectId] = useState("");
   const [invoiceNumber, setInvoiceNumber] = useState(`INV-${Date.now().toString().slice(-4)}`);
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [dueDate, setDueDate] = useState("");
   const [discount, setDiscount] = useState(0);
+
+  // Filter projects by selected client
+  const clientProjects = projects.filter(p => p.clientId === clientId);
 
   const [items, setItems] = useState<InvoiceItem[]>([
     { description: "Enterprise Software Design", quantity: 1, price: 1500, tax: 18 }
@@ -88,6 +99,7 @@ export function InvoiceForm({ clients }: InvoiceFormProps) {
         const result = await createInvoice({
           invoiceNumber,
           clientId,
+          projectId: projectId || undefined,
           date: new Date(date),
           dueDate: new Date(dueDate),
           items,
@@ -204,7 +216,10 @@ export function InvoiceForm({ clients }: InvoiceFormProps) {
           <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Client Profile</label>
           <select
             value={clientId}
-            onChange={(e) => setClientId(e.target.value)}
+            onChange={(e) => {
+              setClientId(e.target.value);
+              setProjectId(""); // Reset project when client changes
+            }}
             disabled={isPending}
             className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-950/85 border rounded-lg outline-none focus:border-primary text-foreground cursor-pointer"
           >
@@ -214,6 +229,28 @@ export function InvoiceForm({ clients }: InvoiceFormProps) {
             ))}
           </select>
         </div>
+
+        {/* Project Selector (filtered by client) */}
+        {clientId && (
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Link to Project <span className="text-slate-400 normal-case font-normal">(optional)</span></label>
+            <select
+              value={projectId}
+              onChange={(e) => setProjectId(e.target.value)}
+              disabled={isPending}
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-950/85 border rounded-lg outline-none focus:border-primary text-foreground cursor-pointer"
+            >
+              <option value="">General Invoice (no project)</option>
+              {clientProjects.length === 0 ? (
+                <option disabled>No projects found for this client</option>
+              ) : (
+                clientProjects.map((p) => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))
+              )}
+            </select>
+          </div>
+        )}
 
         {/* Invoice ID */}
         <div className="flex flex-col gap-1.5">

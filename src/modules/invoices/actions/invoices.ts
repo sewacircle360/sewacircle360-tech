@@ -42,6 +42,7 @@ export async function getInvoicesByClientId(clientId: string) {
 export async function createInvoice(data: {
   invoiceNumber: string;
   clientId: string;
+  projectId?: string;
   date: Date;
   dueDate: Date;
   items: { description: string; quantity: number; price: number; tax: number }[];
@@ -70,6 +71,7 @@ export async function createInvoice(data: {
       data: {
         invoiceNumber: data.invoiceNumber,
         clientId: data.clientId,
+        projectId: data.projectId || null,
         date: data.date,
         dueDate: data.dueDate,
         items: data.items,

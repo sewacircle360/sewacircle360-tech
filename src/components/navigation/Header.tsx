@@ -18,7 +18,6 @@ const NAV_LINKS = [
   { label: "Careers", href: "/careers" },
   { label: "Academic Projects", href: "/student-training" },
   { label: "Internships", href: "/internships" },
-  { label: "Contact", href: "/contact" },
 ];
 
 export function Header() {

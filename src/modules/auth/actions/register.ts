@@ -9,6 +9,8 @@ export async function registerStudentAction(data: {
   email: string;
   collegeName: string;
   passwordHash: string;
+  image?: string;
+  collegeIdCard?: string;
 }) {
   try {
     if (!data.name || !data.email || !data.collegeName || !data.passwordHash) {
@@ -31,7 +33,7 @@ export async function registerStudentAction(data: {
     const isCollegeEmail = data.email.includes(".edu") || data.email.includes(".in") || data.email.includes("college") || data.email.includes("univ");
     if (!isCollegeEmail) {
       // We will allow all emails for demonstration ease, but prepend a note/validation if strictness is needed. 
-      // Let's enforce that it's a student email, or at least validate it. Let's allow it but check domain.
+      // Let's allow it but check domain.
     }
 
     const existing = await db.user.findUnique({ where: { email: data.email } });
@@ -57,6 +59,8 @@ export async function registerStudentAction(data: {
         roleId: studentRole.id,
         status: "INACTIVE", // INACTIVE until OTP verified
         collegeName: data.collegeName,
+        image: data.image,
+        collegeIdCard: data.collegeIdCard,
         otpCode,
         otpExpiry,
         mustChangePassword: false,

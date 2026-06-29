@@ -22,11 +22,23 @@ import { motion } from "framer-motion";
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({ name: "", email: "", collegeName: "", password: "" });
+  const [profilePhoto, setProfilePhoto] = useState<string>("");
+  const [idCardPhoto, setIdCardPhoto] = useState<string>("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, setter: (val: string) => void) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      setter(reader.result as string);
+    };
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,6 +47,16 @@ export default function RegisterPage() {
 
     if (!formData.name || !formData.email || !formData.collegeName || !formData.password) {
       setError("Please fill in all registration fields.");
+      return;
+    }
+
+    if (!profilePhoto) {
+      setError("Please upload your Profile Photo.");
+      return;
+    }
+
+    if (!idCardPhoto) {
+      setError("Please upload your College ID Card Photo.");
       return;
     }
 
@@ -57,7 +79,9 @@ export default function RegisterPage() {
         name: formData.name,
         email: formData.email,
         collegeName: formData.collegeName,
-        passwordHash: formData.password
+        passwordHash: formData.password,
+        image: profilePhoto,
+        collegeIdCard: idCardPhoto
       });
 
       if (result.error) {
@@ -149,6 +173,42 @@ export default function RegisterPage() {
                   className="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-950/80 border border-border/80 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-foreground transition-all"
                 />
               </div>
+            </div>
+
+            {/* Profile Photo */}
+            <div className="flex flex-col gap-1.5 text-left">
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">Profile Photo *</label>
+              <input
+                type="file"
+                accept="image/*"
+                required
+                onChange={(e) => handleFileChange(e, setProfilePhoto)}
+                disabled={isPending}
+                className="w-full px-4 py-2 text-xs bg-slate-50 dark:bg-slate-950/80 border border-border/80 dark:border-slate-800 rounded-xl outline-none text-foreground focus:border-primary file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
+              />
+              {profilePhoto && (
+                <span className="text-[10px] text-green-500 font-semibold flex items-center gap-1 mt-0.5">
+                  ✓ Photo selected and loaded
+                </span>
+              )}
+            </div>
+
+            {/* College ID Card */}
+            <div className="flex flex-col gap-1.5 text-left">
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">College ID Card Photo *</label>
+              <input
+                type="file"
+                accept="image/*"
+                required
+                onChange={(e) => handleFileChange(e, setIdCardPhoto)}
+                disabled={isPending}
+                className="w-full px-4 py-2 text-xs bg-slate-50 dark:bg-slate-950/80 border border-border/80 dark:border-slate-800 rounded-xl outline-none text-foreground focus:border-primary file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
+              />
+              {idCardPhoto && (
+                <span className="text-[10px] text-green-500 font-semibold flex items-center gap-1 mt-0.5">
+                  ✓ ID Card photo selected and loaded
+                </span>
+              )}
             </div>
 
             {/* Password */}

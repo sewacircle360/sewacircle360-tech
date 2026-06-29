@@ -23,6 +23,7 @@ model User {
 
   mustChangePassword Boolean   @default(false)
   collegeName        String?
+  collegeIdCard      String?
   otpCode            String?
   otpExpiry          DateTime?
 

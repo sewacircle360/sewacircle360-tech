@@ -42,7 +42,8 @@ export function LoginForm() {
           setSuccess(result.success);
         }
       } catch (err) {
-        setError("An unexpected authentication error occurred.");
+        console.error("Client side login error:", err);
+        setError(`Connection Error: ${err instanceof Error ? err.message : String(err)}`);
       }
     });
   };

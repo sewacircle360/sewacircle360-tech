@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { updateLeadStatus, deleteLead, updateLeadPriority } from "../actions/leads";
-import { Trash2, Calendar, DollarSign, User, ArrowRightLeft, Flag } from "lucide-react";
+import { updateLeadStatus, deleteLead, updateLeadPriority, convertLeadToProjectAction } from "../actions/leads";
+import { Trash2, Calendar, DollarSign, User, ArrowRightLeft, Flag, Sparkles, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface Lead {
@@ -81,6 +81,22 @@ export function KanbanBoard({ initialLeads }: KanbanProps) {
     });
   };
 
+  const [isConvertPending, startConvertTransition] = useTransition();
+
+  const handleConvertLead = (leadId: string) => {
+    if (!confirm("Convert this Lead into an active Project? This creates a Client Profile, a Project pipeline card, and a draft SLA Agreement automatically.")) return;
+    
+    startConvertTransition(async () => {
+      const result = await convertLeadToProjectAction(leadId);
+      if (result.error) {
+        alert(result.error);
+      } else {
+        setLeads(prev => prev.map(lead => lead.id === leadId ? { ...lead, status: "WON" } : lead));
+        alert(result.success);
+      }
+    });
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-5 items-start overflow-x-auto pb-4 scrollbar-thin">
       {COLUMNS.map((col) => {
@@ -135,6 +151,22 @@ export function KanbanBoard({ initialLeads }: KanbanProps) {
                       <span>{new Date(lead.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>
                     </div>
                   </div>
+
+                  {/* Convert Lead to Project Shortcut (only for WON leads) */}
+                  {lead.status === "WON" && (
+                    <button
+                      onClick={() => handleConvertLead(lead.id)}
+                      disabled={isConvertPending}
+                      className="w-full flex items-center justify-center gap-1 mt-3 px-2 py-1.5 text-[10px] font-bold text-white bg-emerald-500 hover:bg-emerald-600 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+                    >
+                      {isConvertPending ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <Sparkles className="h-3 w-3" />
+                      )}
+                      Convert to Project
+                    </button>
+                  )}
 
                   {/* Actions / Dropdowns */}
                   <div className="flex items-center justify-between border-t border-border/60 dark:border-slate-900/80 pt-3 mt-3">

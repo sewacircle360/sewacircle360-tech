@@ -16,6 +16,9 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { SteppedProgress } from "@/modules/projects/components/SteppedProgress";
+import { ProjectAssets } from "@/modules/projects/components/ProjectAssets";
+import { getComments } from "@/modules/comments/actions/comments";
+import { CommentSection } from "@/modules/comments/components/CommentSection";
 
 export const metadata = {
   title: "Client Workspace | SewaCircle360 Portal",
@@ -27,6 +30,9 @@ export default async function ClientPortalPage() {
   if (!session || !session.user?.id) {
     redirect("/auth/login");
   }
+
+  const currentUserId = session.user.id;
+  const currentUserName = session.user.name || "Client Owner";
 
   let client = await getClientByUserId(session.user.id);
 
@@ -62,7 +68,13 @@ export default async function ClientPortalPage() {
     }
   });
 
-  const projects = details?.projects || [];
+  const rawProjects = details?.projects || [];
+  const projects = await Promise.all(
+    rawProjects.map(async (p) => {
+      const comments = await getComments({ projectId: p.id });
+      return { ...p, comments };
+    })
+  );
   const standaloneInvoices = details?.invoices || [];
   const agreements = details?.agreements || [];
 
@@ -189,6 +201,15 @@ export default async function ClientPortalPage() {
                         </div>
                       </div>
 
+                      {/* Shared Project Assets Drive */}
+                      <div className="mt-1">
+                        <ProjectAssets
+                          projectId={proj.id}
+                          initialAssets={Array.isArray(proj.assets) ? (proj.assets as any) : []}
+                          isAdmin={false}
+                        />
+                      </div>
+
                       {/* Linked Invoice rows */}
                       {proj.invoices.length > 0 && (
                         <div className="flex flex-col gap-1.5 mt-1">
@@ -214,6 +235,22 @@ export default async function ClientPortalPage() {
                           ))}
                         </div>
                       )}
+
+                      {/* Project Discussion Board */}
+                      <div className="mt-4 border-t border-dashed dark:border-slate-800/80 pt-4">
+                        <CommentSection
+                          projectId={proj.id}
+                          initialComments={proj.comments.map((c: any) => ({
+                            id: c.id,
+                            content: c.content,
+                            userName: c.userName,
+                            userId: c.userId,
+                            createdAt: c.createdAt.toISOString(),
+                          }))}
+                          currentUserId={currentUserId}
+                          currentUserName={currentUserName}
+                        />
+                      </div>
                     </div>
                   );
                 })}

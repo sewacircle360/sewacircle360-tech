@@ -116,3 +116,107 @@ export async function deleteLead(id: string) {
     return { error: "Failed to delete lead." };
   }
 }
+
+export async function convertLeadToProjectAction(leadId: string) {
+  try {
+    const lead = await db.lead.findUnique({ where: { id: leadId } });
+    if (!lead) {
+      return { error: "Lead not found." };
+    }
+
+    // 1. Check or Create Client
+    let client = await db.client.findFirst({ where: { email: lead.email } });
+    if (!client) {
+      client = await db.client.create({
+        data: {
+          companyName: lead.companyName || `${lead.name} Company`,
+          ownerName: lead.name,
+          email: lead.email,
+          phone: lead.phone || null,
+        }
+      });
+    }
+
+    // 2. Parse Budget
+    let cleanBudget = 0;
+    if (lead.budget) {
+      // Remove symbols and commas and convert to float
+      const numString = lead.budget.replace(/[^0-9.]/g, "");
+      cleanBudget = parseFloat(numString) || 0;
+    }
+
+    // 3. Generate Project Slug
+    const baseSlug = (lead.service || `${lead.name} Project`)
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
+      .slice(0, 60);
+
+    let slug = baseSlug;
+    let counter = 1;
+    while (await db.project.findFirst({ where: { slug } })) {
+      slug = `${baseSlug}-${counter++}`;
+    }
+
+    // 4. Create Project
+    const project = await db.project.create({
+      data: {
+        name: lead.service || `${lead.name} Project`,
+        slug,
+        clientId: client.id,
+        budget: cleanBudget > 0 ? cleanBudget : null,
+        status: "PLANNING",
+        progress: 0,
+      }
+    });
+
+    // 5. Create Draft SLA Agreement
+    const agreementNumber = `SLA-${Date.now().toString().slice(-4)}`;
+    await db.agreement.create({
+      data: {
+        agreementNumber,
+        clientId: client.id,
+        title: `SLA Agreement for ${project.name}`,
+        status: "DRAFT",
+        content: `
+          <div style="font-family: sans-serif; padding: 20px; color: #1e293b;">
+            <h1 style="color: #2563eb; text-align: center;">Service Level Agreement (SLA)</h1>
+            <p style="text-align: center; font-size: 12px; color: #64748b;">Agreement Number: <strong>${agreementNumber}</strong></p>
+            <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;"/>
+            <p>This Agreement is entered into by and between <strong>SewaCircle360 Technology</strong> (Service Provider) and <strong>${client.companyName}</strong> (Client).</p>
+            
+            <h3 style="color: #0f172a; margin-top: 20px;">1. Project Scope</h3>
+            <p>The Service Provider agrees to deliver the following engineering services: <strong>${project.name}</strong> as outlined in the initial proposal. The estimated project budget is <strong>₹${(cleanBudget || 0).toLocaleString("en-IN")}</strong>.</p>
+            
+            <h3 style="color: #0f172a; margin-top: 20px;">2. Development & Milestones</h3>
+            <p>Work phases will progress dynamically from Planning, Design, Engineering, QA Testing, and Deployment Launch. Deliverables will be verified inside the Client Portal Workspace.</p>
+            
+            <h3 style="color: #0f172a; margin-top: 20px;">3. Service Support & Standards</h3>
+            <p>The Service Provider guarantees a 99.9% uptime standard for client staging builds. General support requests and issue tickets can be logged dynamically in the workspace.</p>
+            
+            <h3 style="color: #0f172a; margin-top: 20px;">4. Signatures</h3>
+            <p>Please review and sign this SLA digitally inside your client workspace dashboard to initialize development cycles.</p>
+          </div>
+        `
+      }
+    });
+
+    // 6. Delete/Archive or leave lead, update status to WON
+    await db.lead.update({
+      where: { id: leadId },
+      data: { status: "WON" }
+    });
+
+    revalidatePath("/admin/crm");
+    revalidatePath("/admin/projects");
+    revalidatePath("/admin/clients");
+    revalidatePath("/admin/agreements");
+
+    return { success: "Lead successfully converted to Client & Project!", projectId: project.id, slug: project.slug };
+  } catch (error) {
+    console.error("convertLeadToProjectAction error:", error);
+    return { error: "Failed to convert lead to project." };
+  }
+}

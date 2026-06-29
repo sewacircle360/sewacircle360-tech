@@ -6,6 +6,10 @@ import {
 import Link from "next/link";
 import { ProjectActions } from "@/modules/projects/components/ProjectActions";
 import { ProjectExpenses } from "@/modules/projects/components/ProjectExpenses";
+import { ProjectAssets } from "@/modules/projects/components/ProjectAssets";
+import { auth } from "@/auth";
+import { getComments } from "@/modules/comments/actions/comments";
+import { CommentSection } from "@/modules/comments/components/CommentSection";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -21,10 +25,16 @@ export async function generateMetadata({ params }: Props) {
 
 export default async function ProjectDetailPage({ params }: Props) {
   const { slug } = await params;
+  const session = await auth();
+  const currentUserId = session?.user?.id || "admin-id";
+  const currentUserName = session?.user?.name || "Admin/Manager";
+
   // getProjectBySlugOrId tries slug first, then falls back to ID lookup
   const project = await getProjectBySlugOrId(slug);
 
   if (!project) notFound();
+
+  const comments = await getComments({ projectId: project.id });
 
   const statusColors: Record<string, string> = {
     PLANNING: "bg-blue-500/10 text-blue-500 border-blue-500/20",
@@ -215,6 +225,21 @@ export default async function ProjectDetailPage({ params }: Props) {
               }))}
             />
           </div>
+
+          <div className="mt-5">
+            <CommentSection
+              projectId={project.id}
+              initialComments={comments.map((c: any) => ({
+                id: c.id,
+                content: c.content,
+                userName: c.userName,
+                userId: c.userId,
+                createdAt: c.createdAt.toISOString(),
+              }))}
+              currentUserId={currentUserId}
+              currentUserName={currentUserName}
+            />
+          </div>
         </div>
 
         {/* Sidebar: Controls + Invoices */}
@@ -225,6 +250,13 @@ export default async function ProjectDetailPage({ params }: Props) {
             currentStatus={project.status}
             currentProgress={project.progress}
             projectSlug={project.slug || null}
+          />
+
+          {/* Project Assets / Links Drive */}
+          <ProjectAssets
+            projectId={project.id}
+            initialAssets={Array.isArray(project.assets) ? (project.assets as any) : []}
+            isAdmin={true}
           />
 
           {/* Linked Invoices */}

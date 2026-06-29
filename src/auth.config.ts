@@ -60,6 +60,11 @@ export const authConfig: NextAuthConfig = {
         session.user.id = token.id as string;
         (session.user as any).role = token.role as string;
         (session.user as any).mustChangePassword = token.mustChangePassword as boolean;
+        session.user.name = `Debug: token.role=${token.role}, token.id=${token.id}`;
+      } else {
+        if (session.user) {
+          session.user.name = "Debug: token is undefined or empty";
+        }
       }
       return session;
     },

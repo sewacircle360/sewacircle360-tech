@@ -83,6 +83,7 @@ model Lead {
   status       String    @default("NEW") // NEW, CONTACTED, QUALIFIED, PROPOSAL_SENT, NEGOTIATION, WON, LOST, ARCHIVED
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
+  notes        Json?
 }
 
 // Client Portal & Document Module

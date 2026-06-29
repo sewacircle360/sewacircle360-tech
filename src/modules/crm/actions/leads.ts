@@ -220,3 +220,36 @@ export async function convertLeadToProjectAction(leadId: string) {
     return { error: "Failed to convert lead to project." };
   }
 }
+
+export async function addLeadNoteAction(leadId: string, text: string) {
+  try {
+    const lead = await db.lead.findUnique({
+      where: { id: leadId },
+      select: { notes: true }
+    });
+
+    if (!lead) {
+      return { error: "Lead not found." };
+    }
+
+    const currentNotes = Array.isArray(lead.notes) ? lead.notes : [];
+    const newNote = {
+      id: Math.random().toString(36).substring(2, 11),
+      text,
+      date: new Date().toISOString()
+    };
+
+    const updatedNotes = [newNote, ...currentNotes];
+
+    const updatedLead = await db.lead.update({
+      where: { id: leadId },
+      data: { notes: updatedNotes }
+    });
+
+    revalidatePath("/admin/crm");
+    return { success: "Note added successfully!", note: newNote, lead: updatedLead };
+  } catch (error) {
+    console.error("addLeadNoteAction error:", error);
+    return { error: "Failed to add lead note." };
+  }
+}

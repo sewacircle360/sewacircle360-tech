@@ -4,19 +4,24 @@ import { useState, useTransition } from "react";
 import { updateLeadStatus, deleteLead, updateLeadPriority, convertLeadToProjectAction } from "../actions/leads";
 import { Trash2, Calendar, DollarSign, User, ArrowRightLeft, Flag, Sparkles, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
+import { LeadDetailsDrawer } from "./LeadDetailsDrawer";
 
 interface Lead {
   id: string;
   name: string;
   email: string;
   phone?: string | null;
+  whatsapp?: string | null;
   companyName?: string | null;
   service?: string | null;
   budget?: string | null;
   timeline?: string | null;
   status: string;
   priority: string;
+  source: string;
+  country?: string | null;
   createdAt: Date | string;
+  notes?: any;
 }
 
 interface KanbanProps {
@@ -36,6 +41,7 @@ const PRIORITIES = ["LOW", "MEDIUM", "HIGH", "URGENT"];
 
 export function KanbanBoard({ initialLeads }: KanbanProps) {
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [isPending, startTransition] = useTransition();
 
   const handleStatusChange = (leadId: string, nextStatus: string) => {
@@ -123,7 +129,8 @@ export function KanbanBoard({ initialLeads }: KanbanProps) {
                 <motion.div
                   key={lead.id}
                   layout
-                  className="bg-white dark:bg-slate-950 p-4 rounded-xl border dark:border-ccslate-850 shadow-sm relative group"
+                  className="bg-white dark:bg-slate-950 p-4 rounded-xl border dark:border-ccslate-850 shadow-sm relative group cursor-pointer hover:border-primary/50 dark:hover:border-primary/50 transition-all duration-200 text-left"
+                  onClick={() => setSelectedLead(lead)}
                 >
                   {/* Lead Info */}
                   <div className="flex flex-col gap-2">
@@ -169,13 +176,13 @@ export function KanbanBoard({ initialLeads }: KanbanProps) {
                   )}
 
                   {/* Actions / Dropdowns */}
-                  <div className="flex items-center justify-between border-t border-border/60 dark:border-slate-900/80 pt-3 mt-3">
+                  <div className="flex items-center justify-between border-t border-border/60 dark:border-slate-900/80 pt-3 mt-3" onClick={(e) => e.stopPropagation()}>
                     {/* Status Changer dropdown */}
                     <div className="relative inline-block">
                       <select
                         value={lead.status}
                         onChange={(e) => handleStatusChange(lead.id, e.target.value)}
-                        className="text-[10px] font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 border-0 outline-none rounded px-2 py-1 text-slate-600 dark:text-ccslate-350 cursor-pointer"
+                        className="text-[10px] font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 border-0 outline-none rounded px-2 py-1 text-slate-605 dark:text-ccslate-350 cursor-pointer"
                       >
                         {COLUMNS.map((c) => (
                           <option key={c.id} value={c.id}>{c.id.replace(/_/g, ' ')}</option>
@@ -185,7 +192,7 @@ export function KanbanBoard({ initialLeads }: KanbanProps) {
 
                     {/* Delete Icon */}
                     <button
-                      onClick={() => handleDelete(lead.id)}
+                      onClick={(e) => { e.stopPropagation(); handleDelete(lead.id); }}
                       className="p-1 hover:bg-red-500/10 text-slate-400 hover:text-red-500 rounded transition-colors cursor-pointer"
                       aria-label="Delete lead"
                     >
@@ -206,6 +213,23 @@ export function KanbanBoard({ initialLeads }: KanbanProps) {
           </div>
         );
       })}
+
+      {selectedLead && (
+        <LeadDetailsDrawer
+          lead={selectedLead}
+          onClose={() => setSelectedLead(null)}
+          onNoteAdded={(newNote) => {
+            setLeads(prev => prev.map(l => l.id === selectedLead.id ? {
+              ...l,
+              notes: [newNote, ...(Array.isArray(l.notes) ? l.notes : [])]
+            } : l));
+            setSelectedLead(prev => prev ? {
+              ...prev,
+              notes: [newNote, ...(Array.isArray(prev.notes) ? prev.notes : [])]
+            } : null);
+          }}
+        />
+      )}
     </div>
   );
 }

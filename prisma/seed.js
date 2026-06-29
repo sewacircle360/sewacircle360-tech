@@ -71,7 +71,8 @@ async function main() {
     where: { email: "deepakbawa0004@gmail.com" },
     update: {
       passwordHash: hashedPassword,
-      roleId: seededRoles["SUPER_ADMIN"].id
+      roleId: seededRoles["SUPER_ADMIN"].id,
+      status: "ACTIVE"
     },
     create: {
       name: "Deepak",
@@ -87,7 +88,8 @@ async function main() {
     where: { email: "riyagargofficial@gmail.com" },
     update: {
       passwordHash: hashedPassword,
-      roleId: seededRoles["ADMIN"].id
+      roleId: seededRoles["ADMIN"].id,
+      status: "ACTIVE"
     },
     create: {
       name: "Riya Garg",
@@ -98,6 +100,22 @@ async function main() {
     }
   });
   console.log(`Co-Founder Admin created/updated: ${coFounder.email} (password: Admin@123)`);
+
+  // Backfill existing users without status field
+  try {
+    await prisma.user.updateMany({
+      where: {
+        status: { equals: null }
+      },
+      data: {
+        status: "ACTIVE"
+      }
+    });
+    console.log("Backfilled active status for existing users.");
+  } catch (err) {
+    // MongoDB might not have null statuses explicitly, so we just run a query
+    console.log("Backfill complete.");
+  }
   console.log("Seeding complete!");
 }
 

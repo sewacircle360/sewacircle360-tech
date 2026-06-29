@@ -46,7 +46,10 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
           };
         } catch (error) {
           console.error("Authorize error:", error);
-          return null;
+          if (error instanceof Error) {
+            throw new Error(`Authorize failed: ${error.message}`);
+          }
+          throw new Error(`Authorize failed: ${String(error)}`);
         }
       },
     }),

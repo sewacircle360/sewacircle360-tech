@@ -156,6 +156,7 @@ model Task {
   dueDate      DateTime?
   priority     String    @default("LOW") // LOW, MEDIUM, HIGH
   status       String    @default("TODO") // TODO, IN_PROGRESS, REVIEW, DONE
+  phase        String    @default("DEVELOPMENT") // PLANNING, DESIGN, DEVELOPMENT, TESTING, LAUNCH
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 }

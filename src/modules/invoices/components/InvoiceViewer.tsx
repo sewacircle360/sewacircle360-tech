@@ -3,6 +3,7 @@
 import { useState, useEffect, useTransition } from "react";
 import { Printer, Receipt, Calendar, User, ShieldCheck, CheckCircle2, AlertCircle, Clock, Loader2 } from "lucide-react";
 import { updateInvoiceStatus } from "../actions/invoices";
+import { PaymentDrawer } from "./PaymentDrawer";
 
 interface InvoiceItem {
   description: string;
@@ -34,9 +35,10 @@ interface Invoice {
 
 interface InvoiceViewerProps {
   invoice: Invoice;
+  isAdmin?: boolean;
 }
 
-export function InvoiceViewer({ invoice }: InvoiceViewerProps) {
+export function InvoiceViewer({ invoice, isAdmin = false }: InvoiceViewerProps) {
   const [isPending, startTransition] = useTransition();
   const [currentStatus, setCurrentStatus] = useState(invoice.status);
   const [branding, setBranding] = useState({
@@ -117,31 +119,52 @@ export function InvoiceViewer({ invoice }: InvoiceViewerProps) {
       {/* Action Row */}
       <div className="flex justify-between items-center gap-4 no-print border-b dark:border-slate-800/80 pb-4 mb-2">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Status Control:</span>
-          {isPending ? (
-            <div className="flex items-center gap-1.5 text-xs text-primary font-bold">
-              <Loader2 className="h-3.5 w-3.5 animate-spin" /> Updating...
-            </div>
+          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Status:</span>
+          {isAdmin ? (
+            isPending ? (
+              <div className="flex items-center gap-1.5 text-xs text-primary font-bold">
+                <Loader2 className="h-3.5 w-3.5 animate-spin" /> Updating...
+              </div>
+            ) : (
+              <select
+                value={currentStatus}
+                onChange={(e) => handleStatusChange(e.target.value)}
+                className="px-3 py-1.5 text-xs font-bold bg-slate-50 dark:bg-slate-950 border dark:border-slate-800 rounded-xl outline-none focus:border-primary text-foreground cursor-pointer"
+              >
+                <option value="UNPAID">UNPAID</option>
+                <option value="PAID">PAID</option>
+                <option value="OVERDUE">OVERDUE</option>
+              </select>
+            )
           ) : (
-            <select
-              value={currentStatus}
-              onChange={(e) => handleStatusChange(e.target.value)}
-              className="px-3 py-1.5 text-xs font-bold bg-slate-50 dark:bg-slate-950 border dark:border-slate-800 rounded-xl outline-none focus:border-primary text-foreground cursor-pointer"
-            >
-              <option value="UNPAID">UNPAID</option>
-              <option value="PAID">PAID</option>
-              <option value="OVERDUE">OVERDUE</option>
-            </select>
+            <span className={`text-[10px] font-extrabold px-3 py-1 border rounded-lg uppercase tracking-wider ${
+              currentStatus === "PAID" ? "bg-green-500/10 text-green-500 border-green-500/20" :
+              currentStatus === "OVERDUE" ? "bg-red-500/10 text-red-500 border-red-500/20" :
+              "bg-amber-500/10 text-amber-500 border-amber-500/20"
+            }`}>
+              {currentStatus}
+            </span>
           )}
         </div>
 
-        <button
-          type="button"
-          onClick={() => window.print()}
-          className="flex items-center gap-1.5 py-2 px-4 text-xs font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-xl hover:bg-slate-50 transition-all cursor-pointer shadow-sm"
-        >
-          <Printer className="h-4 w-4" /> Print / Download PDF
-        </button>
+        <div className="flex items-center gap-2">
+          {!isAdmin && currentStatus !== "PAID" && (
+            <PaymentDrawer
+              invoiceId={invoice.id}
+              amount={invoice.grandTotal}
+              invoiceNumber={invoice.invoiceNumber}
+              onPaymentSuccess={() => setCurrentStatus("PAID")}
+            />
+          )}
+
+          <button
+            type="button"
+            onClick={() => window.print()}
+            className="flex items-center gap-1.5 py-2 px-4 text-xs font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-xl hover:bg-slate-50 transition-all cursor-pointer shadow-sm"
+          >
+            <Printer className="h-4 w-4" /> Print / Download PDF
+          </button>
+        </div>
       </div>
 
       {/* Invoice Sheet */}

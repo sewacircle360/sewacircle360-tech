@@ -57,7 +57,8 @@ export default async function ClientPortalPage() {
       projects: { 
         orderBy: { createdAt: "desc" },
         include: {
-          invoices: { orderBy: { createdAt: "desc" } }
+          invoices: { orderBy: { createdAt: "desc" } },
+          tasks: { orderBy: { createdAt: "desc" } }
         }
       },
       invoices: { 
@@ -184,7 +185,16 @@ export default async function ClientPortalPage() {
 
                       {/* Interactive Stepped Progress Timeline */}
                       <div className="border-t border-dashed dark:border-slate-800/80 pt-4 mt-2">
-                        <SteppedProgress status={proj.status} />
+                        <SteppedProgress 
+                          status={proj.status} 
+                          tasks={proj.tasks ? proj.tasks.map((t: any) => ({
+                            id: t.id,
+                            title: t.title,
+                            description: t.description || null,
+                            status: t.status,
+                            phase: t.phase
+                          })) : []}
+                        />
                       </div>
 
                       {/* Numeric Progress Bar */}

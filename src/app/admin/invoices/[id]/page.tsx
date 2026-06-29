@@ -52,7 +52,7 @@ export default async function AdminInvoiceDetailPage({ params }: PageProps) {
         </div>
       </div>
 
-      <InvoiceViewer invoice={formattedInvoice} />
+      <InvoiceViewer invoice={formattedInvoice} isAdmin={true} />
     </div>
   );
 }

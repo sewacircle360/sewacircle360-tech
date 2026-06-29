@@ -1,17 +1,24 @@
 "use client";
 
-import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, BarChart, Bar, CartesianGrid } from "recharts";
+import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, BarChart, Bar } from "recharts";
 
-const REVENUE_DATA = [
-  { month: "Jan", revenue: 4000, leads: 24 },
-  { month: "Feb", revenue: 5500, leads: 38 },
-  { month: "Mar", revenue: 7800, leads: 56 },
-  { month: "Apr", revenue: 6200, leads: 42 },
-  { month: "May", revenue: 9500, leads: 70 },
-  { month: "Jun", revenue: 12000, leads: 95 },
-];
+interface DashboardChartsProps {
+  totalPaidRevenue: number;
+  totalLeadsCount: number;
+  monthlyStats: Array<{ month: string, revenue: number, leads: number }>;
+}
 
-export function DashboardCharts() {
+export function DashboardCharts({ totalPaidRevenue, totalLeadsCount, monthlyStats }: DashboardChartsProps) {
+  const hasRealData = totalPaidRevenue > 0 || totalLeadsCount > 0;
+  const chartData = hasRealData ? monthlyStats : [
+    { month: "Jan", revenue: 4000, leads: 24 },
+    { month: "Feb", revenue: 5500, leads: 38 },
+    { month: "Mar", revenue: 7850, leads: 56 },
+    { month: "Apr", revenue: 6200, leads: 42 },
+    { month: "May", revenue: 9500, leads: 70 },
+    { month: "Jun", revenue: 12000, leads: 95 },
+  ];
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
       {/* Revenue growth Area Chart */}
@@ -21,13 +28,13 @@ export function DashboardCharts() {
             Revenue Performance
           </h4>
           <span className="text-2xl font-extrabold font-display text-slate-800 dark:text-white mt-1 block">
-            ₹12,000.00
+            ₹{totalPaidRevenue.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
         </div>
         
         <div className="h-64 w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={REVENUE_DATA}>
+            <AreaChart data={chartData}>
               <defs>
                 <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#2563EB" stopOpacity={0.2} />
@@ -50,13 +57,13 @@ export function DashboardCharts() {
             CRM Leads Pipeline
           </h4>
           <span className="text-2xl font-extrabold font-display text-slate-800 dark:text-white mt-1 block">
-            95 Active
+            {totalLeadsCount} Active
           </span>
         </div>
 
         <div className="h-64 w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={REVENUE_DATA}>
+            <BarChart data={chartData}>
               <XAxis dataKey="month" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} />
               <YAxis stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} />
               <Tooltip contentStyle={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: "8px", color: "#fff", fontSize: "12px" }} />

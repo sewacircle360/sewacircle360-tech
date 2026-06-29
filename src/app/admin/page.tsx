@@ -19,16 +19,64 @@ export const metadata = {
 };
 
 export default async function AdminDashboardPage() {
-  // Query actual metrics from MongoDB Atlas (defaulting safely to 0 or demo numbers if empty)
-  const leadsCount = await db.lead.count().catch(() => 0);
-  const clientsCount = await db.client.count().catch(() => 0);
-  const projectsCount = await db.project.count().catch(() => 0);
-  const invoicesCount = await db.invoice.count().catch(() => 0);
+  // 1. Query real-time metrics
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
 
-  const displayLeads = leadsCount || 24;
-  const displayClients = clientsCount || 18;
-  const displayProjects = projectsCount || 12;
-  const displayInvoices = invoicesCount || 8;
+  const todayLeadsCount = await db.lead.count({
+    where: { createdAt: { gte: startOfToday } }
+  }).catch(() => 0);
+
+  const clientsCount = await db.client.count().catch(() => 0);
+  
+  const projectsCount = await db.project.count({
+    where: { status: { not: "COMPLETED" } }
+  }).catch(() => 0);
+
+  const pendingBillsCount = await db.invoice.count({
+    where: { status: { in: ["UNPAID", "OVERDUE"] } }
+  }).catch(() => 0);
+
+  // 2. Calculate Total Paid Revenue sum
+  const paidInvoices = await db.invoice.findMany({
+    where: { status: "PAID" },
+    select: { grandTotal: true }
+  }).catch(() => []);
+  const totalPaidRevenue = paidInvoices.reduce((sum, inv) => sum + inv.grandTotal, 0);
+
+  // 3. Aggregate Monthly Analytics for Recharts
+  const currentYear = new Date().getFullYear();
+  const yearlyInvoices = await db.invoice.findMany({
+    where: {
+      status: "PAID",
+      createdAt: { gte: new Date(currentYear, 0, 1) }
+    },
+    select: { grandTotal: true, createdAt: true }
+  }).catch(() => []);
+
+  const yearlyLeads = await db.lead.findMany({
+    where: {
+      createdAt: { gte: new Date(currentYear, 0, 1) }
+    },
+    select: { createdAt: true }
+  }).catch(() => []);
+
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const currentMonthIdx = new Date().getMonth();
+
+  const monthlyStats = months.slice(0, Math.max(6, currentMonthIdx + 1)).map((m, idx) => {
+    const monthInvoices = yearlyInvoices.filter(inv => inv.createdAt.getMonth() === idx);
+    const revSum = monthInvoices.reduce((sum, inv) => sum + inv.grandTotal, 0);
+    const monthLeadsCount = yearlyLeads.filter(l => l.createdAt.getMonth() === idx).length;
+
+    return {
+      month: m,
+      revenue: revSum,
+      leads: monthLeadsCount
+    };
+  });
+
+  const totalLeadsCount = await db.lead.count().catch(() => 0);
 
   const quickActions = [
     { label: "Add Client", href: "/admin/clients/new", icon: Users, color: "text-blue-500" },
@@ -56,7 +104,7 @@ export default async function AdminDashboardPage() {
         <div className="bg-white dark:bg-[#090d1f]/60 p-5 rounded-2xl border dark:border-slate-800/80 shadow-sm flex items-center justify-between">
           <div className="flex flex-col gap-1">
             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Today's Leads</span>
-            <span className="text-3xl font-extrabold font-display text-slate-800 dark:text-white leading-none">{displayLeads}</span>
+            <span className="text-3xl font-extrabold font-display text-slate-800 dark:text-white leading-none">{todayLeadsCount}</span>
           </div>
           <div className="p-3 rounded-xl bg-blue-500/10 text-blue-500 border border-blue-500/20">
             <Target className="h-5 w-5" />
@@ -67,7 +115,7 @@ export default async function AdminDashboardPage() {
         <div className="bg-white dark:bg-[#090d1f]/60 p-5 rounded-2xl border dark:border-slate-800/80 shadow-sm flex items-center justify-between">
           <div className="flex flex-col gap-1">
             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Active Clients</span>
-            <span className="text-3xl font-extrabold font-display text-slate-800 dark:text-white leading-none">{displayClients}</span>
+            <span className="text-3xl font-extrabold font-display text-slate-800 dark:text-white leading-none">{clientsCount}</span>
           </div>
           <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
             <Users className="h-5 w-5" />
@@ -78,7 +126,7 @@ export default async function AdminDashboardPage() {
         <div className="bg-white dark:bg-[#090d1f]/60 p-5 rounded-2xl border dark:border-slate-800/80 shadow-sm flex items-center justify-between">
           <div className="flex flex-col gap-1">
             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Active Projects</span>
-            <span className="text-3xl font-extrabold font-display text-slate-800 dark:text-white leading-none">{displayProjects}</span>
+            <span className="text-3xl font-extrabold font-display text-slate-800 dark:text-white leading-none">{projectsCount}</span>
           </div>
           <div className="p-3 rounded-xl bg-cyan-500/10 text-cyan-500 border border-cyan-500/20">
             <Briefcase className="h-5 w-5" />
@@ -89,7 +137,7 @@ export default async function AdminDashboardPage() {
         <div className="bg-white dark:bg-[#090d1f]/60 p-5 rounded-2xl border dark:border-slate-800/80 shadow-sm flex items-center justify-between">
           <div className="flex flex-col gap-1">
             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Pending Bills</span>
-            <span className="text-3xl font-extrabold font-display text-slate-800 dark:text-white leading-none">{displayInvoices}</span>
+            <span className="text-3xl font-extrabold font-display text-slate-800 dark:text-white leading-none">{pendingBillsCount}</span>
           </div>
           <div className="p-3 rounded-xl bg-indigo-500/10 text-indigo-500 border border-indigo-500/20">
             <Receipt className="h-5 w-5" />
@@ -124,7 +172,11 @@ export default async function AdminDashboardPage() {
       </div>
 
       {/* Recharts Analytics Panel */}
-      <DashboardCharts />
+      <DashboardCharts 
+        totalPaidRevenue={totalPaidRevenue} 
+        totalLeadsCount={totalLeadsCount} 
+        monthlyStats={monthlyStats} 
+      />
     </div>
   );
 }

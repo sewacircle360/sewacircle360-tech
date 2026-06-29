@@ -1,6 +1,7 @@
 import { getProjects } from "@/modules/projects/actions/projects";
 import { Briefcase, Calendar, Plus, ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { DeleteProjectButton } from "@/modules/projects/components/DeleteProjectButton";
 
 export const metadata = {
   title: "Projects Pipeline | SewaCircle360 Business OS",
@@ -65,16 +66,19 @@ export default async function AdminProjectsPage() {
               >
                 <div className="flex flex-col gap-4">
                   {/* Status & Deadline */}
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center gap-2">
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ${statusColors[project.status] || "bg-slate-500/10 text-slate-500"}`}>
                       {project.status}
                     </span>
-                    <span className="text-[10px] font-semibold text-slate-400 flex items-center gap-1">
-                      <Calendar className="h-3.5 w-3.5" />
-                      {project.deadline 
-                        ? new Date(project.deadline).toLocaleDateString("en-IN", { month: "short", day: "numeric" }) 
-                        : "No Limit"}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-semibold text-slate-400 flex items-center gap-1">
+                        <Calendar className="h-3.5 w-3.5" />
+                        {project.deadline 
+                          ? new Date(project.deadline).toLocaleDateString("en-IN", { month: "short", day: "numeric" }) 
+                          : "No Limit"}
+                      </span>
+                      <DeleteProjectButton projectId={project.id} projectName={project.name} />
+                    </div>
                   </div>
 
                   {/* Project info */}

@@ -47,6 +47,7 @@ export async function createInvoice(data: {
   dueDate: Date;
   items: { description: string; quantity: number; price: number; tax: number }[];
   discount?: number;
+  status?: string;
 }) {
   try {
     const existing = await db.invoice.findUnique({ where: { invoiceNumber: data.invoiceNumber } });
@@ -79,7 +80,7 @@ export async function createInvoice(data: {
         discount: discountAmount,
         tax: taxAmount,
         grandTotal,
-        status: "UNPAID",
+        status: data.status || "UNPAID",
       }
     });
 

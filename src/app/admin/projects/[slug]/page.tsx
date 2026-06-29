@@ -1,10 +1,10 @@
-import { getProjectBySlug } from "@/modules/projects/actions/projects";
+import { getProjectBySlugOrId } from "@/modules/projects/actions/projects";
 import { notFound } from "next/navigation";
 import { 
-  Briefcase, Calendar, CheckCircle2, Clock, AlertCircle, 
-  Users, Target, Receipt, Edit3, IndianRupee, TrendingUp
+  Calendar, Clock, Receipt, Link as LinkIcon
 } from "lucide-react";
 import Link from "next/link";
+import { ProjectActions } from "@/modules/projects/components/ProjectActions";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -12,7 +12,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
-  const project = await getProjectBySlug(slug);
+  const project = await getProjectBySlugOrId(slug);
   return {
     title: project ? `${project.name} | SewaCircle360 OS` : "Project Not Found",
   };
@@ -20,7 +20,8 @@ export async function generateMetadata({ params }: Props) {
 
 export default async function ProjectDetailPage({ params }: Props) {
   const { slug } = await params;
-  const project = await getProjectBySlug(slug);
+  // getProjectBySlugOrId tries slug first, then falls back to ID lookup
+  const project = await getProjectBySlugOrId(slug);
 
   if (!project) notFound();
 
@@ -31,6 +32,7 @@ export default async function ProjectDetailPage({ params }: Props) {
     TESTING: "bg-cyan-500/10 text-cyan-500 border-cyan-500/20",
     DEPLOYMENT: "bg-indigo-500/10 text-indigo-500 border-indigo-500/20",
     COMPLETED: "bg-green-500/10 text-green-500 border-green-500/20",
+    MAINTENANCE: "bg-rose-500/10 text-rose-500 border-rose-500/20",
   };
 
   const taskStatusColors: Record<string, string> = {
@@ -53,7 +55,7 @@ export default async function ProjectDetailPage({ params }: Props) {
       <div className="flex items-center gap-2 text-xs text-slate-500">
         <Link href="/admin/projects" className="hover:text-primary transition-colors">Projects</Link>
         <span>/</span>
-        <span className="text-slate-900 dark:text-white font-medium">{project.name}</span>
+        <span className="text-slate-900 dark:text-white font-medium truncate max-w-xs">{project.name}</span>
       </div>
 
       {/* Header */}
@@ -72,20 +74,23 @@ export default async function ProjectDetailPage({ params }: Props) {
             {project.deadline && (
               <> &nbsp;·&nbsp; Deadline: <span className="font-semibold text-slate-700 dark:text-slate-200">{new Date(project.deadline).toLocaleDateString("en-IN")}</span></>
             )}
+            {project.budget && (
+              <> &nbsp;·&nbsp; Budget: <span className="font-semibold text-slate-700 dark:text-slate-200">₹{project.budget.toLocaleString("en-IN")}</span></>
+            )}
           </p>
-          <p className="text-xs text-slate-400 font-mono">
-            URL: /admin/projects/{project.slug}
-          </p>
+          {project.slug && (
+            <p className="text-[10px] text-slate-400 font-mono flex items-center gap-1">
+              <LinkIcon className="h-3 w-3" /> /admin/projects/{project.slug}
+            </p>
+          )}
         </div>
 
-        <div className="flex gap-2 flex-wrap shrink-0">
-          <Link
-            href={`/admin/invoices/new?clientId=${project.clientId}&projectId=${project.id}`}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-white bg-primary hover:bg-primary/90 rounded-xl cursor-pointer"
-          >
-            <Receipt className="h-3.5 w-3.5" /> Add Invoice
-          </Link>
-        </div>
+        <Link
+          href={`/admin/invoices/new?clientId=${project.clientId}&projectId=${project.id}`}
+          className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-white bg-primary hover:bg-primary/90 rounded-xl cursor-pointer shrink-0 w-fit"
+        >
+          <Receipt className="h-3.5 w-3.5" /> Add Invoice
+        </Link>
       </div>
 
       {/* Stats Row */}
@@ -99,7 +104,7 @@ export default async function ProjectDetailPage({ params }: Props) {
         </div>
         <div className="bg-white dark:bg-[#090d1f]/60 p-4 rounded-2xl border dark:border-slate-800/80 shadow-sm flex flex-col gap-1">
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Tasks Done</span>
-          <span className="text-2xl font-black text-slate-900 dark:text-white">{doneTasks}<span className="text-sm text-slate-400">/{totalTasks}</span></span>
+          <span className="text-2xl font-black text-slate-900 dark:text-white">{doneTasks}<span className="text-sm text-slate-400 font-normal">/{totalTasks}</span></span>
         </div>
         <div className="bg-white dark:bg-[#090d1f]/60 p-4 rounded-2xl border dark:border-slate-800/80 shadow-sm flex flex-col gap-1">
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Amount Paid</span>
@@ -113,49 +118,48 @@ export default async function ProjectDetailPage({ params }: Props) {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Tasks */}
-        <div className="lg:col-span-2 bg-white dark:bg-[#090d1f]/60 rounded-2xl border dark:border-slate-800/80 shadow-sm overflow-hidden">
-          <div className="p-5 border-b dark:border-slate-800 flex items-center justify-between">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-slate-500">Tasks</h2>
-            <span className="text-xs font-bold text-slate-400">{doneTasks}/{totalTasks} completed</span>
-          </div>
-          {project.tasks.length === 0 ? (
-            <div className="py-12 text-center">
-              <p className="text-xs text-slate-400">No tasks created yet.</p>
+        <div className="lg:col-span-2 flex flex-col gap-5">
+          <div className="bg-white dark:bg-[#090d1f]/60 rounded-2xl border dark:border-slate-800/80 shadow-sm overflow-hidden">
+            <div className="p-5 border-b dark:border-slate-800 flex items-center justify-between">
+              <h2 className="text-sm font-bold uppercase tracking-wider text-slate-500">Tasks</h2>
+              <span className="text-xs font-bold text-slate-400">{doneTasks}/{totalTasks} completed</span>
             </div>
-          ) : (
-            <div className="divide-y dark:divide-slate-800">
-              {project.tasks.map((task) => (
-                <div key={task.id} className="flex items-center justify-between p-4 gap-3">
-                  <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                    <span className={`font-semibold text-sm text-slate-900 dark:text-white truncate ${task.status === "DONE" ? "line-through opacity-60" : ""}`}>
-                      {task.title}
-                    </span>
-                    {task.assignedTo && (
-                      <span className="text-[10px] text-slate-400">Assigned: {task.assignedTo.name}</span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    {task.dueDate && (
-                      <span className="text-[10px] text-slate-400 flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        {new Date(task.dueDate).toLocaleDateString("en-IN", { month: "short", day: "numeric" })}
+            {project.tasks.length === 0 ? (
+              <div className="py-12 text-center">
+                <p className="text-xs text-slate-400">No tasks created yet.</p>
+              </div>
+            ) : (
+              <div className="divide-y dark:divide-slate-800">
+                {project.tasks.map((task) => (
+                  <div key={task.id} className="flex items-center justify-between p-4 gap-3">
+                    <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                      <span className={`font-semibold text-sm text-slate-900 dark:text-white truncate ${task.status === "DONE" ? "line-through opacity-60" : ""}`}>
+                        {task.title}
                       </span>
-                    )}
-                    <span className={`text-[9px] font-bold px-2 py-0.5 rounded uppercase ${taskStatusColors[task.status] || "bg-slate-500/10 text-slate-500"}`}>
-                      {task.status.replace("_", " ")}
-                    </span>
+                      {task.assignedTo && (
+                        <span className="text-[10px] text-slate-400">Assigned: {task.assignedTo.name}</span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {task.dueDate && (
+                        <span className="text-[10px] text-slate-400 flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          {new Date(task.dueDate).toLocaleDateString("en-IN", { month: "short", day: "numeric" })}
+                        </span>
+                      )}
+                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded uppercase ${taskStatusColors[task.status] || "bg-slate-500/10 text-slate-500"}`}>
+                        {task.status.replace("_", " ")}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+                ))}
+              </div>
+            )}
+          </div>
 
-        {/* Sidebar: Milestones + Invoices */}
-        <div className="flex flex-col gap-5">
           {/* Milestones */}
           <div className="bg-white dark:bg-[#090d1f]/60 rounded-2xl border dark:border-slate-800/80 shadow-sm overflow-hidden">
-            <div className="p-4 border-b dark:border-slate-800">
+            <div className="p-5 border-b dark:border-slate-800">
               <h2 className="text-sm font-bold uppercase tracking-wider text-slate-500">Milestones</h2>
             </div>
             {project.milestones.length === 0 ? (
@@ -165,21 +169,39 @@ export default async function ProjectDetailPage({ params }: Props) {
             ) : (
               <div className="divide-y dark:divide-slate-800">
                 {project.milestones.map((m) => (
-                  <div key={m.id} className="flex items-center gap-3 p-3">
+                  <div key={m.id} className="flex items-center gap-3 p-4">
                     <div className={`w-2 h-2 rounded-full shrink-0 ${m.status === "COMPLETED" ? "bg-green-500" : m.status === "IN_PROGRESS" ? "bg-amber-500" : "bg-slate-400"}`} />
                     <div className="flex-1 min-w-0">
-                      <p className={`text-xs font-semibold text-slate-900 dark:text-white truncate ${m.status === "COMPLETED" ? "line-through opacity-60" : ""}`}>
+                      <p className={`text-sm font-semibold text-slate-900 dark:text-white truncate ${m.status === "COMPLETED" ? "line-through opacity-60" : ""}`}>
                         {m.title}
                       </p>
                       {m.dueDate && (
                         <p className="text-[10px] text-slate-400">{new Date(m.dueDate).toLocaleDateString("en-IN")}</p>
                       )}
                     </div>
+                    <span className={`text-[9px] font-bold px-2 py-0.5 rounded uppercase ${
+                      m.status === "COMPLETED" ? "bg-green-500/10 text-green-500" :
+                      m.status === "IN_PROGRESS" ? "bg-amber-500/10 text-amber-500" :
+                      "bg-slate-500/10 text-slate-500"
+                    }`}>
+                      {m.status.replace("_", " ")}
+                    </span>
                   </div>
                 ))}
               </div>
             )}
           </div>
+        </div>
+
+        {/* Sidebar: Controls + Invoices */}
+        <div className="flex flex-col gap-5">
+          {/* Interactive Controls (client component) */}
+          <ProjectActions
+            projectId={project.id}
+            currentStatus={project.status}
+            currentProgress={project.progress}
+            projectSlug={project.slug || null}
+          />
 
           {/* Linked Invoices */}
           <div className="bg-white dark:bg-[#090d1f]/60 rounded-2xl border dark:border-slate-800/80 shadow-sm overflow-hidden">

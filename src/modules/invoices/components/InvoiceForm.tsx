@@ -14,6 +14,7 @@ interface Project {
   id: string;
   name: string;
   clientId: string;
+  budget?: number | null;
 }
 
 interface InvoiceFormProps {
@@ -39,6 +40,7 @@ export function InvoiceForm({ clients, projects = [] }: InvoiceFormProps) {
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [dueDate, setDueDate] = useState("");
   const [discount, setDiscount] = useState(0);
+  const [status, setStatus] = useState("UNPAID");
 
   // Filter projects by selected client
   const clientProjects = projects.filter(p => p.clientId === clientId);
@@ -104,6 +106,7 @@ export function InvoiceForm({ clients, projects = [] }: InvoiceFormProps) {
           dueDate: new Date(dueDate),
           items,
           discount,
+          status,
         });
 
         if (result.error) {
@@ -235,12 +238,32 @@ export function InvoiceForm({ clients, projects = [] }: InvoiceFormProps) {
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Link to Project <span className="text-slate-400 normal-case font-normal">(optional)</span></label>
             <select
-              value={projectId}
-              onChange={(e) => setProjectId(e.target.value)}
-              disabled={isPending}
-              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-950/85 border rounded-lg outline-none focus:border-primary text-foreground cursor-pointer"
-            >
-              <option value="">General Invoice (no project)</option>
+            value={projectId}
+            onChange={(e) => {
+              const selectedId = e.target.value;
+              setProjectId(selectedId);
+              if (selectedId) {
+                const proj = projects.find(p => p.id === selectedId);
+                if (proj) {
+                  setItems([
+                    {
+                      description: `Development & Engineering Charges for ${proj.name}`,
+                      quantity: 1,
+                      price: proj.budget || 0,
+                      tax: 18
+                    }
+                  ]);
+                }
+              } else {
+                setItems([
+                  { description: "Enterprise Software Design", quantity: 1, price: 1500, tax: 18 }
+                ]);
+              }
+            }}
+            disabled={isPending}
+            className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-950/85 border rounded-lg outline-none focus:border-primary text-foreground cursor-pointer"
+          >
+            <option value="">General Invoice (no project)</option>
               {clientProjects.length === 0 ? (
                 <option disabled>No projects found for this client</option>
               ) : (
@@ -290,17 +313,34 @@ export function InvoiceForm({ clients, projects = [] }: InvoiceFormProps) {
           </div>
         </div>
 
-        {/* Discount */}
-        <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Discount (₹)</label>
-          <input
-            type="number"
-            value={discount || ""}
-            onChange={(e) => setDiscount(Number(e.target.value))}
-            disabled={isPending}
-            placeholder="0.00"
-            className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-950/85 border rounded-lg outline-none focus:border-primary text-foreground"
-          />
+        <div className="grid grid-cols-2 gap-4">
+          {/* Discount */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Discount (₹)</label>
+            <input
+              type="number"
+              value={discount || ""}
+              onChange={(e) => setDiscount(Number(e.target.value))}
+              disabled={isPending}
+              placeholder="0.00"
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-950/85 border rounded-lg outline-none focus:border-primary text-foreground"
+            />
+          </div>
+
+          {/* Status */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Payment Status</label>
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              disabled={isPending}
+              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-950/85 border rounded-lg outline-none focus:border-primary text-foreground cursor-pointer"
+            >
+              <option value="UNPAID">Unpaid</option>
+              <option value="PAID">Paid</option>
+              <option value="OVERDUE">Overdue</option>
+            </select>
+          </div>
         </div>
 
         {/* Summary calculation card */}

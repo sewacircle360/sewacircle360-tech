@@ -15,10 +15,12 @@ function generateSlug(name: string): string {
 }
 
 // Ensure slug is unique by appending a number if needed
-async function uniqueSlug(base: string): Promise<string> {
+async function uniqueSlug(base: string, excludeId?: string): Promise<string> {
   let slug = base;
   let counter = 1;
-  while (await db.project.findFirst({ where: { slug } })) {
+  while (
+    await db.project.findFirst({ where: { slug, id: excludeId ? { not: excludeId } : undefined } })
+  ) {
     slug = `${base}-${counter++}`;
   }
   return slug;
@@ -86,6 +88,17 @@ export async function getProjectBySlug(slug: string) {
   }
 }
 
+// Lookup by slug OR by ID (handles legacy projects without slugs)
+export async function getProjectBySlugOrId(slugOrId: string) {
+  // Try slug first
+  let project = await getProjectBySlug(slugOrId);
+  // If not found, try by ID (legacy projects without slug)
+  if (!project) {
+    project = await getProjectById(slugOrId);
+  }
+  return project;
+}
+
 export async function createProject(data: {
   name: string;
   clientId: string;
@@ -125,13 +138,55 @@ export async function createProject(data: {
   }
 }
 
+export async function updateProject(id: string, data: {
+  name?: string;
+  status?: string;
+  progress?: number;
+  budget?: number;
+  deadline?: Date;
+}) {
+  try {
+    // If name changed, regenerate slug
+    let slug: string | undefined;
+    if (data.name) {
+      const base = generateSlug(data.name);
+      slug = await uniqueSlug(base, id);
+    }
+
+    const project = await db.project.update({
+      where: { id },
+      data: {
+        ...data,
+        ...(slug ? { slug } : {}),
+      }
+    });
+    revalidatePath("/admin/projects");
+    revalidatePath(`/admin/projects/${project.slug || project.id}`);
+    return { success: "Project updated!", project };
+  } catch (error) {
+    console.error("updateProject error:", error);
+    return { error: "Failed to update project." };
+  }
+}
+
+export async function deleteProject(id: string) {
+  try {
+    await db.project.delete({ where: { id } });
+    revalidatePath("/admin/projects");
+    return { success: "Project deleted successfully." };
+  } catch (error) {
+    console.error("deleteProject error:", error);
+    return { error: "Failed to delete project." };
+  }
+}
+
 export async function updateProjectStatus(id: string, status: string) {
   try {
     const project = await db.project.update({
       where: { id },
       data: { status }
     });
-    revalidatePath(`/admin/projects/${project.slug}`);
+    revalidatePath(`/admin/projects/${project.slug || project.id}`);
     revalidatePath("/admin/projects");
     return { success: "Project status updated!", project };
   } catch (error) {
@@ -146,7 +201,7 @@ export async function updateProjectProgress(id: string, progress: number) {
       where: { id },
       data: { progress }
     });
-    revalidatePath(`/admin/projects/${project.slug}`);
+    revalidatePath(`/admin/projects/${project.slug || project.id}`);
     revalidatePath("/admin/projects");
     return { success: "Project progress updated!", project };
   } catch (error) {

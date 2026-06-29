@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Printer, Receipt, Calendar, User, ShieldCheck } from "lucide-react";
+import { useState, useEffect, useTransition } from "react";
+import { Printer, Receipt, Calendar, User, ShieldCheck, CheckCircle2, AlertCircle, Clock, Loader2 } from "lucide-react";
+import { updateInvoiceStatus } from "../actions/invoices";
 
 interface InvoiceItem {
   description: string;
@@ -36,6 +37,8 @@ interface InvoiceViewerProps {
 }
 
 export function InvoiceViewer({ invoice }: InvoiceViewerProps) {
+  const [isPending, startTransition] = useTransition();
+  const [currentStatus, setCurrentStatus] = useState(invoice.status);
   const [branding, setBranding] = useState({
     brandColor: "#2563eb",
     brandName: "SewaCircle360 TECHNOLOGY",
@@ -45,6 +48,13 @@ export function InvoiceViewer({ invoice }: InvoiceViewerProps) {
     gstNumber: "03SEWAC360T1Z2",
     digitalSeal: "CIRCULAR_BLUE",
   });
+
+  const handleStatusChange = (newStatus: string) => {
+    setCurrentStatus(newStatus);
+    startTransition(async () => {
+      await updateInvoiceStatus(invoice.id, newStatus);
+    });
+  };
 
   useEffect(() => {
     function load() {
@@ -105,18 +115,45 @@ export function InvoiceViewer({ invoice }: InvoiceViewerProps) {
       `}} />
 
       {/* Action Row */}
-      <div className="flex justify-end gap-2 no-print">
+      <div className="flex justify-between items-center gap-4 no-print border-b dark:border-slate-800/80 pb-4 mb-2">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Status Control:</span>
+          {isPending ? (
+            <div className="flex items-center gap-1.5 text-xs text-primary font-bold">
+              <Loader2 className="h-3.5 w-3.5 animate-spin" /> Updating...
+            </div>
+          ) : (
+            <select
+              value={currentStatus}
+              onChange={(e) => handleStatusChange(e.target.value)}
+              className="px-3 py-1.5 text-xs font-bold bg-slate-50 dark:bg-slate-950 border dark:border-slate-800 rounded-xl outline-none focus:border-primary text-foreground cursor-pointer"
+            >
+              <option value="UNPAID">UNPAID</option>
+              <option value="PAID">PAID</option>
+              <option value="OVERDUE">OVERDUE</option>
+            </select>
+          )}
+        </div>
+
         <button
           type="button"
           onClick={() => window.print()}
-          className="flex items-center gap-1.5 py-2 px-4 text-xs font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-xl hover:bg-slate-50 transition-all cursor-pointer shadow-sm animate-pulse"
+          className="flex items-center gap-1.5 py-2 px-4 text-xs font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-xl hover:bg-slate-50 transition-all cursor-pointer shadow-sm"
         >
           <Printer className="h-4 w-4" /> Print / Download PDF
         </button>
       </div>
 
       {/* Invoice Sheet */}
-      <div className="invoice-sheet bg-white dark:bg-slate-900 border dark:border-slate-850 rounded-3xl p-6 sm:p-10 shadow-xl overflow-hidden">
+      <div className="invoice-sheet bg-white dark:bg-slate-900 border dark:border-slate-850 rounded-3xl p-6 sm:p-10 shadow-xl overflow-hidden relative">
+        {/* Paid Watermark/Stamp */}
+        {currentStatus === "PAID" && (
+          <div className="absolute right-8 top-28 border-4 border-dashed border-emerald-500/40 text-emerald-500/40 font-black text-2xl px-6 py-2.5 uppercase rounded-2xl tracking-widest rotate-12 select-none font-mono flex flex-col items-center justify-center pointer-events-none z-10">
+            <span>PAID</span>
+            <span className="text-[8px] font-bold tracking-normal mt-0.5">RECEIPT</span>
+          </div>
+        )}
+
         {/* Invoice Header block */}
         <div className="flex flex-col sm:flex-row justify-between gap-6 border-b dark:border-slate-800 pb-8">
           <div className="flex flex-col gap-3">
@@ -141,11 +178,11 @@ export function InvoiceViewer({ invoice }: InvoiceViewerProps) {
               {invoice.invoiceNumber}
             </h1>
             <span className={`text-[9px] font-bold px-2.5 py-1 rounded uppercase w-fit mt-1 ${
-              invoice.status === "PAID" ? "bg-green-500/10 text-green-500 border border-green-500/20" :
-              invoice.status === "OVERDUE" ? "bg-red-500/10 text-red-500 border border-red-500/20" :
+              currentStatus === "PAID" ? "bg-green-500/10 text-green-500 border border-green-500/20" :
+              currentStatus === "OVERDUE" ? "bg-red-500/10 text-red-500 border border-red-500/20" :
               "bg-amber-500/10 text-amber-500 border border-amber-500/20"
             }`}>
-              {invoice.status}
+              {currentStatus}
             </span>
           </div>
         </div>

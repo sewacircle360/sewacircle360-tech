@@ -21,6 +21,7 @@ export default async function NewInvoicePage() {
     id: p.id,
     name: p.name,
     clientId: p.clientId,
+    budget: p.budget,
   }));
 
   return (

@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { addExpense, deleteExpense } from "../actions/expenses";
 import { Trash2, Loader2, DollarSign, Calendar, FileText, PlusCircle, PieChart } from "lucide-react";
+import { ResponsiveContainer, PieChart as RePieChart, Pie, Cell, Tooltip } from "recharts";
 
 interface ExpenseItem {
   id: string;
@@ -95,6 +96,20 @@ export function ProjectExpenses({ projectId, initialExpenses }: ProjectExpensesP
     if (sum > 0) acc.push({ category: cat, amount: sum, percent: total > 0 ? (sum / total) * 100 : 0 });
     return acc;
   }, [] as Array<{ category: string; amount: number; percent: number }>);
+
+  const CATEGORY_COLORS: Record<string, string> = {
+    HOSTING: "#3b82f6",
+    DOMAIN: "#a855f7",
+    DEVELOPER_PAYOUT: "#eab308",
+    MARKETING: "#10b981",
+    OTHER: "#ef4444"
+  };
+
+  const pieData = breakdown.map(item => ({
+    name: item.category.replace("_", " "),
+    value: item.amount,
+    color: CATEGORY_COLORS[item.category] || "#64748b"
+  }));
 
   return (
     <div className="bg-white dark:bg-[#090d1f]/60 rounded-2xl border dark:border-slate-800/80 shadow-sm p-6 flex flex-col gap-6 text-left">
@@ -195,15 +210,41 @@ export function ProjectExpenses({ projectId, initialExpenses }: ProjectExpensesP
               <span className="text-xs text-slate-400">No expenses logged yet.</span>
             </div>
           ) : (
-            <div className="space-y-3 bg-slate-50 dark:bg-slate-950/20 p-4 border dark:border-slate-800/60 rounded-2xl">
+            <div className="space-y-3 bg-slate-50 dark:bg-slate-950/20 p-4 border dark:border-slate-800/60 rounded-2xl flex flex-col gap-3">
+              {/* Pie Chart container */}
+              <div className="h-36 w-full no-print relative select-none">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RePieChart>
+                    <Pie
+                      data={pieData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={28}
+                      outerRadius={45}
+                      paddingAngle={3}
+                      dataKey="value"
+                    >
+                      {pieData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip contentStyle={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: "8px", color: "#fff", fontSize: "10px" }} />
+                  </RePieChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Progress bars list */}
               {breakdown.map((item, idx) => (
                 <div key={idx} className="flex flex-col gap-1">
                   <div className="flex justify-between text-xs font-semibold text-slate-600 dark:text-slate-350">
-                    <span className="uppercase tracking-wide text-[10px]">{item.category.replace("_", " ")}</span>
+                    <span className="uppercase tracking-wide text-[10px] flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: CATEGORY_COLORS[item.category] }} />
+                      {item.category.replace("_", " ")}
+                    </span>
                     <span>₹{item.amount.toLocaleString("en-IN")} ({item.percent.toFixed(0)}%)</span>
                   </div>
-                  <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
-                    <div className="h-full bg-primary rounded-full" style={{ width: `${item.percent}%` }} />
+                  <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-800/80 rounded-full overflow-hidden">
+                    <div className="h-full rounded-full transition-all duration-500" style={{ width: `${item.percent}%`, backgroundColor: CATEGORY_COLORS[item.category] }} />
                   </div>
                 </div>
               ))}

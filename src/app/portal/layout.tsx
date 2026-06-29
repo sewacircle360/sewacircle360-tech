@@ -6,6 +6,8 @@ import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { FolderCheck, Receipt, FileText, LayoutDashboard, LogOut, User, LifeBuoy } from "lucide-react";
 import Link from "next/link";
 import { db } from "@/lib/db";
+import { SupportChatBubble } from "@/modules/comments/components/SupportChatBubble";
+import { getComments } from "@/modules/comments/actions/comments";
  
 export default async function PortalLayout({
   children,
@@ -62,6 +64,15 @@ export default async function PortalLayout({
       </div>
     );
   }
+
+  const clientProjects = await db.project.findMany({
+    where: { clientId: client.id },
+    orderBy: { createdAt: "desc" },
+    take: 1
+  });
+  const firstProject = clientProjects?.[0];
+  const projectId = firstProject?.id || null;
+  const comments = projectId ? await getComments({ projectId }) : [];
  
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-[#020617] text-slate-900 dark:text-slate-100 transition-colors duration-300">
@@ -121,6 +132,21 @@ export default async function PortalLayout({
           {children}
         </div>
       </div>
+
+      {projectId && (
+        <SupportChatBubble
+          projectId={projectId}
+          currentUserId={userId}
+          currentUserName={userName}
+          initialComments={comments.map((c: any) => ({
+            id: c.id,
+            content: c.content,
+            userName: c.userName,
+            userId: c.userId,
+            createdAt: c.createdAt.toISOString(),
+          }))}
+        />
+      )}
     </div>
   );
 }

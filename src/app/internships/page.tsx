@@ -91,6 +91,8 @@ export default function InternshipsPage() {
 
   return (
     <>
+      <title>Software Engineering Internships | SewaCircle360</title>
+      <meta name="description" content="Apply for hands-on software developer remote internships and get mentored on live enterprise software solutions." />
       <Header />
       <main className="flex-grow pt-32 pb-24 bg-slate-50 dark:bg-[#020617] transition-colors duration-300">
         

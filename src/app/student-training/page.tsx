@@ -82,6 +82,8 @@ export default function StudentTrainingPage() {
 
   return (
     <>
+      <title>Academic Project Guidance & Mentorship | SewaCircle360</title>
+      <meta name="description" content="Request 1-on-1 development guidance, database planning, and code review mentorship for your semester university projects." />
       <Header />
       <main className="flex-grow pt-32 pb-24 bg-slate-50 dark:bg-[#020617] transition-colors duration-300">
         

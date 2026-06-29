@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import bcrypt from "bcryptjs";
 import { sendEmail } from "@/lib/mail";
+import { logAuditEvent } from "@/lib/audit";
 
 export async function getClients() {
   try {
@@ -129,6 +130,8 @@ export async function createClient(data: {
         userId: userId || null,
       }
     });
+
+    await logAuditEvent("CREATE_CLIENT", `Created client profile: ${data.companyName} (${data.ownerName})`);
 
     revalidatePath("/admin/clients");
     return { success: "Client created successfully!", client };

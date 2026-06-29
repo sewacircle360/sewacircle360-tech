@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import bcrypt from "bcryptjs";
 import { sendEmail } from "@/lib/mail";
+import { logAuditEvent } from "@/lib/audit";
 
 export async function createEmployee(data: { name: string; email: string }) {
   try {
@@ -55,6 +56,8 @@ export async function createEmployee(data: { name: string; email: string }) {
         </div>
       `
     }).catch(err => console.error("Employee email trigger failed:", err));
+
+    await logAuditEvent("REGISTER_EMPLOYEE", `Registered employee account: ${data.name} (${data.email})`);
 
     revalidatePath("/admin/employees");
     return { success: "Employee registered successfully! Default login password is: 123456789", employee };

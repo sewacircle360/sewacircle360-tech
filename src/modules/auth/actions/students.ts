@@ -3,6 +3,7 @@
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { sendEmail } from "@/lib/mail";
+import { logAuditEvent } from "@/lib/audit";
 
 export async function getStudents() {
   try {
@@ -85,6 +86,8 @@ export async function verifyStudentDocumentsAction(id: string, actionType: "APPR
         `
       }).catch(err => console.error("Student approve email trigger failed:", err));
 
+      await logAuditEvent("VERIFY_STUDENT_APPROVE", `Approved credentials and college ID for student: ${student.name} (${student.email})`);
+
       revalidatePath("/admin/students");
       return { success: "Student documents approved and activated!" };
     } else {
@@ -117,6 +120,8 @@ export async function verifyStudentDocumentsAction(id: string, actionType: "APPR
           </div>
         `
       }).catch(err => console.error("Student reject email trigger failed:", err));
+
+      await logAuditEvent("VERIFY_STUDENT_REJECT", `Rejected credentials and college ID for student: ${student.name} (${student.email}). Reason: ${rejectionReason}`);
 
       revalidatePath("/admin/students");
       return { success: "Student documents rejected. Alert email dispatched." };

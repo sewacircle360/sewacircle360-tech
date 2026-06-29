@@ -3,6 +3,7 @@
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { sendEmail } from "@/lib/mail";
+import { logAuditEvent } from "@/lib/audit";
 
 // Clients
 export async function getClients() {
@@ -299,6 +300,11 @@ In consideration of the custom software development services provided by SewaCir
       }).catch(err => console.error("Agreement email trigger failed:", err));
     }
 
+    await logAuditEvent(
+      agreementStatus === "DRAFT" ? "CREATE_DRAFT_AGREEMENT" : "CREATE_SEND_AGREEMENT", 
+      `Created SLA agreement ${agreementNumber} (${agreementStatus}) for client: ${client.companyName}`
+    );
+
     revalidatePath("/admin/agreements");
     return { success: agreementStatus === "DRAFT" ? "Draft saved successfully!" : "Agreement sent successfully!", agreementId: agreement.id };
   } catch (error) {
@@ -341,6 +347,8 @@ export async function sendAgreementEmailAction(agreementId: string) {
       where: { id: agreementId },
       data: { status: "SENT" }
     });
+
+    await logAuditEvent("SEND_AGREEMENT_EMAIL", `Emailed SLA contract: ${agreement.title} to client ${agreement.client.companyName}`);
 
     revalidatePath("/admin/agreements");
     return { success: "Agreement email sent to client!" };

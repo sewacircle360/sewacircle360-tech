@@ -9,8 +9,13 @@ export default auth((req) => {
   const isLoggedIn = !!req.auth;
   const role = (req.auth?.user as any)?.role;
 
-  // 1. If logged in as an Employee and tries to access /admin, redirect to /employee
-  if (isLoggedIn && role === "EMPLOYEE" && nextUrl.pathname.startsWith("/admin")) {
+  // 1. If logged in as an Employee and tries to access /admin (and NOT internally rewritten), redirect to /employee
+  if (
+    isLoggedIn && 
+    role === "EMPLOYEE" && 
+    nextUrl.pathname.startsWith("/admin") &&
+    nextUrl.searchParams.get("internal_masked") !== "true"
+  ) {
     const newPath = nextUrl.pathname.replace("/admin", "/employee");
     return NextResponse.redirect(new URL(newPath, nextUrl));
   }
@@ -21,10 +26,12 @@ export default auth((req) => {
     return NextResponse.redirect(new URL(newPath, nextUrl));
   }
 
-  // 3. Rewrite /employee to /admin internally for Next.js to render /admin routes
+  // 3. Rewrite /employee to /admin internally for Next.js to render /admin routes (mark as internal_masked)
   if (nextUrl.pathname.startsWith("/employee")) {
     const targetPath = nextUrl.pathname.replace("/employee", "/admin");
-    return NextResponse.rewrite(new URL(targetPath, nextUrl));
+    const targetUrl = new URL(targetPath, nextUrl);
+    targetUrl.searchParams.set("internal_masked", "true");
+    return NextResponse.rewrite(targetUrl);
   }
 
   return NextResponse.next();

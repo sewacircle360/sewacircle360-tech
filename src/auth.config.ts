@@ -24,7 +24,7 @@ export const authConfig: NextAuthConfig = {
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
-      const isOnDashboard = nextUrl.pathname.startsWith("/admin") || nextUrl.pathname.startsWith("/dashboard");
+      const isOnDashboard = nextUrl.pathname.startsWith("/admin") || nextUrl.pathname.startsWith("/dashboard") || nextUrl.pathname.startsWith("/employee");
       const isOnClientPortal = nextUrl.pathname.startsWith("/portal");
       const isOnStudentPortal = nextUrl.pathname.startsWith("/student");
       

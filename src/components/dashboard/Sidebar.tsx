@@ -96,6 +96,14 @@ export function Sidebar() {
         return employeePaths.includes(link.href);
       }
       return true;
+    }).map((link) => {
+      if (isEmployee) {
+        return {
+          ...link,
+          href: link.href.replace("/admin", "/employee")
+        };
+      }
+      return link;
     });
 
     return {

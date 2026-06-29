@@ -49,6 +49,8 @@ export const authConfig: NextAuthConfig = {
         token.id = user.id;
         token.role = (user as any).role;
         token.mustChangePassword = (user as any).mustChangePassword;
+        (token as any).userKeys = Object.keys(user).join(",");
+        (token as any).rawRole = String((user as any).role);
       }
       if (trigger === "update" && session) {
         return { ...token, ...session };
@@ -60,7 +62,7 @@ export const authConfig: NextAuthConfig = {
         session.user.id = token.id as string;
         (session.user as any).role = token.role as string;
         (session.user as any).mustChangePassword = token.mustChangePassword as boolean;
-        session.user.name = `Debug: token.role=${token.role}, token.id=${token.id}`;
+        session.user.name = `Debug: role=${token.role}, id=${token.id}, keys=[${(token as any).userKeys}], raw=${(token as any).rawRole}`;
       } else {
         if (session.user) {
           session.user.name = "Debug: token is undefined or empty";

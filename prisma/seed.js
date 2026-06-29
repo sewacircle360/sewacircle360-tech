@@ -30,7 +30,7 @@ async function main() {
   console.log(`Seeded ${dbPermissions.length} permissions.`);
 
   // Seed Base Roles
-  const roles = ["SUPER_ADMIN", "ADMIN", "EMPLOYEE", "CLIENT"];
+  const roles = ["SUPER_ADMIN", "ADMIN", "EMPLOYEE", "CLIENT", "STUDENT"];
   const seededRoles = {};
 
   for (const roleName of roles) {

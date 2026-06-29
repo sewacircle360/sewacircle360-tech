@@ -21,6 +21,11 @@ model User {
   updatedAt     DateTime  @updatedAt
   deletedAt     DateTime?
 
+  mustChangePassword Boolean   @default(false)
+  collegeName        String?
+  otpCode            String?
+  otpExpiry          DateTime?
+
   // Module Relationships
   blogs               BlogPost[]
   auditLogs           AuditLog[]
@@ -311,5 +316,27 @@ model Quotation {
   status          String    @default("DRAFT") // DRAFT, SENT, ACCEPTED, REJECTED, EXPIRED, CONVERTED
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+}
+
+model JobPosition {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  department  String
+  location    String
+  type        String
+  description String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model StudentProjectRequest {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  studentName  String
+  studentEmail String
+  collegeName  String
+  projectTitle String
+  description  String
+  status       String   @default("PENDING") // PENDING, APPROVED, IN_PROGRESS, COMPLETED
+  createdAt    DateTime @default(now())
 }
 

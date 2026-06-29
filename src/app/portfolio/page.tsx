@@ -13,6 +13,7 @@ const DEFAULT_PORTFOLIO = [
     technologies: ["Next.js", "React", "Tailwind CSS", "Stripe", "Prisma", "PostgreSQL"],
     liveUrl: "https://shop.sewacircle360tech.online",
     coverUrl: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+    isDefault: true,
   },
   {
     id: "port2",
@@ -22,6 +23,7 @@ const DEFAULT_PORTFOLIO = [
     technologies: ["React", "TypeScript", "Node.js", "MongoDB", "Express", "Docker"],
     liveUrl: "https://school.sewacircle360tech.online",
     coverUrl: "https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+    isDefault: true,
   },
   {
     id: "port3",
@@ -31,6 +33,7 @@ const DEFAULT_PORTFOLIO = [
     technologies: ["React Native", "Expo", "SQLite", "Firebase", "Node.js"],
     liveUrl: "https://clinic.sewacircle360tech.online",
     coverUrl: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+    isDefault: true,
   }
 ];
 
@@ -41,7 +44,7 @@ export const metadata = {
 
 export default async function PortfolioPage() {
   const dbPortfolio = await getPortfolioProjects();
-  const portfolioList = dbPortfolio.length > 0 ? dbPortfolio : DEFAULT_PORTFOLIO;
+  const portfolioList = [...DEFAULT_PORTFOLIO, ...dbPortfolio];
 
   return (
     <>
@@ -108,7 +111,7 @@ export default async function PortfolioPage() {
                 </div>
 
                 {/* Footer link */}
-                {project.liveUrl && (
+                {project.liveUrl && !project.isDefault && (
                   <a 
                     href={project.liveUrl}
                     target="_blank"

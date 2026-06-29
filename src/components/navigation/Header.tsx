@@ -16,6 +16,8 @@ const NAV_LINKS = [
   { label: "Portfolio", href: "/portfolio" },
   { label: "Blog", href: "/blog" },
   { label: "Careers", href: "/careers" },
+  { label: "Academic Projects", href: "/student-training" },
+  { label: "Internships", href: "/internships" },
   { label: "Contact", href: "/contact" },
 ];
 

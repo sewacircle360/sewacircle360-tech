@@ -7,57 +7,21 @@ import Link from "next/link";
 const DEFAULT_PRODUCTS = [
   {
     id: "p1",
-    name: "SewaCircle360 Suite",
-    slug: "sewacircle360",
-    category: "CRM & ERP",
-    description: "Our flagship enterprise business operating system. Automate customer pipelines, generate itemized quotations, sign electronic agreements, track milestones, and manage invoices.",
-    version: "3.2.0",
+    name: "SewaCircle360 Online",
+    slug: "sewacircle360-online",
+    category: "SaaS Ecosystem",
+    description: "Created by SewaCircle360 Tech. This is our live flagship software ecosystem that provides fully responsive operational dashboards, project trackers, and digital modules.",
+    version: "3.5.0",
     status: "LIVE",
+    liveUrl: "https://sewacircle360.online",
     features: [
-      "Client Agreement Vault",
-      "Dynamic HTML-to-PDF Invoices",
-      "Interactive Project Kanban Boards",
-      "SMTP Transactional Email Alerts"
+      "Fully Responsive Portals",
+      "Operational Dashboards",
+      "Project Milestone Trackers",
+      "Modular SaaS Integrations"
     ],
     pricingPlans: [
-      { name: "Starter", price: "₹2,999/mo" },
-      { name: "Enterprise", price: "₹9,999/mo" }
-    ]
-  },
-  {
-    id: "p2",
-    name: "School ERP Core",
-    slug: "school-erp",
-    category: "Education Software",
-    description: "A centralized administration software for schools. Manage student registries, fee invoice cycles, attendance registers, report card generations, and teacher databases.",
-    version: "1.4.0",
-    status: "LIVE",
-    features: [
-      "Fee Invoicing Matrix",
-      "Student Attendance Tracker",
-      "Exam Report Generator",
-      "Parent Notification Tray"
-    ],
-    pricingPlans: [
-      { name: "Per School", price: "Custom Quote" }
-    ]
-  },
-  {
-    id: "p3",
-    name: "Hospital ERP Core",
-    slug: "hospital-erp",
-    category: "Healthcare Software",
-    description: "High-performance platform for medical centers. Connect patient intake logs, bed allocation maps, pharmacy stocks, billing invoices, and doctor calendar schedules.",
-    version: "2.1.0",
-    status: "BETA",
-    features: [
-      "Patient Intake Vault",
-      "Doctor Consultation Calendar",
-      "Pharmacy stock check",
-      "Health Insurance Billing"
-    ],
-    pricingPlans: [
-      { name: "Per Clinic", price: "Custom Quote" }
+      { name: "SewaCircle360 Product", price: "Live Service" }
     ]
   }
 ];
@@ -69,7 +33,7 @@ export const metadata = {
 
 export default async function ProductsPage() {
   const dbProducts = await getProducts();
-  const productsList = dbProducts.length > 0 ? dbProducts : DEFAULT_PRODUCTS;
+  const productsList = [...DEFAULT_PRODUCTS, ...dbProducts];
 
   return (
     <>
@@ -166,14 +130,25 @@ export default async function ProductsPage() {
                     <ArrowRight className="h-4 w-4" />
                   </Link>
 
-                  <Link 
-                    href={prod.slug === "sewacircle360" ? "https://sewacircle360.online/" : `/products/${prod.slug}`}
-                    target={prod.slug === "sewacircle360" ? "_blank" : undefined}
-                    className="w-full flex items-center justify-center gap-2 py-3 px-4 font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-950 hover:bg-slate-100 border border-border/80 rounded-xl transition-all cursor-pointer"
-                  >
-                    View Product Specs
-                    <ExternalLink className="h-4 w-4" />
-                  </Link>
+                  {prod.liveUrl ? (
+                    <a 
+                      href={prod.liveUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="w-full flex items-center justify-center gap-2 py-3 px-4 font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-950 hover:bg-slate-100 border border-border/80 rounded-xl transition-all cursor-pointer"
+                    >
+                      View Live Product
+                      <ExternalLink className="h-4 w-4" />
+                    </a>
+                  ) : (
+                    <Link 
+                      href={`/products/${prod.slug}`}
+                      className="w-full flex items-center justify-center gap-2 py-3 px-4 font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-950 hover:bg-slate-100 border border-border/80 rounded-xl transition-all cursor-pointer"
+                    >
+                      View Product Specs
+                      <ExternalLink className="h-4 w-4" />
+                    </Link>
+                  )}
                 </div>
               </div>
             );

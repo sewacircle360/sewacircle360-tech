@@ -38,6 +38,8 @@ const NAV_GROUPS = [
       { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
       { label: "Leads CRM", href: "/admin/crm", icon: Target },
       { label: "Clients Directory", href: "/admin/clients", icon: Users },
+      { label: "Employees Directory", href: "/admin/employees", icon: ShieldCheck },
+      { label: "Academic Requests", href: "/admin/academic-requests", icon: Award },
       { label: "Projects Pipeline", href: "/admin/projects", icon: Briefcase },
     ]
   },
@@ -55,6 +57,7 @@ const NAV_GROUPS = [
       { label: "Products Catalog", href: "/admin/products", icon: Layers },
       { label: "Services Builder", href: "/admin/services", icon: Wrench },
       { label: "Portfolio Grid", href: "/admin/portfolio", icon: FolderHeart },
+      { label: "Careers Manager", href: "/admin/careers", icon: Briefcase },
       { label: "Company Blog", href: "/admin/blog", icon: BookOpen },
     ]
   },

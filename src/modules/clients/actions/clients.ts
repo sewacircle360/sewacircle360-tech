@@ -3,6 +3,7 @@
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import bcrypt from "bcryptjs";
+import { sendEmail } from "@/lib/mail";
 
 export async function getClients() {
   try {
@@ -75,25 +76,46 @@ export async function createClient(data: {
 
     let userId: string | undefined;
 
-    // Optional: Auto-create User account with CLIENT role for portal logins
-    if (data.createPortalAccess && data.portalPassword) {
-      const clientRole = await db.role.findUnique({ where: { name: "CLIENT" } });
-      if (!clientRole) {
-        return { error: "CLIENT role does not exist. Run seed script first." };
-      }
-
-      const hashedPassword = await bcrypt.hash(data.portalPassword, 10);
-      const user = await db.user.create({
-        data: {
-          name: data.ownerName,
-          email: data.email,
-          passwordHash: hashedPassword,
-          roleId: clientRole.id,
-          status: "ACTIVE",
-        }
-      });
-      userId = user.id;
+    // Auto-create User account with CLIENT role for portal logins
+    const portalPass = data.portalPassword || "123456789";
+    const clientRole = await db.role.findUnique({ where: { name: "CLIENT" } });
+    if (!clientRole) {
+      return { error: "CLIENT role does not exist. Run seed script first." };
     }
+
+    const hashedPassword = await bcrypt.hash(portalPass, 10);
+    const user = await db.user.create({
+      data: {
+        name: data.ownerName,
+        email: data.email,
+        passwordHash: hashedPassword,
+        roleId: clientRole.id,
+        status: "ACTIVE",
+        mustChangePassword: true, // Force password update on first login
+      }
+    });
+    userId = user.id;
+
+    // Send email with credentials to client
+    await sendEmail({
+      to: data.email,
+      subject: "Your SewaCircle360 Client Portal Account",
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 12px;">
+          <h2 style="color: #6366f1; text-align: center;">Welcome to SewaCircle360 Client Portal</h2>
+          <p>Hello ${data.ownerName},</p>
+          <p>A client workspace has been created for your project. You can access your project milestones, invoices, and sign agreements using the login details below:</p>
+          <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <p style="margin: 5px 0;"><strong>Portal URL:</strong> <a href="https://sewacircle360tech.online/auth/login">https://sewacircle360tech.online/auth/login</a></p>
+            <p style="margin: 5px 0;"><strong>Username / Email:</strong> ${data.email}</p>
+            <p style="margin: 5px 0;"><strong>Temporary Password:</strong> ${portalPass}</p>
+          </div>
+          <p style="color: #ef4444; font-size: 11px;">Note: You will be prompted to change your password immediately upon your first login for security.</p>
+          <hr style="border: 0; border-top: 1px solid #e0e0e0; margin: 20px 0;" />
+          <p style="font-size: 10px; color: #9ca3af; text-align: center;">© SewaCircle360 Technologies.</p>
+        </div>
+      `
+    }).catch(err => console.error("Client email trigger failed:", err));
 
     const client = await db.client.create({
       data: {

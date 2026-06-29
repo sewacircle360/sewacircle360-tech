@@ -3,6 +3,7 @@
 import { signIn } from "@/auth";
 import { LoginSchema, LoginInput } from "../schemas";
 import { AuthError } from "next-auth";
+import { unstable_rethrow } from "next/navigation";
 
 export async function loginAction(values: LoginInput) {
   const validatedFields = LoginSchema.safeParse(values);
@@ -24,9 +25,7 @@ export async function loginAction(values: LoginInput) {
     return { success: "Logged in successfully!" };
   } catch (error) {
     // Auth.js redirects by throwing a NEXT_REDIRECT error. We must let this bubble up!
-    if (error instanceof Error && error.message.includes("NEXT_REDIRECT")) {
-      throw error;
-    }
+    unstable_rethrow(error);
 
     if (error instanceof AuthError) {
       switch (error.type) {

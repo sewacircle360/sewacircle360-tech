@@ -36,6 +36,8 @@ const COMPANY_LINKS = [
   { label: "Our Portfolio", href: "/portfolio" },
   { label: "Latest Blogs", href: "/blog" },
   { label: "Careers", href: "/careers" },
+  { label: "Academic Projects", href: "/student-training" },
+  { label: "Internships", href: "/internships" },
   { label: "Contact Us", href: "/contact" },
 ];
 
@@ -101,23 +103,29 @@ export function Footer() {
                 <Instagram className="h-4 w-4" />
               </a>
               <a 
-                href="#" 
+                href="https://www.linkedin.com/company/sewacircle360" 
+                target="_blank"
+                rel="noreferrer"
                 className="p-2 bg-slate-200/50 hover:bg-primary/10 text-slate-600 dark:bg-slate-800/40 dark:hover:bg-accent/10 dark:text-slate-300 dark:hover:text-accent rounded-full transition-colors duration-300 cursor-pointer"
                 aria-label="LinkedIn"
               >
                 <Linkedin className="h-4 w-4" />
               </a>
               <a 
-                href="#" 
+                href="https://github.com/sewacircle360" 
+                target="_blank"
+                rel="noreferrer"
                 className="p-2 bg-slate-200/50 hover:bg-primary/10 text-slate-600 dark:bg-slate-800/40 dark:hover:bg-accent/10 dark:text-slate-300 dark:hover:text-accent rounded-full transition-colors duration-300 cursor-pointer"
                 aria-label="GitHub"
               >
                 <Github className="h-4 w-4" />
               </a>
               <a 
-                href="#" 
+                href="https://instagram.com/sewacircle360" 
+                target="_blank"
+                rel="noreferrer"
                 className="p-2 bg-slate-200/50 hover:bg-primary/10 text-slate-600 dark:bg-slate-800/40 dark:hover:bg-accent/10 dark:text-slate-300 dark:hover:text-accent rounded-full transition-colors duration-300 cursor-pointer"
-                aria-label="Twitter"
+                aria-label="Instagram backup"
               >
                 <Twitter className="h-4 w-4" />
               </a>

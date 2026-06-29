@@ -84,7 +84,7 @@ export default function AdminInvoicesPage() {
                     </td>
                     <td className="py-4 px-6 text-right">
                       <Link
-                        href={`/portal/agreements`} // or custom print link
+                        href={`/admin/invoices/${inv.id}`}
                         className="inline-flex p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-400 hover:text-slate-750 transition-all cursor-pointer"
                       >
                         <Eye className="h-4 w-4" />

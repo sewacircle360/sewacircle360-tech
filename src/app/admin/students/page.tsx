@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect, useTransition } from "react";
-import { getStudents, updateStudentStatus, deleteStudent } from "@/modules/auth/actions/students";
-import { GraduationCap, Trash2, Eye, RefreshCw, Loader2, AlertCircle, ShieldAlert, Check, Ban, X } from "lucide-react";
+import { getStudents, updateStudentStatus, deleteStudent, verifyStudentDocumentsAction } from "@/modules/auth/actions/students";
+import { GraduationCap, Trash2, Eye, RefreshCw, Loader2, AlertCircle, ShieldAlert, Check, Ban, X, XCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function AdminStudentsPage() {
@@ -44,6 +44,31 @@ export default function AdminStudentsPage() {
       fetchStudents();
       setSelectedStudent(null);
     }
+  };
+
+  const handleVerify = async (id: string, actionType: "APPROVE" | "REJECT") => {
+    let reason = "";
+    if (actionType === "REJECT") {
+      const input = prompt(
+        "Enter the reason for document rejection (this will be emailed to the student):", 
+        "Your uploaded college ID card is blurry. Please re-upload a clear copy."
+      );
+      if (input === null) return; // user cancelled
+      reason = input;
+    } else {
+      if (!confirm("Are you sure you want to approve this student's registration documents?")) return;
+    }
+
+    startTransition(async () => {
+      const res = await verifyStudentDocumentsAction(id, actionType, reason || undefined);
+      if (res.error) {
+        alert(res.error);
+      } else {
+        alert(res.success || "Operation completed!");
+        fetchStudents();
+        setSelectedStudent(null);
+      }
+    });
   };
 
   return (
@@ -211,19 +236,29 @@ export default function AdminStudentsPage() {
               </div>
 
               {/* Modal footer */}
-              <div className="p-6 bg-slate-50/50 dark:bg-slate-950/20 border-t dark:border-slate-800/80 flex justify-end gap-3">
+              <div className="p-6 bg-slate-50/50 dark:bg-slate-950/20 border-t dark:border-slate-800/80 flex flex-wrap justify-between items-center gap-3">
                 <button
                   onClick={() => setSelectedStudent(null)}
                   className="px-4 py-2 text-xs font-bold text-slate-500 hover:text-slate-700 bg-slate-100 dark:bg-slate-900 border rounded-xl"
                 >
                   Close Sheet
                 </button>
-                <button
-                  onClick={() => handleStatusChange(selectedStudent.id, "ACTIVE")}
-                  className="px-4 py-2 text-xs font-bold text-white bg-green-600 hover:bg-green-700 rounded-xl"
-                >
-                  Verify & Activate Student
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleVerify(selectedStudent.id, "REJECT")}
+                    disabled={isPending}
+                    className="px-4 py-2 text-xs font-bold text-white bg-red-650 hover:bg-red-700 rounded-xl disabled:opacity-50 flex items-center gap-1.5"
+                  >
+                    <XCircle className="h-3.5 w-3.5" /> Reject Documents
+                  </button>
+                  <button
+                    onClick={() => handleVerify(selectedStudent.id, "APPROVE")}
+                    disabled={isPending}
+                    className="px-4 py-2 text-xs font-bold text-white bg-green-600 hover:bg-green-700 rounded-xl disabled:opacity-50 flex items-center gap-1.5"
+                  >
+                    <Check className="h-3.5 w-3.5" /> Approve & Activate
+                  </button>
+                </div>
               </div>
             </motion.div>
           </div>

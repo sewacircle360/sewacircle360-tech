@@ -3,7 +3,7 @@
 import { signIn } from "@/auth";
 import { LoginSchema, LoginInput } from "../schemas";
 import { AuthError } from "next-auth";
-import { unstable_rethrow } from "next/navigation";
+import { db } from "@/lib/db";
 
 export async function loginAction(values: LoginInput) {
   const validatedFields = LoginSchema.safeParse(values);
@@ -15,30 +15,41 @@ export async function loginAction(values: LoginInput) {
   const { email, password } = validatedFields.data;
 
   try {
-    await signIn("credentials", {
+    // NextAuth signIn with redirect: false returns result without throwing NEXT_REDIRECT
+    const signInResult = await signIn("credentials", {
       email,
       password,
-      redirect: true,
-      redirectTo: "/admin",
+      redirect: false,
     });
-    
-    return { success: "Logged in successfully!" };
-  } catch (error) {
-    // Auth.js redirects by throwing a NEXT_REDIRECT error. We must let this bubble up!
-    unstable_rethrow(error);
 
-    console.error("loginAction error detail:", error);
+    const user = await db.user.findUnique({
+      where: { email },
+      include: { role: true }
+    });
 
-    let errorDetail = "An unexpected error occurred.";
-    if (error instanceof Error) {
-      errorDetail = error.message;
-      if ((error as any).type) {
-        errorDetail += ` (type: ${(error as any).type})`;
-      }
-    } else {
-      errorDetail = String(error);
+    if (!user) {
+      return { error: "Account not found." };
     }
 
-    return { error: `Authentication Error: ${errorDetail}` };
+    if (user.mustChangePassword) {
+      return { success: "Redirecting...", redirectTo: "/auth/change-password" };
+    }
+
+    if (user.role.name === "CLIENT") {
+      return { success: "Redirecting...", redirectTo: "/portal" };
+    } else if (user.role.name === "STUDENT") {
+      return { success: "Redirecting...", redirectTo: "/student" };
+    } else {
+      return { success: "Redirecting...", redirectTo: "/admin" };
+    }
+  } catch (error) {
+    console.error("loginAction error detail:", error);
+
+    let errorDetail = "Invalid email or password.";
+    if (error instanceof Error) {
+      errorDetail = error.message;
+    }
+
+    return { error: `Sign in failed: ${errorDetail}` };
   }
 }

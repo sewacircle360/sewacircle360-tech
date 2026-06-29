@@ -38,8 +38,11 @@ export function LoginForm() {
         const result = await loginAction(data);
         if (result?.error) {
           setError(result.error);
-        } else if (result?.success) {
-          setSuccess(result.success);
+        } else if (result?.redirectTo) {
+          setSuccess(result.success || "Logged in successfully!");
+          setTimeout(() => {
+            window.location.href = result.redirectTo;
+          }, 800);
         }
       } catch (err) {
         console.error("Client side login error:", err);

@@ -8,7 +8,7 @@ import { LoginSchema, LoginInput } from "../schemas";
 import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight, AlertCircle, CheckCircle2 } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import Link from "next/link";
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export function LoginForm() {
@@ -44,14 +44,18 @@ export function LoginForm() {
         });
 
         if (res?.error) {
-          setError("Invalid email or password. Please check your credentials.");
+          setError(`Sign In Failed: ${res.error === "CredentialsSignin" ? "Invalid email or password" : res.error}`);
         } else {
-          setSuccess("Logged in successfully! Redirecting...");
-          // We can read user session info to redirect or let middleware route it.
-          // Since we want to redirect to /admin, we push there.
-          setTimeout(() => {
-            window.location.href = "/admin";
-          }, 800);
+          // Fetch the session details to debug
+          const session = await getSession();
+          if (session) {
+            setSuccess(`Login Success! Session User: ${JSON.stringify(session.user)}. Redirecting in 5 seconds...`);
+            setTimeout(() => {
+              window.location.href = "/admin";
+            }, 5000);
+          } else {
+            setError("Authentication succeeded but NO session could be loaded from cookies! Please check your cookie permissions.");
+          }
         }
       } catch (err) {
         console.error("Client side login error:", err);

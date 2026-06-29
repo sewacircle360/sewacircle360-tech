@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { updateProfile } from "@/modules/profile/actions/updateProfile";
-import { Loader2, CheckCircle2, AlertTriangle, User, Mail, ShieldAlert, KeyRound, Image as ImageIcon } from "lucide-react";
+import { Loader2, CheckCircle2, AlertTriangle, User, Mail, ShieldAlert, KeyRound, Image as ImageIcon, Eye, EyeOff } from "lucide-react";
 
 interface ProfileFormProps {
   initialUser: {
@@ -18,6 +18,7 @@ export function ProfileForm({ initialUser }: ProfileFormProps) {
   const [email, setEmail] = useState(initialUser.email || "");
   const [image, setImage] = useState(initialUser.image || "");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
@@ -159,13 +160,20 @@ export function ProfileForm({ initialUser }: ProfileFormProps) {
         <div className="relative">
           <KeyRound className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             placeholder="••••••••"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             disabled={isPending}
-            className="w-full pl-9 pr-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-950/80 border border-border/80 dark:border-slate-800 rounded-xl outline-none text-foreground focus:border-primary"
+            className="w-full pl-9 pr-12 py-2.5 text-sm bg-slate-50 dark:bg-slate-950/80 border border-border/80 dark:border-slate-800 rounded-xl outline-none text-foreground focus:border-primary"
           />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-3 text-slate-400 hover:text-slate-650 cursor-pointer bg-transparent border-0"
+          >
+            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </button>
         </div>
       </div>
 

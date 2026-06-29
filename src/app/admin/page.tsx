@@ -10,15 +10,123 @@ import {
   FileCheck2,
   Calendar,
   Layers,
-  ArrowUpRight
+  ArrowUpRight,
+  ClipboardList
 } from "lucide-react";
 import Link from "next/link";
+import { auth } from "@/auth";
 
 export const metadata = {
   title: "Dashboard | SewaCircle360 Business OS",
 };
 
 export default async function AdminDashboardPage() {
+  const session = await auth();
+  const userRole = (session?.user as any)?.role;
+  const userId = session?.user?.id;
+  const isEmployee = userRole === "EMPLOYEE";
+
+  if (isEmployee && userId) {
+    const employeeProjectsCount = await db.project.count({
+      where: {
+        OR: [
+          { developerIds: { has: userId } },
+          { designerIds: { has: userId } },
+          { managerId: userId }
+        ]
+      }
+    }).catch(() => 0);
+
+    const employeeTasksCount = await db.task.count({
+      where: { assignedToId: userId }
+    }).catch(() => 0);
+
+    const employeeMeetingsCount = await db.meeting.count({
+      where: { assignedEmployeeId: userId }
+    }).catch(() => 0);
+
+    const quickActions = [
+      { label: "My Profile", href: "/admin/profile", icon: Users, color: "text-blue-500" },
+      { label: "Meetings Calendar", href: "/admin/meetings", icon: Calendar, color: "text-emerald-500" },
+      { label: "Projects Pipeline", href: "/admin/projects", icon: Briefcase, color: "text-cyan-500" },
+    ];
+
+    return (
+      <div className="flex flex-col gap-6 text-left">
+        <div>
+          <h1 className="text-3xl font-bold font-display text-slate-900 dark:text-white leading-none">
+            Employee Workspace
+          </h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            Welcome back, {session?.user?.name || "Team Member"}. Track your assigned projects, tasks, and meetings.
+          </p>
+        </div>
+
+        {/* Stats Counter Row */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+          {/* Projects */}
+          <div className="bg-white dark:bg-[#090d1f]/60 p-5 rounded-2xl border dark:border-slate-800/80 shadow-sm flex items-center justify-between">
+            <div className="flex flex-col gap-1">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Your Projects</span>
+              <span className="text-3xl font-extrabold font-display text-slate-800 dark:text-white leading-none">{employeeProjectsCount}</span>
+            </div>
+            <div className="p-3 rounded-xl bg-cyan-500/10 text-cyan-500 border border-cyan-500/20">
+              <Briefcase className="h-5 w-5" />
+            </div>
+          </div>
+
+          {/* Tasks */}
+          <div className="bg-white dark:bg-[#090d1f]/60 p-5 rounded-2xl border dark:border-slate-800/80 shadow-sm flex items-center justify-between">
+            <div className="flex flex-col gap-1">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Pending Tasks</span>
+              <span className="text-3xl font-extrabold font-display text-slate-800 dark:text-white leading-none">{employeeTasksCount}</span>
+            </div>
+            <div className="p-3 rounded-xl bg-blue-500/10 text-blue-500 border border-blue-500/20">
+              <ClipboardList className="h-5 w-5" />
+            </div>
+          </div>
+
+          {/* Meetings */}
+          <div className="bg-white dark:bg-[#090d1f]/60 p-5 rounded-2xl border dark:border-slate-800/80 shadow-sm flex items-center justify-between">
+            <div className="flex flex-col gap-1">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Scheduled Meetings</span>
+              <span className="text-3xl font-extrabold font-display text-slate-800 dark:text-white leading-none">{employeeMeetingsCount}</span>
+            </div>
+            <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+              <Calendar className="h-5 w-5" />
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Action matrix */}
+        <div className="bg-white dark:bg-[#090d1f]/60 p-5 rounded-2xl border dark:border-slate-800/80 shadow-sm">
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4 block">
+            Workspace Quick Actions
+          </span>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {quickActions.map((act) => {
+              const Icon = act.icon;
+              return (
+                <Link 
+                  key={act.label}
+                  href={act.href}
+                  className="flex flex-col items-center justify-center text-center p-4 rounded-xl border dark:border-slate-800 hover:border-primary/20 dark:hover:border-accent/20 bg-slate-50 hover:bg-white dark:bg-slate-900/40 dark:hover:bg-slate-900 transition-all duration-300 gap-2 cursor-pointer group"
+                >
+                  <div className={`p-2.5 bg-white dark:bg-slate-950 border rounded-lg group-hover:scale-105 transition-transform ${act.color}`}>
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    {act.label}
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // 1. Query real-time metrics
   const startOfToday = new Date();
   startOfToday.setHours(0, 0, 0, 0);

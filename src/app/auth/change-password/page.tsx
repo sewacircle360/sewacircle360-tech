@@ -2,8 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { changePasswordAction } from "@/modules/auth/actions/change-password";
-import { useSession } from "next-auth/react";
-import { Lock, ArrowRight, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
+import { useSession, signOut } from "next-auth/react";
+import { Lock, ArrowRight, Loader2, AlertCircle, CheckCircle2, Eye, EyeOff } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
@@ -12,6 +12,8 @@ export default function ChangePasswordPage() {
   const { data: session, update } = useSession();
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -37,20 +39,13 @@ export default function ChangePasswordPage() {
       if (result.error) {
         setError(result.error);
       } else {
-        setSuccess(result.success || "Password changed successfully!");
+        setSuccess(result.success || "Password changed successfully! Redirecting to login...");
         
         // Trigger a NextAuth session update to clear mustChangePassword flag in local cookie
         await update({ mustChangePassword: false });
 
-        setTimeout(() => {
-          const role = (session?.user as any)?.role;
-          if (role === "CLIENT") {
-            router.push("/portal");
-          } else if (role === "STUDENT") {
-            router.push("/student");
-          } else {
-            router.push("/admin");
-          }
+        setTimeout(async () => {
+          await signOut({ redirect: true, callbackUrl: "/auth/login" });
         }, 1500);
       }
     });
@@ -89,14 +84,21 @@ export default function ChangePasswordPage() {
               <div className="relative">
                 <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
                 <input
-                  type="password"
+                  type={showNewPassword ? "text" : "password"}
                   required
                   placeholder="••••••••"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   disabled={isPending}
-                  className="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-950/80 border border-border/80 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-foreground transition-all"
+                  className="w-full pl-10 pr-12 py-2.5 text-sm bg-slate-50 dark:bg-slate-950/80 border border-border/80 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-foreground transition-all"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  className="absolute right-3 top-3.5 text-slate-400 hover:text-slate-650 cursor-pointer bg-transparent border-0"
+                >
+                  {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
               </div>
             </div>
 
@@ -106,14 +108,21 @@ export default function ChangePasswordPage() {
               <div className="relative">
                 <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
                 <input
-                  type="password"
+                  type={showConfirmPassword ? "text" : "password"}
                   required
                   placeholder="••••••••"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   disabled={isPending}
-                  className="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-950/80 border border-border/80 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-foreground transition-all"
+                  className="w-full pl-10 pr-12 py-2.5 text-sm bg-slate-50 dark:bg-slate-950/80 border border-border/80 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-foreground transition-all"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-3.5 text-slate-400 hover:text-slate-650 cursor-pointer bg-transparent border-0"
+                >
+                  {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
               </div>
             </div>
 

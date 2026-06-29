@@ -81,6 +81,29 @@ export function Sidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
 
+  const userRole = (session?.user as any)?.role;
+  const isEmployee = userRole === "EMPLOYEE";
+
+  const visibleNavGroups = NAV_GROUPS.map((group) => {
+    const allowedLinks = group.links.filter((link) => {
+      if (isEmployee) {
+        const employeePaths = [
+          "/admin", 
+          "/admin/projects", 
+          "/admin/meetings", 
+          "/admin/profile"
+        ];
+        return employeePaths.includes(link.href);
+      }
+      return true;
+    });
+
+    return {
+      ...group,
+      links: allowedLinks
+    };
+  }).filter((group) => group.links.length > 0);
+
   // Load collapse state from local storage on mount
   useEffect(() => {
     const saved = localStorage.getItem("sidebar-collapsed");
@@ -150,7 +173,7 @@ export function Sidebar() {
 
       {/* Sidebar Links Scrollable Wrapper */}
       <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-5 scrollbar-thin">
-        {NAV_GROUPS.map((group) => {
+        {visibleNavGroups.map((group) => {
           // Filter links based on quick search query
           const filteredLinks = group.links.filter(link => 
             link.label.toLowerCase().includes(filterQuery.toLowerCase())

@@ -27,16 +27,18 @@ export async function loginAction(values: LoginInput) {
     // Auth.js redirects by throwing a NEXT_REDIRECT error. We must let this bubble up!
     unstable_rethrow(error);
 
-    if (error instanceof AuthError) {
-      switch (error.type) {
-        case "CredentialsSignin":
-          return { error: "Invalid email or password. Please check your credentials." };
-        default:
-          return { error: "Authentication failed. Please try again." };
+    console.error("loginAction error detail:", error);
+
+    let errorDetail = "An unexpected error occurred.";
+    if (error instanceof Error) {
+      errorDetail = error.message;
+      if ((error as any).type) {
+        errorDetail += ` (type: ${(error as any).type})`;
       }
+    } else {
+      errorDetail = String(error);
     }
-    
-    console.error("Login Server Action Error:", error);
-    return { error: "An unexpected system error occurred. Please try again." };
+
+    return { error: `Authentication Error: ${errorDetail}` };
   }
 }

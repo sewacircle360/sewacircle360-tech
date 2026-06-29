@@ -2,7 +2,19 @@
 
 import { useState, useTransition } from "react";
 import { registerStudentAction } from "@/modules/auth/actions/register";
-import { GraduationCap, Mail, Lock, User, School, ArrowRight, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
+import { 
+  GraduationCap, 
+  Mail, 
+  Lock, 
+  User, 
+  School, 
+  ArrowRight, 
+  Loader2, 
+  AlertCircle, 
+  CheckCircle2,
+  Eye,
+  EyeOff
+} from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -10,6 +22,7 @@ import { motion } from "framer-motion";
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({ name: "", email: "", collegeName: "", password: "" });
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -22,6 +35,20 @@ export default function RegisterPage() {
 
     if (!formData.name || !formData.email || !formData.collegeName || !formData.password) {
       setError("Please fill in all registration fields.");
+      return;
+    }
+
+    // Password Complexity Verification: Min 6, Max 30, at least 1 letter, 1 number, 1 special character
+    const password = formData.password;
+    if (password.length < 6 || password.length > 30) {
+      setError("Password must be between 6 and 30 characters.");
+      return;
+    }
+    const hasLetter = /[A-Za-z]/.test(password);
+    const hasNumber = /\d/.test(password);
+    const hasSpecial = /[^A-Za-z0-9]/.test(password);
+    if (!hasLetter || !hasNumber || !hasSpecial) {
+      setError("Password must contain at least one letter, one number, and one special character.");
       return;
     }
 
@@ -130,14 +157,21 @@ export default function RegisterPage() {
               <div className="relative">
                 <Lock className="absolute left-3.5 top-3 h-4 w-4 text-slate-400" />
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
                   required
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   disabled={isPending}
-                  className="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-950/80 border border-border/80 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-foreground transition-all"
+                  className="w-full pl-10 pr-10 py-2.5 text-sm bg-slate-50 dark:bg-slate-950/80 border border-border/80 dark:border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-foreground transition-all"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3.5 top-3 text-slate-400 dark:text-slate-500 hover:text-foreground cursor-pointer focus:outline-none"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
               </div>
             </div>
 

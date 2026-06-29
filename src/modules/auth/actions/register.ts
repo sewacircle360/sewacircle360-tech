@@ -15,8 +15,15 @@ export async function registerStudentAction(data: {
       return { error: "Please enter all required registration fields." };
     }
 
-    if (data.passwordHash.length < 6) {
-      return { error: "Password must be at least 6 characters." };
+    const password = data.passwordHash;
+    if (password.length < 6 || password.length > 30) {
+      return { error: "Password must be between 6 and 30 characters." };
+    }
+    const hasLetter = /[A-Za-z]/.test(password);
+    const hasNumber = /\d/.test(password);
+    const hasSpecial = /[^A-Za-z0-9]/.test(password);
+    if (!hasLetter || !hasNumber || !hasSpecial) {
+      return { error: "Password must contain at least one letter, one number, and one special character." };
     }
 
     // Standard check to verify that this is a college/student email address 

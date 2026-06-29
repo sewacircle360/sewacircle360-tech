@@ -192,6 +192,14 @@ export function LoginForm() {
             )}
           </button>
         </form>
+
+        {/* Register Link */}
+        <div className="text-center mt-6 relative z-10 border-t border-slate-100 dark:border-slate-800/80 pt-4">
+          <span className="text-xs text-slate-500">Don't have an account? </span>
+          <Link href="/auth/register" className="text-xs font-semibold text-primary dark:text-accent hover:underline">
+            Register as Student
+          </Link>
+        </div>
       </motion.div>
     </div>
   );

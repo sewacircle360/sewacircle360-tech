@@ -2,6 +2,7 @@
 
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { sendEmail } from "@/lib/email";
 
 // Generate a URL-friendly slug from a project name
 function generateSlug(name: string): string {
@@ -57,6 +58,7 @@ export async function getProjectById(id: string) {
           include: { assignedTo: true }
         },
         invoices: { orderBy: { createdAt: "desc" } },
+        expenses: { orderBy: { date: "desc" } },
       }
     });
   } catch (error) {
@@ -80,6 +82,7 @@ export async function getProjectBySlug(slug: string) {
           include: { assignedTo: true }
         },
         invoices: { orderBy: { createdAt: "desc" } },
+        expenses: { orderBy: { date: "desc" } },
       }
     });
   } catch (error) {
@@ -184,8 +187,49 @@ export async function updateProjectStatus(id: string, status: string) {
   try {
     const project = await db.project.update({
       where: { id },
-      data: { status }
+      data: { status },
+      include: { client: true }
     });
+
+    if (project.client) {
+      await sendEmail({
+        to: project.client.email,
+        subject: `Project Stage Update: ${project.name} is now in ${status} | SewaCircle360`,
+        html: `
+          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
+            <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px;">
+              <h2 style="color: #3b82f6; margin: 0; font-size: 22px;">Project Progress Update</h2>
+              <p style="color: #64748b; margin: 5px 0 0 0; font-size: 12px;">SewaCircle360 Active Timeline</p>
+            </div>
+            <p style="font-size: 14px; color: #334155; line-height: 1.5;">Hello <strong>${project.client.ownerName}</strong>,</p>
+            <p style="font-size: 14px; color: #334155; line-height: 1.5;">We have updated the phase for your project: <strong>${project.name}</strong>.</p>
+            <div style="background-color: #f0f9ff; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #3b82f6;">
+              <table style="width: 100%; font-size: 13px; color: #1e3a5f;">
+                <tr>
+                  <td style="padding: 4px 0;"><strong>Project Name:</strong></td>
+                  <td style="text-align: right; font-weight: bold;">${project.name}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 4px 0;"><strong>New Stage:</strong></td>
+                  <td style="text-align: right; color: #2563eb; font-weight: bold; text-transform: uppercase;">${status}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 4px 0;"><strong>Current Progress:</strong></td>
+                  <td style="text-align: right; color: #2563eb; font-weight: bold;">${project.progress}%</td>
+                </tr>
+              </table>
+            </div>
+            <div style="text-align: center; margin: 25px 0;">
+              <a href="${process.env.NEXTAUTH_URL || 'https://sewacircle360tech.online'}/portal" style="background-color: #3b82f6; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; font-size: 14px; box-shadow: 0 4px 6px rgba(59,130,246,0.1);">Track in Client Portal</a>
+            </div>
+            <p style="font-size: 13px; color: #64748b; line-height: 1.5; border-top: 1px solid #f1f5f9; padding-top: 15px; margin-top: 25px;">
+              Your project dashboard timeline has been updated dynamically. If you have any feedback or questions, feel free to get in touch.
+            </p>
+          </div>
+        `
+      }).catch(err => console.error("Email send warning:", err));
+    }
+
     revalidatePath(`/admin/projects/${project.slug || project.id}`);
     revalidatePath("/admin/projects");
     return { success: "Project status updated!", project };

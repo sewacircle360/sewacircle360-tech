@@ -11,7 +11,8 @@ import {
   Calendar,
   Layers,
   ArrowUpRight,
-  ClipboardList
+  ClipboardList,
+  TrendingUp
 } from "lucide-react";
 import Link from "next/link";
 import { auth } from "@/auth";
@@ -280,12 +281,18 @@ export default async function AdminDashboardPage() {
     where: { status: { in: ["UNPAID", "OVERDUE"] } }
   }).catch(() => 0);
 
-  // 2. Calculate Total Paid Revenue sum
+  // 2. Calculate Total Paid Revenue sum & expenses
   const paidInvoices = await db.invoice.findMany({
     where: { status: "PAID" },
     select: { grandTotal: true }
   }).catch(() => []);
   const totalPaidRevenue = paidInvoices.reduce((sum, inv) => sum + inv.grandTotal, 0);
+
+  const expenses = await db.expense.findMany({
+    select: { amount: true, createdAt: true }
+  }).catch(() => []);
+  const totalExpenses = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+  const netProfit = totalPaidRevenue - totalExpenses;
 
   // 3. Aggregate Monthly Analytics for Recharts
   const currentYear = new Date().getFullYear();
@@ -312,10 +319,15 @@ export default async function AdminDashboardPage() {
     const revSum = monthInvoices.reduce((sum, inv) => sum + inv.grandTotal, 0);
     const monthLeadsCount = yearlyLeads.filter(l => l.createdAt.getMonth() === idx).length;
 
+    const monthExpenses = expenses.filter(exp => new Date(exp.createdAt).getMonth() === idx && new Date(exp.createdAt).getFullYear() === currentYear);
+    const expSum = monthExpenses.reduce((sum, exp) => sum + exp.amount, 0);
+
     return {
       month: m,
       revenue: revSum,
-      leads: monthLeadsCount
+      leads: monthLeadsCount,
+      expenses: expSum,
+      profit: revSum - expSum
     };
   });
 
@@ -342,7 +354,7 @@ export default async function AdminDashboardPage() {
       </div>
 
       {/* Stats Counter Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
         {/* Leads */}
         <div className="bg-white dark:bg-[#090d1f]/60 p-5 rounded-2xl border dark:border-slate-800/80 shadow-sm flex items-center justify-between">
           <div className="flex flex-col gap-1">
@@ -384,6 +396,20 @@ export default async function AdminDashboardPage() {
           </div>
           <div className="p-3 rounded-xl bg-indigo-500/10 text-indigo-500 border border-indigo-500/20">
             <Receipt className="h-5 w-5" />
+          </div>
+        </div>
+
+        {/* Net Profit Margin */}
+        <div className="bg-white dark:bg-[#090d1f]/60 p-5 rounded-2xl border dark:border-slate-800/80 shadow-sm flex items-center justify-between col-span-1 sm:col-span-2 lg:col-span-1">
+          <div className="flex flex-col gap-1">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Net Profit</span>
+            <span className={`text-xl font-extrabold font-display leading-none ${netProfit >= 0 ? "text-emerald-500" : "text-rose-500"}`}>
+              ₹{netProfit.toLocaleString("en-IN", { maximumFractionDigits: 0 })}
+            </span>
+            <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider block mt-0.5">Cost: ₹{totalExpenses.toLocaleString("en-IN", { maximumFractionDigits: 0 })}</span>
+          </div>
+          <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+            <TrendingUp className="h-5 w-5" />
           </div>
         </div>
       </div>

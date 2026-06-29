@@ -15,6 +15,7 @@ import {
   AlertCircle
 } from "lucide-react";
 import Link from "next/link";
+import { SteppedProgress } from "@/modules/projects/components/SteppedProgress";
 
 export const metadata = {
   title: "Client Workspace | SewaCircle360 Portal",
@@ -169,13 +170,18 @@ export default async function ClientPortalPage() {
                         )}
                       </div>
 
-                      {/* Progress Bar */}
-                      <div className="flex flex-col gap-1.5">
-                        <div className="flex justify-between text-[10px] font-semibold text-slate-500">
-                          <span>Progress</span>
-                          <span className="text-primary dark:text-accent font-bold">{proj.progress}%</span>
+                      {/* Interactive Stepped Progress Timeline */}
+                      <div className="border-t border-dashed dark:border-slate-800/80 pt-4 mt-2">
+                        <SteppedProgress status={proj.status} />
+                      </div>
+
+                      {/* Numeric Progress Bar */}
+                      <div className="flex flex-col gap-1.5 bg-slate-50 dark:bg-slate-950/30 p-4 border dark:border-slate-800/50 rounded-2xl">
+                        <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                          <span>Incremental Build Progress</span>
+                          <span className="text-primary dark:text-accent font-extrabold">{proj.progress}%</span>
                         </div>
-                        <div className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                        <div className="w-full h-2 bg-slate-100 dark:bg-slate-800/80 rounded-full overflow-hidden">
                           <div 
                             className="h-full bg-gradient-to-r from-primary to-accent rounded-full transition-all duration-700" 
                             style={{ width: `${proj.progress}%` }}

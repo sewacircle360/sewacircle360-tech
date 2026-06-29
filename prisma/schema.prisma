@@ -131,6 +131,7 @@ model Project {
   milestones   Milestone[]
   tasks        Task[]
   invoices     Invoice[]
+  expenses     Expense[]
 }
 
 model Milestone {
@@ -343,5 +344,17 @@ model StudentProjectRequest {
   description  String
   status       String   @default("PENDING") // PENDING, APPROVED, IN_PROGRESS, COMPLETED
   createdAt    DateTime @default(now())
+}
+
+model Expense {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  projectId   String   @db.ObjectId
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  amount      Float
+  category    String   // e.g. "HOSTING", "DOMAIN", "DEVELOPER_PAYOUT", "MARKETING", "OTHER"
+  description String
+  date        DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 

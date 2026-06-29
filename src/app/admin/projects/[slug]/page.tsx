@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { ProjectActions } from "@/modules/projects/components/ProjectActions";
+import { ProjectExpenses } from "@/modules/projects/components/ProjectExpenses";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -45,6 +46,9 @@ export default async function ProjectDetailPage({ params }: Props) {
   const totalInvoiced = project.invoices?.reduce((sum, inv) => sum + inv.grandTotal, 0) || 0;
   const totalPaid = project.invoices?.filter(i => i.status === "PAID").reduce((sum, inv) => sum + inv.grandTotal, 0) || 0;
   const totalPending = totalInvoiced - totalPaid;
+
+  const totalExpenses = project.expenses?.reduce((sum, exp) => sum + exp.amount, 0) || 0;
+  const netMargin = (project.budget || 0) - totalExpenses;
 
   const doneTasks = project.tasks.filter(t => t.status === "DONE").length;
   const totalTasks = project.tasks.length;
@@ -94,7 +98,7 @@ export default async function ProjectDetailPage({ params }: Props) {
       </div>
 
       {/* Stats Row */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         <div className="bg-white dark:bg-[#090d1f]/60 p-4 rounded-2xl border dark:border-slate-800/80 shadow-sm flex flex-col gap-1">
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Progress</span>
           <span className="text-2xl font-black text-primary dark:text-accent">{project.progress}%</span>
@@ -111,8 +115,15 @@ export default async function ProjectDetailPage({ params }: Props) {
           <span className="text-xl font-black text-green-500">₹{totalPaid.toLocaleString("en-IN")}</span>
         </div>
         <div className="bg-white dark:bg-[#090d1f]/60 p-4 rounded-2xl border dark:border-slate-800/80 shadow-sm flex flex-col gap-1">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Pending</span>
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Pending Invoice</span>
           <span className="text-xl font-black text-amber-500">₹{totalPending.toLocaleString("en-IN")}</span>
+        </div>
+        <div className="bg-white dark:bg-[#090d1f]/60 p-4 rounded-2xl border dark:border-slate-800/80 shadow-sm flex flex-col gap-1 col-span-2 lg:col-span-1">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Profit Margin</span>
+          <span className={`text-xl font-black ${netMargin >= 0 ? "text-emerald-500" : "text-rose-500"}`}>
+            ₹{netMargin.toLocaleString("en-IN")}
+          </span>
+          <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider block mt-0.5">Budget: ₹{(project.budget || 0).toLocaleString("en-IN")}</span>
         </div>
       </div>
 
@@ -190,6 +201,19 @@ export default async function ProjectDetailPage({ params }: Props) {
                 ))}
               </div>
             )}
+          </div>
+
+          <div className="mt-5">
+            <ProjectExpenses
+              projectId={project.id}
+              initialExpenses={project.expenses.map((e: any) => ({
+                id: e.id,
+                amount: e.amount,
+                category: e.category,
+                description: e.description,
+                date: e.date.toISOString(),
+              }))}
+            />
           </div>
         </div>
 

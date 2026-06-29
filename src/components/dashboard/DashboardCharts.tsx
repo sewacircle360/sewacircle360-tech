@@ -5,18 +5,18 @@ import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, BarChart, 
 interface DashboardChartsProps {
   totalPaidRevenue: number;
   totalLeadsCount: number;
-  monthlyStats: Array<{ month: string, revenue: number, leads: number }>;
+  monthlyStats: Array<{ month: string, revenue: number, leads: number, expenses?: number, profit?: number }>;
 }
 
 export function DashboardCharts({ totalPaidRevenue, totalLeadsCount, monthlyStats }: DashboardChartsProps) {
   const hasRealData = totalPaidRevenue > 0 || totalLeadsCount > 0;
   const chartData = hasRealData ? monthlyStats : [
-    { month: "Jan", revenue: 4000, leads: 24 },
-    { month: "Feb", revenue: 5500, leads: 38 },
-    { month: "Mar", revenue: 7850, leads: 56 },
-    { month: "Apr", revenue: 6200, leads: 42 },
-    { month: "May", revenue: 9500, leads: 70 },
-    { month: "Jun", revenue: 12000, leads: 95 },
+    { month: "Jan", revenue: 4000, leads: 24, expenses: 1200, profit: 2800 },
+    { month: "Feb", revenue: 5500, leads: 38, expenses: 1800, profit: 3700 },
+    { month: "Mar", revenue: 7850, leads: 56, expenses: 2400, profit: 5450 },
+    { month: "Apr", revenue: 6200, leads: 42, expenses: 2000, profit: 4200 },
+    { month: "May", revenue: 9500, leads: 70, expenses: 3100, profit: 6400 },
+    { month: "Jun", revenue: 12000, leads: 95, expenses: 3800, profit: 8200 },
   ];
 
   return (
@@ -24,9 +24,15 @@ export function DashboardCharts({ totalPaidRevenue, totalLeadsCount, monthlyStat
       {/* Revenue growth Area Chart */}
       <div className="bg-white dark:bg-[#090d1f]/60 p-5 rounded-2xl border dark:border-slate-800/80 shadow-sm relative overflow-hidden flex flex-col justify-between">
         <div className="mb-4">
-          <h4 className="text-sm font-bold uppercase tracking-wider text-slate-400">
-            Revenue Performance
-          </h4>
+          <div className="flex justify-between items-center">
+            <h4 className="text-sm font-bold uppercase tracking-wider text-slate-400">
+              Revenue &amp; Cost Performance
+            </h4>
+            <div className="flex items-center gap-3 text-[10px] font-bold">
+              <span className="flex items-center gap-1"><span className="w-2 h-2 bg-[#2563eb] rounded-full" /> Revenue</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 bg-[#ef4444] rounded-full" /> Expenses</span>
+            </div>
+          </div>
           <span className="text-2xl font-extrabold font-display text-slate-800 dark:text-white mt-1 block">
             ₹{totalPaidRevenue.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
@@ -40,11 +46,16 @@ export function DashboardCharts({ totalPaidRevenue, totalLeadsCount, monthlyStat
                   <stop offset="5%" stopColor="#2563EB" stopOpacity={0.2} />
                   <stop offset="95%" stopColor="#2563EB" stopOpacity={0} />
                 </linearGradient>
+                <linearGradient id="colorExp" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#EF4444" stopOpacity={0.15} />
+                  <stop offset="95%" stopColor="#EF4444" stopOpacity={0} />
+                </linearGradient>
               </defs>
               <XAxis dataKey="month" stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} />
               <YAxis stroke="#64748b" fontSize={10} tickLine={false} axisLine={false} tickFormatter={(v) => `₹${v}`} />
               <Tooltip contentStyle={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: "8px", color: "#fff", fontSize: "12px" }} />
-              <Area type="monotone" dataKey="revenue" stroke="#2563eb" strokeWidth={2.5} fillOpacity={1} fill="url(#colorRev)" />
+              <Area type="monotone" dataKey="revenue" stroke="#2563eb" strokeWidth={2.5} fillOpacity={1} fill="url(#colorRev)" name="Revenue" />
+              <Area type="monotone" dataKey="expenses" stroke="#ef4444" strokeWidth={1.8} fillOpacity={1} fill="url(#colorExp)" name="Expenses" strokeDasharray="3 3" />
             </AreaChart>
           </ResponsiveContainer>
         </div>

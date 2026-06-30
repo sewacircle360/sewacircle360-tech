@@ -160,3 +160,72 @@ export async function deleteTalentProfile(id: string) {
     return { error: "Failed to delete profile." };
   }
 }
+
+export async function hireTalentAsEmployee(talentId: string, designation: string) {
+  try {
+    const bcrypt = await import("bcryptjs");
+    const { logAuditEvent } = await import("@/lib/audit");
+
+    const profile = await db.talentProfile.findUnique({ where: { id: talentId } });
+    if (!profile) return { error: "Talent profile not found." };
+
+    const existing = await db.user.findUnique({ where: { email: profile.personalEmail } });
+    if (existing) {
+      return { error: "An employee or user account with this email already exists." };
+    }
+
+    const employeeRole = await db.role.findUnique({ where: { name: "EMPLOYEE" } });
+    if (!employeeRole) {
+      return { error: "EMPLOYEE role does not exist." };
+    }
+
+    const hashedPassword = await bcrypt.hash("123456789", 10);
+
+    const employee = await db.user.create({
+      data: {
+        name: profile.fullName,
+        email: profile.personalEmail,
+        passwordHash: hashedPassword,
+        roleId: employeeRole.id,
+        status: "ACTIVE",
+        mustChangePassword: true,
+        designation: designation || "Intern / Trainee",
+        phone: profile.mobileNumber,
+        joiningDate: new Date(),
+      }
+    });
+
+    await db.talentProfile.delete({ where: { id: talentId } });
+
+    await sendEmail({
+      to: profile.personalEmail,
+      subject: "Welcome to SewaCircle360 Tech - Accepted!",
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 12px;">
+          <h2 style="color: #6366f1; text-align: center;">Welcome to the SewaCircle360 Team!</h2>
+          <p>Congratulations ${profile.fullName},</p>
+          <p>You have been accepted for the position of <strong>${designation || "Intern / Trainee"}</strong>. Your employee workspace has been activated:</p>
+          <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <p style="margin: 5px 0;"><strong>Portal Login:</strong> <a href="https://sewacircle360tech.online/auth/login">https://sewacircle360tech.online/auth/login</a></p>
+            <p style="margin: 5px 0;"><strong>Username:</strong> ${profile.personalEmail}</p>
+            <p style="margin: 5px 0;"><strong>Temporary Password:</strong> 123456789</p>
+          </div>
+          <p style="color: #ef4444; font-size: 11px;">Please reset your password on your first login.</p>
+        </div>
+      `
+    }).catch(err => console.error("Hire email failed:", err));
+
+    try {
+      await logAuditEvent("HIRE_TALENT", `Registered talent ${profile.fullName} as employee`);
+    } catch (auditErr) {
+      console.error("Failed to log audit event:", auditErr);
+    }
+
+    revalidatePath("/admin/talent-network");
+    revalidatePath("/admin/employees");
+    return { success: "Talent registered successfully! Login details have been emailed.", employee };
+  } catch (error) {
+    console.error("hireTalentAsEmployee error:", error);
+    return { error: "Failed to hire talent." };
+  }
+}

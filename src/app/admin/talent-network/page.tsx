@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useTransition } from "react";
-import { getTalentProfiles, deleteTalentProfile } from "@/modules/talent/actions/talent";
+import { getTalentProfiles, deleteTalentProfile, hireTalentAsEmployee } from "@/modules/talent/actions/talent";
 import { 
   Users, 
   Trash2, 
@@ -69,6 +69,23 @@ export default function AdminTalentNetworkPage() {
     });
   };
 
+  const handleHireCandidate = () => {
+    if (!selectedProfile) return;
+    const designation = prompt(`Hire ${selectedProfile.fullName} as employee. Enter designation:`, "Intern / Trainee");
+    if (designation === null) return;
+
+    startTransition(async () => {
+      const res = await hireTalentAsEmployee(selectedProfile.id, designation);
+      if (res.error) {
+        alert(res.error);
+      } else {
+        alert(res.success);
+        fetchProfiles();
+        setSelectedProfile(null);
+      }
+    });
+  };
+
   // Filter logic
   const filteredProfiles = profiles.filter((p) => {
     const matchesSearch = 
@@ -100,81 +117,70 @@ export default function AdminTalentNetworkPage() {
       "Mobile Number",
       "Degree",
       "Branch",
-      "Year/Semester",
+      "Year / Semester",
       "CGPA",
       "Skills",
       "GitHub",
       "LinkedIn",
-      "Portfolio",
-      "Registration Date"
+      "Portfolio"
     ];
 
     const rows = filteredProfiles.map((p) => [
-      p.fullName,
-      p.university,
-      p.rollNumber,
-      p.officialEmail,
-      p.personalEmail,
-      p.mobileNumber,
-      p.degree,
-      p.branch,
-      p.yearSemester,
-      p.cgpa || "N/A",
-      p.skills.join("; "),
-      p.githubProfile || "N/A",
-      p.linkedinProfile || "N/A",
-      p.portfolioLink || "N/A",
-      new Date(p.createdAt).toLocaleDateString()
+      `"${p.fullName.replace(/"/g, '""')}"`,
+      `"${p.university.replace(/"/g, '""')}"`,
+      `"${p.rollNumber.replace(/"/g, '""')}"`,
+      `"${p.officialEmail.replace(/"/g, '""')}"`,
+      `"${p.personalEmail.replace(/"/g, '""')}"`,
+      `"${p.mobileNumber.replace(/"/g, '""')}"`,
+      `"${p.degree.replace(/"/g, '""')}"`,
+      `"${p.branch.replace(/"/g, '""')}"`,
+      `"${p.yearSemester.replace(/"/g, '""')}"`,
+      `"${p.cgpa || ""}"`,
+      `"${p.skills.join(', ').replace(/"/g, '""')}"`,
+      `"${p.githubProfile || ""}"`,
+      `"${p.linkedinProfile || ""}"`,
+      `"${p.portfolioLink || ""}"`
     ]);
 
-    const csvContent = 
-      "data:text/csv;charset=utf-8," + 
-      [headers.join(","), ...rows.map((row) => row.map(val => `"${val.replace(/"/g, '""')}"`).join(","))].join("\n");
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((row) => row.join(","))
+    ].join("\n");
 
-    const encodedUri = encodeURI(csvContent);
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `SewaCircle360_TalentNetwork_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `SewaCircle360Tech_TalentPool_${new Date().toISOString().split("T")[0]}.csv`);
+    link.style.visibility = "hidden";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
-  // Helper to trigger resume download client-side from base64 string
   const handleDownloadResume = (profile: any) => {
-    if (!profile.resumeData) return;
+    if (!profile.resumeData) {
+      alert("No resume upload found.");
+      return;
+    }
 
     try {
-      const base64Data = profile.resumeData;
-      // Extract content type and clean base64 data string
-      const parts = base64Data.split(";base64,");
-      const contentType = parts[0].split(":")[1] || "application/octet-stream";
-      const rawBase64 = parts[1] || parts[0];
-      
-      const byteCharacters = atob(rawBase64);
-      const byteNumbers = new Array(byteCharacters.length);
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
-      }
-      const byteArray = new Uint8Array(byteNumbers);
-      const blob = new Blob([byteArray], { type: contentType });
-
       const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = profile.resumeName || `${profile.fullName.replace(/\s+/g, '_')}_Resume.pdf`;
+      link.href = profile.resumeData;
+      link.download = profile.resumeName || "resume.pdf";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     } catch (err) {
-      console.error("Resume extraction failed:", err);
-      alert("Failed to extract and download resume file.");
+      console.error("Resume download error:", err);
+      alert("Failed to download resume file.");
     }
   };
 
   return (
-    <div className="flex flex-col gap-6 text-left relative">
+    <div className="flex flex-col gap-6 text-left relative font-sans">
       
-      {/* Printable overrides styling */}
+      {/* Print media css overrides */}
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
           body {
@@ -283,95 +289,63 @@ export default function AdminTalentNetworkPage() {
             </select>
           </div>
         </div>
-
       </div>
 
-      {/* Main Table view */}
+      {/* Directory Table Grid */}
       <div className="bg-white dark:bg-[#090d1f]/60 border dark:border-slate-800/80 rounded-2xl shadow-sm overflow-hidden printable-table-container">
         {filteredProfiles.length === 0 ? (
-          <div className="py-16 text-center">
-            <Users className="h-8 w-8 text-slate-400 mx-auto mb-2" />
-            <span className="text-sm font-semibold uppercase tracking-wider text-slate-400">No Talents Found</span>
-            <p className="text-xs text-slate-500 mt-1">
-              {profiles.length === 0 ? "The talent network registry is currently empty." : "No candidates match your current search filters."}
-            </p>
+          <div className="py-16 text-center no-print">
+            <Users className="h-8 w-8 text-slate-350 dark:text-slate-650 mx-auto mb-2" />
+            <span className="text-sm font-semibold uppercase tracking-wider text-slate-400">No Talents Registered</span>
+            <p className="text-xs text-slate-500 mt-1">Students registering via candidate portal will show up here.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full text-left border-collapse font-sans">
               <thead>
-                <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20 text-xs font-bold uppercase tracking-wider text-slate-500">
-                  <th className="py-4 px-6 w-16">S.No.</th>
+                <tr className="border-b border-border bg-slate-50/55 dark:bg-slate-950/20 text-xs font-bold uppercase tracking-wider text-slate-500">
                   <th className="py-4 px-6">Name</th>
                   <th className="py-4 px-6">University</th>
-                  <th className="py-4 px-6">Degree & Branch</th>
-                  <th className="py-4 px-6">Skills</th>
+                  <th className="py-4 px-6">Degree & Year</th>
+                  <th className="py-4 px-6">Official Email</th>
+                  <th className="py-4 px-6">Skills Count</th>
                   <th className="py-4 px-6 text-right no-print">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
-                {filteredProfiles.map((profile, index) => (
-                  <tr key={profile.id} className="hover:bg-slate-50/30 dark:hover:bg-slate-900/10 transition-colors">
-                    <td className="py-4 px-6 text-sm font-semibold text-slate-500 dark:text-slate-400">
-                      {index + 1}
+              <tbody className="divide-y divide-border/60 dark:divide-slate-800/60 font-sans text-xs">
+                {filteredProfiles.map((p) => (
+                  <tr key={p.id} className="hover:bg-slate-50/30 dark:hover:bg-slate-900/10 transition-colors">
+                    <td className="py-4 px-6 font-semibold text-slate-900 dark:text-white">
+                      {p.fullName}
                     </td>
+                    <td className="py-4 px-6 text-slate-600 dark:text-slate-300 font-medium truncate max-w-[200px]" title={p.university}>
+                      {p.university}
+                    </td>
+                    <td className="py-4 px-6 text-slate-550 dark:text-slate-400 font-bold">
+                      {p.degree} ({p.yearSemester})
+                    </td>
+                    <td className="py-4 px-6 font-mono text-slate-600 dark:text-slate-400">{p.officialEmail}</td>
                     <td className="py-4 px-6">
-                      <div className="flex items-center gap-3">
-                        <div className="h-9 w-9 bg-slate-100 dark:bg-slate-850 rounded-full flex items-center justify-center shrink-0">
-                          <Users className="h-4 w-4 text-slate-400" />
-                        </div>
-                        <div className="flex flex-col gap-0.5">
-                          <span className="text-sm font-bold text-slate-900 dark:text-white">{profile.fullName}</span>
-                          <span className="text-xs text-slate-400 font-medium">{profile.personalEmail}</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="flex flex-col gap-0.5">
-                        <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">{profile.university}</span>
-                        <span className="text-xs text-slate-450 dark:text-slate-500 font-medium">Roll: {profile.rollNumber}</span>
-                      </div>
-                    </td>
-                    <td className="py-4 px-6 text-sm text-slate-700 dark:text-slate-300">
-                      <div className="flex items-center gap-1.5 font-bold">
-                        <GraduationCap className="h-4 w-4 text-indigo-500" />
-                        {profile.degree} ({profile.branch})
-                      </div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="flex flex-wrap gap-1 max-w-xs">
-                        {profile.skills.slice(0, 3).map((skill: string) => (
-                          <span 
-                            key={skill}
-                            className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/15"
-                          >
-                            {skill}
-                          </span>
-                        ))}
-                        {profile.skills.length > 3 && (
-                          <span className="text-[9px] font-semibold text-slate-450 px-1 bg-slate-100 dark:bg-slate-900 rounded">
-                            +{profile.skills.length - 3} more
-                          </span>
-                        )}
-                      </div>
+                      <span className="px-2.5 py-0.5 rounded-full font-bold bg-indigo-500/10 text-indigo-550 dark:text-indigo-400 text-[10px] uppercase">
+                        {p.skills?.length || 0} Skills
+                      </span>
                     </td>
                     <td className="py-4 px-6 text-right no-print">
-                      <div className="flex justify-end gap-1">
+                      <div className="flex justify-end items-center gap-1.5">
                         <button
-                          onClick={() => setSelectedProfile(profile)}
-                          title="View sheet details"
+                          onClick={() => setSelectedProfile(p)}
                           className="p-1.5 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/10 rounded-lg transition-colors cursor-pointer"
+                          title="View Details"
                         >
-                          <Eye className="h-4 w-4" />
+                          <Eye className="h-4.5 w-4.5" />
                         </button>
                         
                         <button
-                          onClick={() => handleDelete(profile.id)}
-                          disabled={isPending}
-                          title="Remove applicant"
-                          className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer"
+                          onClick={() => handleDelete(p.id)}
+                          className="p-1.5 text-slate-450 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer"
+                          title="Delete Candidate"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-4.5 w-4.5" />
                         </button>
                       </div>
                     </td>
@@ -383,15 +357,15 @@ export default function AdminTalentNetworkPage() {
         )}
       </div>
 
-      {/* Overlay Modal for detailed profiles */}
+      {/* Talent Details Sheet Modal */}
       <AnimatePresence>
         {selectedProfile && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 no-print">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 no-print overflow-y-auto">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl relative text-left"
+              className="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-3xl w-full max-w-3xl overflow-hidden shadow-2xl relative text-left my-8"
             >
               {/* Modal header */}
               <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-950/20">
@@ -446,7 +420,7 @@ export default function AdminTalentNetworkPage() {
                     <div className="grid grid-cols-2 gap-2">
                       <div className="flex flex-col gap-0.5">
                         <span className="text-[10px] uppercase font-bold text-slate-400">Roll No / UID</span>
-                        <span className="text-xs font-semibold text-slate-700 dark:text-slate-350">{selectedProfile.rollNumber}</span>
+                        <span className="text-xs font-semibold text-slate-700 dark:text-slate-355">{selectedProfile.rollNumber}</span>
                       </div>
                       <div className="flex flex-col gap-0.5">
                         <span className="text-[10px] uppercase font-bold text-slate-400">CGPA</span>
@@ -509,7 +483,7 @@ export default function AdminTalentNetworkPage() {
                           <Github className="h-4 w-4" />
                         </a>
                       ) : (
-                        <span className="p-2 text-slate-300 dark:text-slate-750 cursor-not-allowed" title="No GitHub Profile provided">
+                        <span className="p-2 text-slate-300 dark:text-slate-755 cursor-not-allowed" title="No GitHub Profile provided">
                           <Github className="h-4 w-4" />
                         </span>
                       )}
@@ -525,7 +499,7 @@ export default function AdminTalentNetworkPage() {
                           <Linkedin className="h-4 w-4" />
                         </a>
                       ) : (
-                        <span className="p-2 text-slate-300 dark:text-slate-750 cursor-not-allowed" title="No LinkedIn Profile provided">
+                        <span className="p-2 text-slate-300 dark:text-slate-755 cursor-not-allowed" title="No LinkedIn Profile provided">
                           <Linkedin className="h-4 w-4" />
                         </span>
                       )}
@@ -541,7 +515,7 @@ export default function AdminTalentNetworkPage() {
                           <Globe className="h-4 w-4" />
                         </a>
                       ) : (
-                        <span className="p-2 text-slate-300 dark:text-slate-750 cursor-not-allowed" title="No Portfolio provided">
+                        <span className="p-2 text-slate-300 dark:text-slate-755 cursor-not-allowed" title="No Portfolio provided">
                           <Globe className="h-4 w-4" />
                         </span>
                       )}
@@ -605,13 +579,22 @@ export default function AdminTalentNetworkPage() {
                 >
                   Close Sheet
                 </button>
-                <button
-                  onClick={() => handleDelete(selectedProfile.id)}
-                  disabled={isPending}
-                  className="px-4 py-2 text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-xl disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
-                >
-                  <Trash2 className="h-3.5 w-3.5" /> Remove Candidate
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleHireCandidate}
+                    disabled={isPending}
+                    className="px-4 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
+                  >
+                    {isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Briefcase className="h-3.5 w-3.5" />} Accept & Hire Employee
+                  </button>
+                  <button
+                    onClick={() => handleDelete(selectedProfile.id)}
+                    disabled={isPending}
+                    className="px-4 py-2 text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-xl disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" /> Remove Candidate
+                  </button>
+                </div>
               </div>
             </motion.div>
           </div>

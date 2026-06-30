@@ -27,10 +27,10 @@ const DEFAULT_SECTIONS = [
     type: "STATISTICS",
     content: {
       stats: [
-        { value: "50+", label: "Projects Completed" },
-        { value: "98%", label: "Client Satisfaction" },
-        { value: "12+", label: "SaaS Products" },
-        { value: "100%", label: "Passion-Driven" },
+        { value: "12+", label: "🛠️ Technologies Used" },
+        { value: "24/7", label: "🎧 Technical Support" },
+        { value: "100%", label: "🎯 Custom Solutions" },
+        { value: "Worldwide", label: "🌐 Service Availability" },
       ]
     }
   },

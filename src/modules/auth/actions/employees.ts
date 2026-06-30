@@ -132,6 +132,29 @@ export async function updateEmployeeIdCard(
   }
 }
 
+export async function revokeEmployeeIdCard(id: string) {
+  try {
+    const updated = await db.user.update({
+      where: { id },
+      data: {
+        employeeId: null,
+        designation: null,
+        bloodGroup: null,
+        joiningDate: null,
+        emergencyContact: null,
+        phone: null,
+        image: null,
+      }
+    });
+
+    revalidatePath("/admin/employees");
+    return { success: "ID Card revoked and cleared successfully!", employee: updated };
+  } catch (error) {
+    console.error("revokeEmployeeIdCard error:", error);
+    return { error: "Failed to revoke and clear ID Card." };
+  }
+}
+
 export async function deleteEmployee(id: string) {
   try {
     await db.user.delete({

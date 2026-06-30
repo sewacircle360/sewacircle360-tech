@@ -18,6 +18,43 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
+// Helper utility to fetch card theme styles based on role names
+export const getRoleTheme = (roleName: string) => {
+  switch (roleName) {
+    case "SUPER_ADMIN":
+      return {
+        bg: "from-[#0d0901] via-[#1f1704] to-[#040301]",
+        border: "border-amber-500/25",
+        text: "text-amber-400",
+        glowTop: "bg-amber-500/10",
+        glowBottom: "bg-yellow-500/10",
+        label: "Executive Board",
+        badge: "bg-amber-500/10 border-amber-500/25 text-amber-400"
+      };
+    case "ADMIN":
+      return {
+        bg: "from-[#101018] via-[#1a1a29] to-[#07070a]",
+        border: "border-slate-400/25",
+        text: "text-slate-350",
+        glowTop: "bg-slate-500/10",
+        glowBottom: "bg-zinc-500/10",
+        label: "Administration",
+        badge: "bg-slate-500/10 border-slate-500/25 text-slate-350"
+      };
+    case "EMPLOYEE":
+    default:
+      return {
+        bg: "from-[#0b0c16] via-[#101430] to-[#04040a]",
+        border: "border-indigo-500/20",
+        text: "text-indigo-400",
+        glowTop: "bg-indigo-600/10",
+        glowBottom: "bg-violet-600/10",
+        label: "Staff Directory",
+        badge: "bg-indigo-500/10 border-indigo-500/25 text-indigo-400"
+      };
+  }
+};
+
 export default function AdminEmployeesPage() {
   const [employees, setEmployees] = useState<any[]>([]);
   const [formData, setFormData] = useState({ name: "", email: "" });
@@ -170,6 +207,7 @@ export default function AdminEmployeesPage() {
         setCardError(result.error);
       } else {
         setCardSuccess("ID Card details updated successfully!");
+        fetchEmployees();
         if (result.employee) {
           setSelectedEmp(result.employee);
           setViewMode("dashboard");
@@ -243,6 +281,9 @@ export default function AdminEmployeesPage() {
 
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(verificationUrl)}`;
 
+  // Fetch the custom layout colors based on selected employee's role
+  const activeTheme = selectedEmp ? getRoleTheme(selectedEmp.role?.name || "EMPLOYEE") : getRoleTheme("EMPLOYEE");
+
   return (
     <div className="flex flex-col gap-6 text-left relative font-sans">
       
@@ -298,7 +339,6 @@ export default function AdminEmployeesPage() {
           }
           /* Ensure both card sides print together on one page */
           .print-card-box {
-            border: 1px solid #cbd5e1 !important;
             box-shadow: none !important;
             page-break-inside: avoid !important;
             transform: none !important;
@@ -310,7 +350,7 @@ export default function AdminEmployeesPage() {
         <h1 className="text-2xl font-bold font-display text-slate-900 dark:text-white leading-none">
           Employee & Staff Directory
         </h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 font-sans">
           Add new staff members, update directory, and generate premium SewaCircle360Tech ID cards.
         </p>
       </div>
@@ -319,7 +359,7 @@ export default function AdminEmployeesPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 bg-white dark:bg-[#090d1f]/60 border dark:border-slate-800/80 rounded-2xl shadow-sm no-print">
         
         {/* Signature Settings */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 font-sans">
           <div className="p-3 bg-indigo-500/10 text-indigo-500 rounded-xl">
             <Edit3 className="h-5 w-5" />
           </div>
@@ -340,7 +380,7 @@ export default function AdminEmployeesPage() {
                   <input type="file" accept="image/*" onChange={handleSignatureUpload} className="hidden" />
                 </label>
               )}
-              <span className="text-[10px] text-slate-500 leading-normal max-w-sm">
+              <span className="text-[10px] text-slate-555 leading-normal max-w-sm">
                 Upload a signature (transparent PNG) to be printed automatically on all employee cards.
               </span>
             </div>
@@ -360,8 +400,8 @@ export default function AdminEmployeesPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start no-print">
         {/* Left Side: Add Form */}
-        <div className="lg:col-span-4 bg-white dark:bg-[#090d1f]/60 border dark:border-slate-800/80 p-6 rounded-2xl shadow-sm">
-          <h2 className="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4">Add New Employee</h2>
+        <div className="lg:col-span-4 bg-white dark:bg-[#090d1f]/60 border dark:border-slate-800/80 p-6 rounded-2xl shadow-sm font-sans">
+          <h2 className="text-sm font-bold uppercase tracking-wider text-slate-450 mb-4">Add New Employee</h2>
           
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="flex flex-col gap-1.5">
@@ -386,7 +426,7 @@ export default function AdminEmployeesPage() {
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 placeholder="riyagargofficial@gmail.com"
                 disabled={isPending}
-                className="w-full px-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-950/80 border border-border/80 dark:border-slate-800 rounded-xl outline-none text-foreground focus:border-primary placeholder:text-slate-450"
+                className="w-full px-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-950/80 border border-border/80 dark:border-slate-800 rounded-xl outline-none text-foreground focus:border-primary placeholder:text-slate-455"
               />
             </div>
 
@@ -415,7 +455,7 @@ export default function AdminEmployeesPage() {
         </div>
 
         {/* Right Side: Directory List */}
-        <div className="lg:col-span-8 bg-white dark:bg-[#090d1f]/60 border dark:border-slate-800/80 rounded-2xl shadow-sm overflow-hidden">
+        <div className="lg:col-span-8 bg-white dark:bg-[#090d1f]/60 border dark:border-slate-800/80 rounded-2xl shadow-sm overflow-hidden font-sans">
           {employees.length === 0 ? (
             <div className="py-16 text-center">
               <Users className="h-8 w-8 text-slate-300 dark:text-slate-650 mx-auto mb-2" />
@@ -462,14 +502,14 @@ export default function AdminEmployeesPage() {
                           {emp.image ? (
                             <img src={emp.image} alt={emp.name} className="h-7 w-7 rounded-full object-cover border border-slate-200 dark:border-slate-800" />
                           ) : (
-                            <div className="h-7 w-7 rounded-full bg-slate-100 dark:bg-slate-850 flex items-center justify-center text-xs text-slate-500 font-bold uppercase">
+                            <div className="h-7 w-7 rounded-full bg-slate-100 dark:bg-slate-850 flex items-center justify-center text-xs text-slate-550 font-bold uppercase">
                               {emp.name?.slice(0,2) || "EM"}
                             </div>
                           )}
                           <span>{emp.name}</span>
                         </div>
                       </td>
-                      <td className="py-4 px-6 text-slate-550 dark:text-slate-300">{emp.email}</td>
+                      <td className="py-4 px-6 text-slate-555 dark:text-slate-300">{emp.email}</td>
                       <td className="py-4 px-6 text-xs font-medium text-slate-600 dark:text-slate-400">
                         {emp.employeeId ? (
                           <div className="flex flex-col gap-0.5">
@@ -527,14 +567,14 @@ export default function AdminEmployeesPage() {
               className="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-3xl w-full max-w-4xl overflow-hidden shadow-2xl relative text-left my-8"
             >
               {/* Modal Header */}
-              <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-950/20">
+              <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-950/20 font-sans">
                 <div className="flex items-center gap-3">
                   <div className="p-2.5 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-xl">
                     <CreditCard className="h-5 w-5" />
                   </div>
                   <div>
                     <h3 className="font-bold text-base text-slate-900 dark:text-white font-display">ID Card Generator</h3>
-                    <p className="text-xs text-slate-400 mt-0.5 font-sans">Edit details and live preview cards for {selectedEmp.name}</p>
+                    <p className="text-xs text-slate-450 mt-0.5">Edit details and live preview cards for {selectedEmp.name}</p>
                   </div>
                 </div>
                 <button
@@ -547,7 +587,7 @@ export default function AdminEmployeesPage() {
 
               {/* Tabs Selector for Generated ID Cards */}
               {selectedEmp.employeeId && (
-                <div className="flex border-b border-slate-150 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-950/10 px-6 py-2 gap-4 text-xs font-bold text-slate-500">
+                <div className="flex border-b border-slate-150 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-950/10 px-6 py-2 gap-4 text-xs font-bold text-slate-550 font-sans">
                   <button
                     type="button"
                     onClick={() => setActiveTab("card")}
@@ -570,7 +610,7 @@ export default function AdminEmployeesPage() {
                 
                 {activeTab === "logs" ? (
                   /* TAB 2: SCAN AUDIT LOGS HISTORY */
-                  <div className="col-span-12 space-y-4 p-2">
+                  <div className="col-span-12 space-y-4 p-2 font-sans">
                     <h4 className="text-xs font-bold uppercase tracking-wider text-slate-455 border-b pb-1.5 font-display">
                       Verification Audit Trail
                     </h4>
@@ -591,7 +631,7 @@ export default function AdminEmployeesPage() {
                           <tbody className="divide-y divide-slate-150 dark:divide-slate-850">
                             {scanLogs.map((log) => (
                               <tr key={log.id} className="hover:bg-slate-50/30 dark:hover:bg-slate-900/10 transition-colors">
-                                <td className="py-3 px-4 font-semibold text-slate-700 dark:text-slate-300">
+                                <td className="py-3 px-4 font-semibold text-slate-700 dark:text-slate-355">
                                   {new Date(log.scannedAt).toLocaleString()}
                                 </td>
                                 <td className="py-3 px-4 font-mono font-bold text-indigo-500 dark:text-indigo-400">
@@ -612,7 +652,7 @@ export default function AdminEmployeesPage() {
                   <>
                     {/* Left Section (5 Columns): Form or Dashboard Actions */}
                     {viewMode === "edit" ? (
-                      <form onSubmit={handleSaveCard} className="md:col-span-5 space-y-4">
+                      <form onSubmit={handleSaveCard} className="md:col-span-5 space-y-4 font-sans">
                         <div className="flex items-center justify-between border-b pb-1.5 mb-2">
                           <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 font-display">
                             Card Credentials
@@ -774,7 +814,7 @@ export default function AdminEmployeesPage() {
                         </button>
                       </form>
                     ) : (
-                      <div className="md:col-span-5 space-y-6">
+                      <div className="md:col-span-5 space-y-6 font-sans">
                         <div className="bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-2xl flex items-start gap-3">
                           <ShieldCheck className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
                           <div>
@@ -839,9 +879,9 @@ export default function AdminEmployeesPage() {
                         <div className={`w-full h-full relative transition-transform duration-500 transform-style-3d ${isFlipped ? "rotate-y-180" : ""}`}>
                           
                           {/* FRONT OF THE CARD */}
-                          <div className="absolute inset-0 w-full h-full backface-hidden rounded-[24px] bg-gradient-to-br from-[#0b0c16] via-[#101430] to-[#04040a] border border-indigo-500/20 shadow-2xl p-6 flex flex-col justify-between overflow-hidden print-card-box">
-                            <div className="absolute -top-16 -left-16 w-36 h-36 bg-indigo-600/10 rounded-full blur-2xl pointer-events-none"></div>
-                            <div className="absolute -bottom-20 -right-20 w-44 h-44 bg-violet-600/10 rounded-full blur-3xl pointer-events-none"></div>
+                          <div className={`absolute inset-0 w-full h-full backface-hidden rounded-[24px] bg-gradient-to-br ${activeTheme.bg} border ${activeTheme.border} shadow-2xl p-6 flex flex-col justify-between overflow-hidden print-card-box`}>
+                            <div className={`absolute -top-16 -left-16 w-36 h-36 ${activeTheme.glowTop} rounded-full blur-2xl pointer-events-none`}></div>
+                            <div className={`absolute -bottom-20 -right-20 w-44 h-44 ${activeTheme.glowBottom} rounded-full blur-3xl pointer-events-none`}></div>
 
                             <div className="text-center relative z-10">
                               <div className="flex items-center justify-center gap-1.5">
@@ -851,13 +891,13 @@ export default function AdminEmployeesPage() {
                                 </span>
                               </div>
                               <div className="mt-1 h-[1px] bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent w-full"></div>
-                              <span className="text-[7.5px] font-extrabold text-indigo-400 tracking-[0.2em] uppercase block mt-1 font-display">
-                                Employee ID Card
+                              <span className={`text-[7.5px] font-extrabold ${activeTheme.text} tracking-[0.2em] uppercase block mt-1 font-display`}>
+                                {activeTheme.label}
                               </span>
                             </div>
 
                             <div className="flex flex-col items-center justify-center relative z-10 my-4">
-                              <div className="h-[120px] w-[120px] rounded-full p-[3px] bg-gradient-to-tr from-indigo-500 via-violet-500 to-pink-500 shadow-lg relative flex items-center justify-center">
+                              <div className={`h-[120px] w-[120px] rounded-full p-[3px] bg-gradient-to-tr from-indigo-500 via-violet-500 to-pink-500 shadow-lg relative flex items-center justify-center`}>
                                 {cardForm.image ? (
                                   <img src={cardForm.image} alt={selectedEmp.name} className="h-full w-full rounded-full object-cover border-2 border-slate-950" />
                                 ) : (
@@ -873,7 +913,7 @@ export default function AdminEmployeesPage() {
                               <h4 className="text-base font-extrabold text-white tracking-wide font-display truncate">
                                 {selectedEmp.name}
                               </h4>
-                              <span className="text-[10px] font-bold text-indigo-400 tracking-wider uppercase truncate">
+                              <span className={`text-[10px] font-bold ${activeTheme.text} tracking-wider uppercase truncate`}>
                                 {cardForm.designation || "Staff Member"}
                               </span>
                               <span className="text-[9px] font-bold tracking-widest text-slate-450 mt-1 font-mono">
@@ -892,7 +932,7 @@ export default function AdminEmployeesPage() {
                                   {authorizedSignature ? (
                                     <img src={authorizedSignature} alt="Authorized Sign" className="h-full w-auto object-contain invert" />
                                   ) : (
-                                    <span className="text-[8px] italic font-semibold text-indigo-400/90 font-display">SewaCircle360</span>
+                                    <span className={`text-[8px] italic font-semibold ${activeTheme.text}/90 font-display`}>SewaCircle360</span>
                                   )}
                                 </div>
                               </div>
@@ -900,7 +940,7 @@ export default function AdminEmployeesPage() {
                           </div>
 
                           {/* BACK OF THE CARD */}
-                          <div className="absolute inset-0 w-full h-full backface-hidden rounded-[24px] bg-gradient-to-br from-[#07070e] via-[#090b16] to-[#040409] border border-indigo-500/20 shadow-2xl p-6 flex flex-col justify-between overflow-hidden rotate-y-180 print-card-box">
+                          <div className={`absolute inset-0 w-full h-full backface-hidden rounded-[24px] bg-gradient-to-br ${activeTheme.bg} border ${activeTheme.border} shadow-2xl p-6 flex flex-col justify-between overflow-hidden rotate-y-180 print-card-box`}>
                             <div className="absolute top-10 right-10 w-24 h-24 bg-violet-600/5 rounded-full blur-2xl pointer-events-none"></div>
 
                             <div className="text-center border-b border-slate-900 pb-2 relative z-10 flex flex-col gap-0.5">
@@ -915,7 +955,7 @@ export default function AdminEmployeesPage() {
                             <div className="flex flex-col gap-2 relative z-10 text-[9px] font-bold text-slate-300 my-3">
                               <div className="flex items-center justify-between border-b border-slate-950 pb-1">
                                 <span className="text-slate-500 font-semibold uppercase text-[8px]">Blood Group:</span>
-                                <span className="text-indigo-400 font-bold">{cardForm.bloodGroup || "N/A"}</span>
+                                <span className={`${activeTheme.text} font-bold`}>{cardForm.bloodGroup || "N/A"}</span>
                               </div>
 
                               <div className="flex items-center justify-between border-b border-slate-950 pb-1">
@@ -951,7 +991,7 @@ export default function AdminEmployeesPage() {
 
                             <div className="flex items-center gap-4 justify-between bg-slate-950/40 p-2.5 rounded-xl border border-slate-900 mt-1 relative z-10">
                               <div className="flex flex-col gap-0.5 shrink-0">
-                                <span className="text-[7px] uppercase font-bold text-slate-500 font-display">Scan to Verify</span>
+                                <span className="text-[7px] uppercase font-bold text-slate-550">Scan to Verify</span>
                                 <img src={qrCodeUrl} alt="Verify QR" className="h-14 w-14 bg-white p-0.5 rounded border border-slate-800" />
                               </div>
                               
@@ -959,13 +999,13 @@ export default function AdminEmployeesPage() {
                                 <span className="text-[32px] font-normal leading-none font-mono tracking-widest text-slate-300 select-none block" style={{ fontFamily: "'Libre Barcode 39', sans-serif" }}>
                                   {cardForm.employeeId ? `*${cardForm.employeeId}*` : "*SCT-CARD*"}
                                 </span>
-                                <span className="text-[7.5px] font-bold text-slate-500 tracking-wider mt-1">
+                                <span className="text-[7.5px] font-bold text-slate-550 tracking-wider mt-1">
                                   {cardForm.employeeId || "PENDING"}
                                 </span>
                               </div>
                             </div>
 
-                            <div className="text-[6.5px] text-slate-550 leading-relaxed text-center mt-3 pt-2 border-t border-slate-900 relative z-10">
+                            <div className="text-[6.5px] text-slate-555 leading-relaxed text-center mt-3 pt-2 border-t border-slate-900 relative z-10">
                               <p>This card is the property of <strong>SewaCircle360Tech</strong>. If found, please return to: Office 14, Phase 8-B, Sector 74, Industrial Area, Mohali, Punjab.</p>
                             </div>
                           </div>
@@ -1001,7 +1041,7 @@ export default function AdminEmployeesPage() {
         <div className="hidden printable-card-area">
           
           {/* Print Front */}
-          <div className="w-[280px] h-[440px] rounded-[24px] bg-[#0b0c16] border border-indigo-500 shadow-none p-6 flex flex-col justify-between overflow-hidden relative">
+          <div className={`w-[280px] h-[440px] rounded-[24px] bg-gradient-to-br ${activeTheme.bg} border ${activeTheme.border} shadow-none p-6 flex flex-col justify-between overflow-hidden relative`}>
             <div className="text-center relative z-10">
               <div className="flex items-center justify-center gap-1.5">
                 <span className="text-sm font-extrabold tracking-wide text-white font-display">
@@ -1009,8 +1049,8 @@ export default function AdminEmployeesPage() {
                 </span>
               </div>
               <div className="mt-1 h-[1px] bg-indigo-500 w-full"></div>
-              <span className="text-[7.5px] font-extrabold text-indigo-400 tracking-[0.2em] uppercase block mt-1 font-display">
-                Employee ID Card
+              <span className={`text-[7.5px] font-extrabold ${activeTheme.text} tracking-[0.2em] uppercase block mt-1 font-display`}>
+                {activeTheme.label}
               </span>
             </div>
 
@@ -1030,7 +1070,7 @@ export default function AdminEmployeesPage() {
               <h4 className="text-base font-extrabold text-white tracking-wide font-display truncate">
                 {selectedEmp.name}
               </h4>
-              <span className="text-[10px] font-bold text-indigo-400 tracking-wider uppercase truncate font-display">
+              <span className={`text-[10px] font-bold ${activeTheme.text} tracking-wider uppercase truncate font-display`}>
                 {cardForm.designation || "Staff Member"}
               </span>
               <span className="text-[9px] font-bold tracking-widest text-slate-450 mt-1 font-mono">
@@ -1040,16 +1080,16 @@ export default function AdminEmployeesPage() {
 
             <div className="border-t border-slate-800 pt-3 flex items-center justify-between mt-2 relative z-10">
               <div className="flex flex-col items-start gap-0.5">
-                <span className="text-[7px] uppercase font-bold text-slate-500 font-display">Holder Sign</span>
+                <span className="text-[7px] uppercase font-bold text-slate-550 font-display">Holder Sign</span>
                 <div className="h-5 w-16 border-b border-dashed border-slate-800"></div>
               </div>
               <div className="flex flex-col items-end gap-0.5">
-                <span className="text-[7px] uppercase font-bold text-slate-500 font-display">Authorized Sign</span>
+                <span className="text-[7px] uppercase font-bold text-slate-550 font-display">Authorized Sign</span>
                 <div className="h-5 w-20 flex items-center justify-end relative">
                   {authorizedSignature ? (
                     <img src={authorizedSignature} alt="Signature" className="h-full w-auto object-contain invert" />
                   ) : (
-                    <span className="text-[8px] italic font-semibold text-indigo-400 font-display">SewaCircle360</span>
+                    <span className={`text-[8px] italic font-semibold ${activeTheme.text} font-display`}>SewaCircle360</span>
                   )}
                 </div>
               </div>
@@ -1057,7 +1097,7 @@ export default function AdminEmployeesPage() {
           </div>
 
           {/* Print Back */}
-          <div className="w-[280px] h-[440px] rounded-[24px] bg-[#07070e] border border-indigo-500 shadow-none p-6 flex flex-col justify-between overflow-hidden relative">
+          <div className={`w-[280px] h-[440px] rounded-[24px] bg-gradient-to-br ${activeTheme.bg} border ${activeTheme.border} shadow-none p-6 flex flex-col justify-between overflow-hidden relative`}>
             <div className="text-center border-b border-slate-900 pb-2 relative z-10 flex flex-col gap-0.5">
               <span className="text-[8px] font-extrabold text-slate-400 tracking-wider uppercase block">
                 Terms & Contact
@@ -1070,7 +1110,7 @@ export default function AdminEmployeesPage() {
             <div className="flex flex-col gap-2 relative z-10 text-[9px] font-bold text-slate-300 my-3">
               <div className="flex items-center justify-between border-b border-slate-950 pb-1">
                 <span className="text-slate-500 font-semibold uppercase text-[8px]">Blood Group:</span>
-                <span className="text-indigo-400 font-bold">{cardForm.bloodGroup || "N/A"}</span>
+                <span className={`${activeTheme.text} font-bold`}>{cardForm.bloodGroup || "N/A"}</span>
               </div>
 
               <div className="flex items-center justify-between border-b border-slate-950 pb-1">
@@ -1106,7 +1146,7 @@ export default function AdminEmployeesPage() {
 
             <div className="flex items-center gap-4 justify-between bg-slate-950 p-2.5 rounded-xl border border-slate-900 mt-1 relative z-10">
               <div className="flex flex-col gap-0.5 shrink-0">
-                <span className="text-[7px] uppercase font-bold text-slate-500 font-display">Scan to Verify</span>
+                <span className="text-[7px] uppercase font-bold text-slate-550 font-display">Scan to Verify</span>
                 <img src={qrCodeUrl} alt="Verify QR" className="h-14 w-14 bg-white p-0.5 rounded border border-slate-800" />
               </div>
               
@@ -1114,13 +1154,13 @@ export default function AdminEmployeesPage() {
                 <span className="text-[32px] font-normal leading-none font-mono tracking-widest text-slate-300 select-none block" style={{ fontFamily: "'Libre Barcode 39', sans-serif" }}>
                   {cardForm.employeeId ? `*${cardForm.employeeId}*` : "*SCT-CARD*"}
                 </span>
-                <span className="text-[7.5px] font-bold text-slate-500 tracking-wider mt-1">
+                <span className="text-[7.5px] font-bold text-slate-550 tracking-wider mt-1">
                   {cardForm.employeeId || "PENDING"}
                 </span>
               </div>
             </div>
 
-            <div className="text-[6.5px] text-slate-550 leading-relaxed text-center mt-3 pt-2 border-t border-slate-900 relative z-10">
+            <div className="text-[6.5px] text-slate-555 leading-relaxed text-center mt-3 pt-2 border-t border-slate-900 relative z-10">
               <p>This card is the property of <strong>SewaCircle360Tech</strong>. If found, please return to: Office 14, Phase 8-B, Sector 74, Industrial Area, Mohali, Punjab.</p>
             </div>
           </div>
@@ -1134,25 +1174,27 @@ export default function AdminEmployeesPage() {
             ? `${window.location.origin}/verify/${emp.id}`
             : `https://sewacircle360tech.online/verify/${emp.id}`;
           const bulkQrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(bulkVerificationUrl)}`;
+          const bulkTheme = getRoleTheme(emp.role?.name || "EMPLOYEE");
+          
           return (
-            <div key={emp.id} className="flex gap-4 p-4 border rounded-[28px] print-card-box bg-[#0a0a0f] text-slate-100 border-indigo-500/30">
+            <div key={emp.id} className={`flex gap-4 p-4 border rounded-[28px] print-card-box bg-gradient-to-br ${bulkTheme.bg} text-slate-100 ${bulkTheme.border}`}>
               
               {/* Front Side */}
-              <div className="w-[280px] h-[440px] rounded-[24px] bg-[#0b0c16] border border-indigo-500 shadow-none p-6 flex flex-col justify-between overflow-hidden relative shrink-0">
+              <div className="w-[280px] h-[440px] rounded-[24px] bg-[#0b0c16]/10 border border-slate-800/10 shadow-none p-6 flex flex-col justify-between overflow-hidden relative shrink-0">
                 <div className="text-center relative z-10">
                   <div className="flex items-center justify-center gap-1.5">
                     <span className="text-sm font-extrabold tracking-wide text-white font-display">
                       SewaCircle360Tech
                     </span>
                   </div>
-                  <div className="mt-1 h-[1px] bg-indigo-500 w-full"></div>
-                  <span className="text-[7.5px] font-extrabold text-indigo-400 tracking-[0.2em] uppercase block mt-1 font-display">
-                    Employee ID Card
+                  <div className="mt-1 h-[1px] bg-slate-800 w-full"></div>
+                  <span className={`text-[7.5px] font-extrabold ${bulkTheme.text} tracking-[0.2em] uppercase block mt-1 font-display`}>
+                    {bulkTheme.label}
                   </span>
                 </div>
 
                 <div className="flex flex-col items-center justify-center relative z-10 my-4">
-                  <div className="h-[120px] w-[120px] rounded-full p-[3px] bg-indigo-500 shadow-none relative flex items-center justify-center">
+                  <div className="h-[120px] w-[120px] rounded-full p-[3px] bg-[#333]/10 shadow-none relative flex items-center justify-center">
                     {emp.image ? (
                       <img src={emp.image} alt={emp.name} className="h-full w-full rounded-full object-cover border-2 border-slate-950" />
                     ) : (
@@ -1167,7 +1209,7 @@ export default function AdminEmployeesPage() {
                   <h4 className="text-base font-extrabold text-white tracking-wide font-display truncate">
                     {emp.name}
                   </h4>
-                  <span className="text-[10px] font-bold text-indigo-400 tracking-wider uppercase truncate font-display">
+                  <span className={`text-[10px] font-bold ${bulkTheme.text} tracking-wider uppercase truncate font-display`}>
                     {emp.designation || "Staff Member"}
                   </span>
                   <span className="text-[9px] font-bold tracking-widest text-slate-450 mt-1 font-mono">
@@ -1177,16 +1219,16 @@ export default function AdminEmployeesPage() {
 
                 <div className="border-t border-slate-800 pt-3 flex items-center justify-between mt-2 relative z-10">
                   <div className="flex flex-col items-start gap-0.5">
-                    <span className="text-[7px] uppercase font-bold text-slate-500 font-display">Holder Sign</span>
+                    <span className="text-[7px] uppercase font-bold text-slate-550 font-display">Holder Sign</span>
                     <div className="h-5 w-16 border-b border-dashed border-slate-800"></div>
                   </div>
                   <div className="flex flex-col items-end gap-0.5">
-                    <span className="text-[7px] uppercase font-bold text-slate-500 font-display">Authorized Sign</span>
+                    <span className="text-[7px] uppercase font-bold text-slate-550 font-display">Authorized Sign</span>
                     <div className="h-5 w-20 flex items-center justify-end relative">
                       {authorizedSignature ? (
                         <img src={authorizedSignature} alt="Signature" className="h-full w-auto object-contain invert" />
                       ) : (
-                        <span className="text-[8px] italic font-semibold text-indigo-400 font-display">SewaCircle360</span>
+                        <span className={`text-[8px] italic font-semibold ${bulkTheme.text} font-display`}>SewaCircle360</span>
                       )}
                     </div>
                   </div>
@@ -1194,12 +1236,12 @@ export default function AdminEmployeesPage() {
               </div>
 
               {/* Back Side */}
-              <div className="w-[280px] h-[440px] rounded-[24px] bg-[#07070e] border border-indigo-500 shadow-none p-6 flex flex-col justify-between overflow-hidden relative shrink-0">
+              <div className="w-[280px] h-[440px] rounded-[24px] bg-[#07070e]/10 border border-slate-800/10 shadow-none p-6 flex flex-col justify-between overflow-hidden relative shrink-0">
                 <div className="text-center border-b border-slate-900 pb-2 relative z-10 flex flex-col gap-0.5">
                   <span className="text-[8px] font-extrabold text-slate-400 tracking-wider uppercase block">
                     Terms & Contact
                   </span>
-                  <span className="text-[7.5px] font-medium text-slate-550">
+                  <span className="text-[7.5px] font-medium text-slate-555">
                     www.sewacircle360tech.online
                   </span>
                 </div>
@@ -1207,7 +1249,7 @@ export default function AdminEmployeesPage() {
                 <div className="flex flex-col gap-2 relative z-10 text-[9px] font-bold text-slate-300 my-3">
                   <div className="flex items-center justify-between border-b border-slate-950 pb-1">
                     <span className="text-slate-500 font-semibold uppercase text-[8px]">Blood Group:</span>
-                    <span className="text-indigo-400 font-bold">{emp.bloodGroup || "N/A"}</span>
+                    <span className={`${bulkTheme.text} font-bold`}>{emp.bloodGroup || "N/A"}</span>
                   </div>
 
                   <div className="flex items-center justify-between border-b border-slate-950 pb-1">
@@ -1243,21 +1285,21 @@ export default function AdminEmployeesPage() {
 
                 <div className="flex items-center gap-4 justify-between bg-slate-950 p-2.5 rounded-xl border border-slate-900 mt-1 relative z-10">
                   <div className="flex flex-col gap-0.5 shrink-0">
-                    <span className="text-[7px] uppercase font-bold text-slate-500 font-display">Scan to Verify</span>
+                    <span className="text-[7px] uppercase font-bold text-slate-550 font-display">Scan to Verify</span>
                     <img src={bulkQrCodeUrl} alt="Verify QR" className="h-14 w-14 bg-white p-0.5 rounded border border-slate-800" />
                   </div>
                   
                   <div className="flex-1 flex flex-col items-center justify-center">
-                    <span className="text-[32px] font-normal leading-none font-mono tracking-widest text-slate-300 select-none block" style={{ fontFamily: "'Libre Barcode 39', sans-serif" }}>
+                    <span className="text-[32px] font-normal leading-none font-mono tracking-widest text-slate-355 select-none block" style={{ fontFamily: "'Libre Barcode 39', sans-serif" }}>
                       {emp.employeeId ? `*${emp.employeeId}*` : "*SCT-CARD*"}
                     </span>
-                    <span className="text-[7.5px] font-bold text-slate-500 tracking-wider mt-1">
+                    <span className="text-[7.5px] font-bold text-slate-550 tracking-wider mt-1">
                       {emp.employeeId || "PENDING"}
                     </span>
                   </div>
                 </div>
 
-                <div className="text-[6.5px] text-slate-550 leading-relaxed text-center mt-3 pt-2 border-t border-slate-900 relative z-10">
+                <div className="text-[6.5px] text-slate-555 leading-relaxed text-center mt-3 pt-2 border-t border-slate-900 relative z-10">
                   <p>This card is the property of <strong>SewaCircle360Tech</strong>. If found, please return to: Office 14, Phase 8-B, Sector 74, Industrial Area, Mohali, Punjab.</p>
                 </div>
               </div>

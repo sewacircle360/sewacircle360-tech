@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { BadgeCheck, ShieldAlert, Calendar, Mail, User, Bookmark, ArrowRight, ShieldCheck, Hourglass } from "lucide-react";
 import Link from "next/link";
 import { headers } from "next/headers";
+import { getRoleTheme } from "@/app/admin/employees/page";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -52,12 +53,23 @@ export default async function VerifyEmployeePage({ params }: PageProps) {
     console.error("Verification DB query failed:", error);
   }
 
+  // Get active theme tokens
+  const theme = employee ? getRoleTheme(employee.role?.name || "EMPLOYEE") : getRoleTheme("EMPLOYEE");
+  
+  // Custom photo border colors
+  let photoBorderGradient = "from-indigo-500 to-violet-500";
+  if (employee?.role?.name === "SUPER_ADMIN") {
+    photoBorderGradient = "from-amber-500 to-yellow-400";
+  } else if (employee?.role?.name === "ADMIN") {
+    photoBorderGradient = "from-slate-400 to-zinc-400";
+  }
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-4 relative overflow-hidden font-sans">
       
-      {/* Background Glowing Ambient Blobs */}
-      <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
-      <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-96 h-96 bg-violet-600/10 rounded-full blur-3xl pointer-events-none"></div>
+      {/* Background Glowing Ambient Blobs based on Role Theme */}
+      <div className={`absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-80 h-80 ${theme.glowTop} rounded-full blur-3xl pointer-events-none`}></div>
+      <div className={`absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-96 h-96 ${theme.glowBottom} rounded-full blur-3xl pointer-events-none`}></div>
 
       {/* Main Glassmorphic Container */}
       <div className="w-full max-w-lg bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 rounded-3xl p-8 shadow-2xl relative z-10">
@@ -90,7 +102,7 @@ export default async function VerifyEmployeePage({ params }: PageProps) {
 
             {/* Profile Photo */}
             <div className="flex flex-col items-center">
-              <div className="h-28 w-28 rounded-full p-[3px] bg-gradient-to-tr from-emerald-500 to-teal-500 shadow-lg flex items-center justify-center">
+              <div className={`h-28 w-28 rounded-full p-[3px] bg-gradient-to-tr ${photoBorderGradient} shadow-lg flex items-center justify-center`}>
                 {employee.image ? (
                   <img
                     src={employee.image}
@@ -104,10 +116,10 @@ export default async function VerifyEmployeePage({ params }: PageProps) {
                 )}
               </div>
               
-              <h2 className="text-xl font-extrabold text-white mt-4 text-center">
+              <h2 className="text-xl font-extrabold text-white mt-4 text-center font-display">
                 {employee.name}
               </h2>
-              <span className="text-xs font-bold text-indigo-400 uppercase tracking-widest text-center mt-1">
+              <span className={`text-xs font-bold ${theme.text} uppercase tracking-widest text-center mt-1`}>
                 {employee.designation || "Team Member"}
               </span>
             </div>
@@ -116,24 +128,24 @@ export default async function VerifyEmployeePage({ params }: PageProps) {
             <div className="bg-slate-950/40 border border-slate-800/60 rounded-2xl p-4 space-y-3.5 text-sm">
               
               <div className="flex items-center justify-between border-b border-slate-900 pb-2">
-                <div className="flex items-center gap-2 text-slate-550">
-                  <Bookmark className="h-4 w-4 text-indigo-500" />
+                <div className="flex items-center gap-2 text-slate-500">
+                  <Bookmark className={`h-4 w-4 ${theme.text}`} />
                   <span className="font-semibold text-xs uppercase tracking-wider">Employee ID</span>
                 </div>
                 <span className="font-mono font-bold text-slate-200">{employee.employeeId || "N/A"}</span>
               </div>
 
               <div className="flex items-center justify-between border-b border-slate-900 pb-2">
-                <div className="flex items-center gap-2 text-slate-555">
-                  <Mail className="h-4 w-4 text-indigo-500" />
+                <div className="flex items-center gap-2 text-slate-500">
+                  <Mail className={`h-4 w-4 ${theme.text}`} />
                   <span className="font-semibold text-xs uppercase tracking-wider">Official Email</span>
                 </div>
                 <span className="font-semibold text-slate-250 truncate max-w-[220px]">{employee.email}</span>
               </div>
 
               <div className="flex items-center justify-between border-b border-slate-900 pb-2">
-                <div className="flex items-center gap-2 text-slate-555">
-                  <Calendar className="h-4 w-4 text-indigo-500" />
+                <div className="flex items-center gap-2 text-slate-500">
+                  <Calendar className={`h-4 w-4 ${theme.text}`} />
                   <span className="font-semibold text-xs uppercase tracking-wider">Date of Joining</span>
                 </div>
                 <span className="font-semibold text-slate-250">
@@ -148,8 +160,8 @@ export default async function VerifyEmployeePage({ params }: PageProps) {
               </div>
 
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-slate-555">
-                  <ShieldCheck className="h-4 w-4 text-indigo-500" />
+                <div className="flex items-center gap-2 text-slate-500">
+                  <ShieldCheck className={`h-4 w-4 ${theme.text}`} />
                   <span className="font-semibold text-xs uppercase tracking-wider">Status</span>
                 </div>
                 <div className="flex items-center gap-1.5">
@@ -180,7 +192,7 @@ export default async function VerifyEmployeePage({ params }: PageProps) {
 
             {/* Profile Photo */}
             <div className="flex flex-col items-center opacity-60">
-              <div className="h-28 w-28 rounded-full p-[3px] bg-gradient-to-tr from-amber-500 to-orange-500 shadow-lg flex items-center justify-center">
+              <div className={`h-28 w-28 rounded-full p-[3px] bg-gradient-to-tr ${photoBorderGradient} shadow-lg flex items-center justify-center`}>
                 {employee.image ? (
                   <img
                     src={employee.image}
@@ -227,7 +239,7 @@ export default async function VerifyEmployeePage({ params }: PageProps) {
               </div>
             </div>
 
-            <p className="text-[10px] text-slate-550 text-center leading-relaxed px-4">
+            <p className="text-[10px] text-slate-500 text-center leading-relaxed px-4">
               ⚠️ <strong>Warning:</strong> The ID card credentials of this employee have expired and are no longer valid. The individual is not authorized to use this card for identification.
             </p>
 

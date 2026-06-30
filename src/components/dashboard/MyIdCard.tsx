@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { CreditCard, Printer, ShieldCheck, Image as ImageIcon, AlertTriangle } from "lucide-react";
 import { getAuthorizedSignature } from "@/modules/auth/actions/employees";
+import { getRoleTheme } from "@/app/admin/employees/page";
 
 interface MyIdCardProps {
   user: {
@@ -16,6 +17,7 @@ interface MyIdCardProps {
     cardExpiryDate: Date | null;
     phone: string | null;
     emergencyContact: string | null;
+    roleName?: string;
   };
 }
 
@@ -34,6 +36,7 @@ export function MyIdCard({ user }: MyIdCardProps) {
   if (!user.employeeId) return null;
 
   const isExpired = user.cardExpiryDate ? new Date() > new Date(user.cardExpiryDate) : false;
+  const theme = getRoleTheme(user.roleName || "EMPLOYEE");
 
   const verificationUrl = typeof window !== "undefined"
     ? `${window.location.origin}/verify/${user.id}`
@@ -42,7 +45,7 @@ export function MyIdCard({ user }: MyIdCardProps) {
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(verificationUrl)}`;
 
   return (
-    <div className="w-full max-w-2xl bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800 p-6 sm:p-8 rounded-3xl shadow-md backdrop-blur-sm relative">
+    <div className="w-full max-w-2xl bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800 p-6 sm:p-8 rounded-3xl shadow-md backdrop-blur-sm relative font-sans">
       
       <link href="https://fonts.googleapis.com/css2?family=Libre+Barcode+39&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 
@@ -81,7 +84,6 @@ export function MyIdCard({ user }: MyIdCardProps) {
             padding: 20px 0;
           }
           .print-card-box {
-            border: 1px solid #cbd5e1 !important;
             box-shadow: none !important;
             page-break-inside: avoid !important;
             transform: none !important;
@@ -134,9 +136,9 @@ export function MyIdCard({ user }: MyIdCardProps) {
           <div className={`w-full h-full relative transition-transform duration-500 transform-style-3d ${isFlipped ? "rotate-y-180" : ""}`}>
             
             {/* FRONT OF THE CARD */}
-            <div className={`absolute inset-0 w-full h-full backface-hidden rounded-[24px] bg-gradient-to-br from-[#0b0c16] via-[#101430] to-[#04040a] border border-indigo-500/20 shadow-2xl p-6 flex flex-col justify-between overflow-hidden print-card-box ${isExpired ? "opacity-75" : ""}`}>
-              <div className="absolute -top-16 -left-16 w-36 h-36 bg-indigo-600/10 rounded-full blur-2xl pointer-events-none"></div>
-              <div className="absolute -bottom-20 -right-20 w-44 h-44 bg-violet-600/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div className={`absolute inset-0 w-full h-full backface-hidden rounded-[24px] bg-gradient-to-br ${theme.bg} border ${theme.border} shadow-2xl p-6 flex flex-col justify-between overflow-hidden print-card-box ${isExpired ? "opacity-75" : ""}`}>
+              <div className={`absolute -top-16 -left-16 w-36 h-36 ${theme.glowTop} rounded-full blur-2xl pointer-events-none`}></div>
+              <div className={`absolute -bottom-20 -right-20 w-44 h-44 ${theme.glowBottom} rounded-full blur-3xl pointer-events-none`}></div>
 
               <div className="text-center relative z-10">
                 <div className="flex items-center justify-center gap-1.5">
@@ -146,8 +148,8 @@ export function MyIdCard({ user }: MyIdCardProps) {
                   </span>
                 </div>
                 <div className="mt-1 h-[1px] bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent w-full"></div>
-                <span className="text-[7.5px] font-extrabold text-indigo-400 tracking-[0.2em] uppercase block mt-1 font-display">
-                  Employee ID Card
+                <span className={`text-[7.5px] font-extrabold ${theme.text} tracking-[0.2em] uppercase block mt-1 font-display`}>
+                  {theme.label}
                 </span>
               </div>
 
@@ -168,7 +170,7 @@ export function MyIdCard({ user }: MyIdCardProps) {
                 <h4 className="text-base font-extrabold text-white tracking-wide font-display truncate">
                   {user.name}
                 </h4>
-                <span className="text-[10px] font-bold text-indigo-400 tracking-wider uppercase truncate">
+                <span className={`text-[10px] font-bold ${theme.text} tracking-wider uppercase truncate`}>
                   {user.designation || "Staff Member"}
                 </span>
                 <span className="text-[9px] font-bold tracking-widest text-slate-450 mt-1 font-mono">
@@ -187,7 +189,7 @@ export function MyIdCard({ user }: MyIdCardProps) {
                     {authorizedSignature ? (
                       <img src={authorizedSignature} alt="Signature" className="h-full w-auto object-contain invert dark:invert-0" />
                     ) : (
-                      <span className="text-[8px] italic font-semibold text-indigo-400/90 font-display">SewaCircle360</span>
+                      <span className={`text-[8px] italic font-semibold ${theme.text}/90 font-display`}>SewaCircle360</span>
                     )}
                   </div>
                 </div>
@@ -195,7 +197,7 @@ export function MyIdCard({ user }: MyIdCardProps) {
             </div>
 
             {/* BACK OF THE CARD */}
-            <div className="absolute inset-0 w-full h-full backface-hidden rounded-[24px] bg-gradient-to-br from-[#07070e] via-[#090b16] to-[#040409] border border-indigo-500/20 shadow-2xl p-6 flex flex-col justify-between overflow-hidden rotate-y-180 print-card-box">
+            <div className={`absolute inset-0 w-full h-full backface-hidden rounded-[24px] bg-gradient-to-br ${theme.bg} border ${theme.border} shadow-2xl p-6 flex flex-col justify-between overflow-hidden rotate-y-180 print-card-box`}>
               <div className="absolute top-10 right-10 w-24 h-24 bg-violet-600/5 rounded-full blur-2xl pointer-events-none"></div>
 
               <div className="text-center border-b border-slate-900 pb-2 relative z-10 flex flex-col gap-0.5">
@@ -210,7 +212,7 @@ export function MyIdCard({ user }: MyIdCardProps) {
               <div className="flex flex-col gap-2 relative z-10 text-[9px] font-bold text-slate-300 my-3">
                 <div className="flex items-center justify-between border-b border-slate-950 pb-1">
                   <span className="text-slate-500 font-semibold uppercase text-[8px]">Blood Group:</span>
-                  <span className="text-indigo-400 font-bold">{user.bloodGroup || "N/A"}</span>
+                  <span className={`${theme.text} font-bold`}>{user.bloodGroup || "N/A"}</span>
                 </div>
 
                 <div className="flex items-center justify-between border-b border-slate-950 pb-1">
@@ -246,7 +248,7 @@ export function MyIdCard({ user }: MyIdCardProps) {
 
               <div className="flex items-center gap-4 justify-between bg-slate-950/40 p-2.5 rounded-xl border border-slate-900 mt-1 relative z-10">
                 <div className="flex flex-col gap-0.5 shrink-0">
-                  <span className="text-[7px] uppercase font-bold text-slate-500">Scan to Verify</span>
+                  <span className="text-[7px] uppercase font-bold text-slate-550">Scan to Verify</span>
                   <img src={qrCodeUrl} alt="Verify QR" className="h-14 w-14 bg-white p-0.5 rounded border border-slate-800" />
                 </div>
                 
@@ -254,13 +256,13 @@ export function MyIdCard({ user }: MyIdCardProps) {
                   <span className="text-[32px] font-normal leading-none font-mono tracking-widest text-slate-300 select-none block" style={{ fontFamily: "'Libre Barcode 39', sans-serif" }}>
                     {user.employeeId ? `*${user.employeeId}*` : "*SCT-CARD*"}
                   </span>
-                  <span className="text-[7.5px] font-bold text-slate-500 tracking-wider mt-1">
+                  <span className="text-[7.5px] font-bold text-slate-550 tracking-wider mt-1">
                     {user.employeeId || "PENDING"}
                   </span>
                 </div>
               </div>
 
-              <div className="text-[6.5px] text-slate-550 leading-relaxed text-center mt-3 pt-2 border-t border-slate-900 relative z-10">
+              <div className="text-[6.5px] text-slate-555 leading-relaxed text-center mt-3 pt-2 border-t border-slate-900 relative z-10">
                 <p>This card is the property of <strong>SewaCircle360Tech</strong>. If found, please return to: Office 14, Phase 8-B, Sector 74, Industrial Area, Mohali, Punjab.</p>
               </div>
             </div>
@@ -272,16 +274,16 @@ export function MyIdCard({ user }: MyIdCardProps) {
       {/* Printable Area - Hidden on Screen, visible on Print */}
       <div className="hidden printable-card-area">
         {/* Print Front */}
-        <div className="w-[280px] h-[440px] rounded-[24px] bg-[#0b0c16] border border-indigo-500 shadow-none p-6 flex flex-col justify-between overflow-hidden relative">
+        <div className={`w-[280px] h-[440px] rounded-[24px] bg-gradient-to-br ${theme.bg} border ${theme.border} shadow-none p-6 flex flex-col justify-between overflow-hidden relative`}>
           <div className="text-center relative z-10">
             <div className="flex items-center justify-center gap-1.5">
               <span className="text-sm font-extrabold tracking-wide text-white font-display">
                 SewaCircle360Tech
               </span>
             </div>
-            <div className="mt-1 h-[1px] bg-indigo-500 w-full"></div>
-            <span className="text-[7.5px] font-extrabold text-indigo-400 tracking-[0.2em] uppercase block mt-1 font-display">
-              Employee ID Card
+            <div className="mt-1 h-[1px] bg-slate-800 w-full"></div>
+            <span className={`text-[7.5px] font-extrabold ${theme.text} tracking-[0.2em] uppercase block mt-1 font-display`}>
+              {theme.label}
             </span>
           </div>
 
@@ -301,26 +303,26 @@ export function MyIdCard({ user }: MyIdCardProps) {
             <h4 className="text-base font-extrabold text-white tracking-wide font-display truncate">
               {user.name}
             </h4>
-            <span className="text-[10px] font-bold text-indigo-400 tracking-wider uppercase truncate">
+            <span className={`text-[10px] font-bold ${theme.text} tracking-wider uppercase truncate font-display`}>
               {user.designation || "Staff Member"}
             </span>
-            <span className="text-[9px] font-bold tracking-widest text-slate-450 mt-1 font-mono">
+            <span className="text-[9px] font-bold tracking-widest text-slate-455 mt-1 font-mono">
               ID: {user.employeeId || "PENDING"}
             </span>
           </div>
 
           <div className="border-t border-slate-800 pt-3 flex items-center justify-between mt-2 relative z-10">
             <div className="flex flex-col items-start gap-0.5">
-              <span className="text-[7px] uppercase font-bold text-slate-500 font-display">Holder Sign</span>
+              <span className="text-[7px] uppercase font-bold text-slate-550 font-display">Holder Sign</span>
               <div className="h-5 w-16 border-b border-dashed border-slate-800"></div>
             </div>
             <div className="flex flex-col items-end gap-0.5">
-              <span className="text-[7px] uppercase font-bold text-slate-500 font-display">Authorized Sign</span>
+              <span className="text-[7px] uppercase font-bold text-slate-550 font-display">Authorized Sign</span>
               <div className="h-5 w-20 flex items-center justify-end relative">
                 {authorizedSignature ? (
                   <img src={authorizedSignature} alt="Signature" className="h-full w-auto object-contain invert" />
                 ) : (
-                  <span className="text-[8px] italic font-semibold text-indigo-400 font-display">SewaCircle360</span>
+                  <span className={`text-[8px] italic font-semibold ${theme.text} font-display`}>SewaCircle360</span>
                 )}
               </div>
             </div>
@@ -328,7 +330,7 @@ export function MyIdCard({ user }: MyIdCardProps) {
         </div>
 
         {/* Print Back */}
-        <div className="w-[280px] h-[440px] rounded-[24px] bg-[#07070e] border border-indigo-500 shadow-none p-6 flex flex-col justify-between overflow-hidden relative">
+        <div className={`w-[280px] h-[440px] rounded-[24px] bg-gradient-to-br ${theme.bg} border ${theme.border} shadow-none p-6 flex flex-col justify-between overflow-hidden relative`}>
           <div className="text-center border-b border-slate-900 pb-2 relative z-10 flex flex-col gap-0.5">
             <span className="text-[8px] font-extrabold text-slate-400 tracking-wider uppercase block">
               Terms & Contact
@@ -341,7 +343,7 @@ export function MyIdCard({ user }: MyIdCardProps) {
           <div className="flex flex-col gap-2 relative z-10 text-[9px] font-bold text-slate-300 my-3">
             <div className="flex items-center justify-between border-b border-slate-950 pb-1">
               <span className="text-slate-500 font-semibold uppercase text-[8px]">Blood Group:</span>
-              <span className="text-indigo-400 font-bold">{user.bloodGroup || "N/A"}</span>
+              <span className={`${theme.text} font-bold`}>{user.bloodGroup || "N/A"}</span>
             </div>
 
             <div className="flex items-center justify-between border-b border-slate-950 pb-1">
@@ -377,21 +379,21 @@ export function MyIdCard({ user }: MyIdCardProps) {
 
           <div className="flex items-center gap-4 justify-between bg-slate-950 p-2.5 rounded-xl border border-slate-900 mt-1 relative z-10">
             <div className="flex flex-col gap-0.5 shrink-0">
-              <span className="text-[7px] uppercase font-bold text-slate-500 font-display">Scan to Verify</span>
+              <span className="text-[7px] uppercase font-bold text-slate-550 font-display">Scan to Verify</span>
               <img src={qrCodeUrl} alt="Verify QR" className="h-14 w-14 bg-white p-0.5 rounded border border-slate-800" />
             </div>
             
             <div className="flex-1 flex flex-col items-center justify-center">
-              <span className="text-[32px] font-normal leading-none font-mono tracking-widest text-slate-300 select-none block" style={{ fontFamily: "'Libre Barcode 39', sans-serif" }}>
+              <span className="text-[32px] font-normal leading-none font-mono tracking-widest text-slate-355 select-none block" style={{ fontFamily: "'Libre Barcode 39', sans-serif" }}>
                 {user.employeeId ? `*${user.employeeId}*` : "*SCT-CARD*"}
               </span>
-              <span className="text-[7.5px] font-bold text-slate-500 tracking-wider mt-1">
+              <span className="text-[7.5px] font-bold text-slate-555 tracking-wider mt-1">
                 {user.employeeId || "PENDING"}
               </span>
             </div>
           </div>
 
-          <div className="text-[6.5px] text-slate-550 leading-relaxed text-center mt-3 pt-2 border-t border-slate-900 relative z-10">
+          <div className="text-[6.5px] text-slate-555 leading-relaxed text-center mt-3 pt-2 border-t border-slate-900 relative z-10">
             <p>This card is the property of <strong>SewaCircle360Tech</strong>. If found, please return to: Office 14, Phase 8-B, Sector 74, Industrial Area, Mohali, Punjab.</p>
           </div>
         </div>

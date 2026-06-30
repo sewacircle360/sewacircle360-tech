@@ -60,7 +60,8 @@ export default async function AdminProfilePage() {
                 joiningDate: dbUser.joiningDate,
                 cardExpiryDate: dbUser.cardExpiryDate,
                 phone: dbUser.phone,
-                emergencyContact: dbUser.emergencyContact
+                emergencyContact: dbUser.emergencyContact,
+                roleName: dbUser.role.name
               }}
             />
           </div>

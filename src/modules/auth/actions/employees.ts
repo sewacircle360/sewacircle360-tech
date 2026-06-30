@@ -209,3 +209,13 @@ export async function deleteEmployee(id: string) {
     return { error: "Failed to delete employee account." };
   }
 }
+
+export async function getTotalIdCardScans() {
+  try {
+    const count = await db.verificationLog.count();
+    return { count };
+  } catch (error) {
+    console.error("getTotalIdCardScans error:", error);
+    return { count: 0 };
+  }
+}

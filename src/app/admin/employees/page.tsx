@@ -9,7 +9,8 @@ import {
   revokeEmployeeIdCard,
   updateAuthorizedSignature,
   getAuthorizedSignature,
-  getEmployeeScanLogs
+  getEmployeeScanLogs,
+  getTotalIdCardScans
 } from "@/modules/auth/actions/employees";
 import { 
   Users, Mail, Trash2, Plus, Loader2, AlertCircle, CheckCircle2, 
@@ -81,6 +82,7 @@ export default function AdminEmployeesPage() {
   const [viewMode, setViewMode] = useState<"dashboard" | "edit">("dashboard");
   const [activeTab, setActiveTab] = useState<"card" | "logs">("card");
   const [scanLogs, setScanLogs] = useState<any[]>([]);
+  const [totalScans, setTotalScans] = useState(0);
 
   // Bulk Print State
   const [selectedEmpIds, setSelectedEmpIds] = useState<string[]>([]);
@@ -92,6 +94,8 @@ export default function AdminEmployeesPage() {
   const fetchEmployees = async () => {
     const list = await getEmployees();
     setEmployees(list);
+    const scansRes = await getTotalIdCardScans();
+    setTotalScans(scansRes.count || 0);
   };
 
   const fetchSignature = async () => {
@@ -306,6 +310,10 @@ export default function AdminEmployeesPage() {
   // Fetch the custom layout colors based on selected employee's role
   const activeTheme = selectedEmp ? getRoleTheme(selectedEmp.role?.name || "EMPLOYEE") : getRoleTheme("EMPLOYEE");
 
+  // Local state stats calculation
+  const activeCount = employees.filter(emp => emp.employeeId && (!emp.cardExpiryDate || new Date(emp.cardExpiryDate) > new Date())).length;
+  const expiredCount = employees.filter(emp => emp.employeeId && emp.cardExpiryDate && new Date(emp.cardExpiryDate) <= new Date()).length;
+
   return (
     <div className="flex flex-col gap-6 text-left relative font-sans">
       
@@ -377,6 +385,56 @@ export default function AdminEmployeesPage() {
         </p>
       </div>
 
+      {/* Dynamic Summary Cards Widgets */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 no-print font-sans">
+        
+        {/* Widget 1: Active Cards */}
+        <div className="flex items-center gap-4 p-4 bg-white dark:bg-[#090d1f]/60 border dark:border-slate-800/80 rounded-2xl shadow-sm relative overflow-hidden group">
+          <div className="absolute -right-4 -bottom-4 w-20 h-20 bg-emerald-500/5 rounded-full blur-xl pointer-events-none group-hover:bg-emerald-500/10 transition-colors"></div>
+          <div className="p-3 bg-emerald-500/10 text-emerald-500 rounded-xl shrink-0">
+            <ShieldCheck className="h-5 w-5" />
+          </div>
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-450 block">Active ID Cards</span>
+            <div className="flex items-baseline gap-1 mt-0.5">
+              <span className="text-xl font-extrabold text-slate-900 dark:text-white leading-none font-display">{activeCount}</span>
+              <span className="text-[10px] font-bold text-slate-500">cards live</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Widget 2: Expired Cards */}
+        <div className="flex items-center gap-4 p-4 bg-white dark:bg-[#090d1f]/60 border dark:border-slate-800/80 rounded-2xl shadow-sm relative overflow-hidden group">
+          <div className="absolute -right-4 -bottom-4 w-20 h-20 bg-amber-500/5 rounded-full blur-xl pointer-events-none group-hover:bg-amber-500/10 transition-colors"></div>
+          <div className="p-3 bg-amber-500/10 text-amber-500 rounded-xl shrink-0">
+            <Hourglass className="h-5 w-5 animate-pulse" />
+          </div>
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-455 block">Expired Cards</span>
+            <div className="flex items-baseline gap-1 mt-0.5">
+              <span className="text-xl font-extrabold text-slate-900 dark:text-white leading-none font-display">{expiredCount}</span>
+              <span className="text-[10px] font-bold text-slate-500">needs renewal</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Widget 3: Total Audited Checks */}
+        <div className="flex items-center gap-4 p-4 bg-white dark:bg-[#090d1f]/60 border dark:border-slate-800/80 rounded-2xl shadow-sm relative overflow-hidden group">
+          <div className="absolute -right-4 -bottom-4 w-20 h-20 bg-indigo-500/5 rounded-full blur-xl pointer-events-none group-hover:bg-indigo-500/10 transition-colors"></div>
+          <div className="p-3 bg-indigo-500/10 text-indigo-500 rounded-xl shrink-0">
+            <Activity className="h-5 w-5" />
+          </div>
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-455 block">Scan Verifications</span>
+            <div className="flex items-baseline gap-1 mt-0.5">
+              <span className="text-xl font-extrabold text-slate-900 dark:text-white leading-none font-display">{totalScans}</span>
+              <span className="text-[10px] font-bold text-slate-500">checks logged</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
       {/* Corporate Branding Widget & Bulk Print Button */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 bg-white dark:bg-[#090d1f]/60 border dark:border-slate-800/80 rounded-2xl shadow-sm no-print">
         
@@ -423,7 +481,7 @@ export default function AdminEmployeesPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start no-print">
         {/* Left Side: Add Form */}
         <div className="lg:col-span-4 bg-white dark:bg-[#090d1f]/60 border dark:border-slate-800/80 p-6 rounded-2xl shadow-sm font-sans">
-          <h2 className="text-sm font-bold uppercase tracking-wider text-slate-450 mb-4">Add New Employee</h2>
+          <h2 className="text-sm font-bold uppercase tracking-wider text-slate-455 mb-4 font-display">Add New Employee</h2>
           
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="flex flex-col gap-1.5">
@@ -435,7 +493,7 @@ export default function AdminEmployeesPage() {
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 placeholder="Riya Garg"
                 disabled={isPending}
-                className="w-full px-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-950/80 border border-border/80 dark:border-slate-800 rounded-xl outline-none text-foreground focus:border-primary placeholder:text-slate-450"
+                className="w-full px-4 py-2.5 text-sm bg-slate-50 dark:bg-slate-950/80 border border-border/80 dark:border-slate-800 rounded-xl outline-none text-foreground focus:border-primary placeholder:text-slate-455"
               />
             </div>
 
@@ -535,7 +593,7 @@ export default function AdminEmployeesPage() {
                       <td className="py-4 px-6 text-xs font-medium text-slate-600 dark:text-slate-400">
                         {emp.employeeId ? (
                           <div className="flex flex-col gap-0.5">
-                            <span className="font-bold text-slate-800 dark:text-slate-250">{emp.employeeId}</span>
+                            <span className="font-bold text-slate-800 dark:text-slate-250 font-mono">{emp.employeeId}</span>
                             <span className="text-[10px] text-indigo-500 font-bold uppercase">{emp.designation || "Staff"}</span>
                           </div>
                         ) : (
@@ -659,7 +717,7 @@ export default function AdminEmployeesPage() {
                                 <td className="py-3 px-4 font-mono font-bold text-indigo-500 dark:text-indigo-400">
                                   {log.ipAddress}
                                 </td>
-                                <td className="py-3 px-4 text-slate-450 dark:text-slate-500 truncate max-w-[340px]" title={log.userAgent}>
+                                <td className="py-3 px-4 text-slate-455 dark:text-slate-500 truncate max-w-[340px]" title={log.userAgent}>
                                   {log.userAgent}
                                 </td>
                               </tr>
@@ -946,7 +1004,7 @@ export default function AdminEmployeesPage() {
                               <span className={`text-[10px] font-bold ${activeTheme.text} tracking-wider uppercase truncate`}>
                                 {cardForm.designation || "Staff Member"}
                               </span>
-                              <span className="text-[9px] font-bold tracking-widest text-slate-450 mt-1 font-mono">
+                              <span className="text-[9px] font-bold tracking-widest text-slate-450 mt-1 font-mono font-bold">
                                 ID: {cardForm.employeeId || "PENDING"}
                               </span>
                             </div>
@@ -1103,7 +1161,7 @@ export default function AdminEmployeesPage() {
               <span className={`text-[10px] font-bold ${activeTheme.text} tracking-wider uppercase truncate font-display`}>
                 {cardForm.designation || "Staff Member"}
               </span>
-              <span className="text-[9px] font-bold tracking-widest text-slate-455 mt-1 font-mono">
+              <span className="text-[9px] font-bold tracking-widest text-slate-455 mt-1 font-mono font-bold">
                 ID: {cardForm.employeeId || "PENDING"}
               </span>
             </div>
@@ -1242,7 +1300,7 @@ export default function AdminEmployeesPage() {
                   <span className={`text-[10px] font-bold ${bulkTheme.text} tracking-wider uppercase truncate font-display`}>
                     {emp.designation || "Staff Member"}
                   </span>
-                  <span className="text-[9px] font-bold tracking-widest text-slate-455 mt-1 font-mono">
+                  <span className="text-[9px] font-bold tracking-widest text-slate-455 mt-1 font-mono font-bold">
                     ID: {emp.employeeId || "PENDING"}
                   </span>
                 </div>

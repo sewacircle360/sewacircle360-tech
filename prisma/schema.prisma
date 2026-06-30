@@ -372,3 +372,26 @@ model Comment {
   createdAt DateTime @default(now())
 }
 
+model TalentProfile {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  fullName        String
+  university      String
+  rollNumber      String
+  officialEmail   String
+  personalEmail   String
+  mobileNumber    String
+  degree          String
+  branch          String
+  yearSemester    String
+  cgpa            String?  // Optional
+  skills          String[] // Array of selected skills
+  githubProfile   String?  // Optional
+  linkedinProfile String?  // Optional
+  portfolioLink   String?  // Optional
+  resumeData      String?  // Optional base64 file data
+  resumeName      String?  // Optional original filename
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+

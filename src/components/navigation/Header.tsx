@@ -61,7 +61,7 @@ export function Header() {
     }
   };
 
-  const isStudentActive = pathname === "/student-training" || pathname === "/internships";
+  const isStudentActive = pathname === "/student-training" || pathname === "/talent-network";
 
   return (
     <>
@@ -145,14 +145,14 @@ export function Header() {
                       Academic Projects
                     </Link>
                     <Link
-                      href="/internships"
+                      href="/talent-network"
                       className={`block px-4 py-2.5 text-sm rounded-xl transition-colors mt-0.5 ${
-                        pathname === "/internships"
+                        pathname === "/talent-network"
                           ? "bg-slate-100 dark:bg-slate-800 text-primary dark:text-accent font-semibold"
-                          : "text-slate-700 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-855"
+                          : "text-slate-700 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-850"
                       }`}
                     >
-                      Internships
+                      Talent Network
                     </Link>
                   </motion.div>
                 )}
@@ -291,15 +291,15 @@ export function Header() {
                           Academic Projects
                         </Link>
                         <Link
-                          href="/internships"
+                          href="/talent-network"
                           onClick={() => setIsMobileMenuOpen(false)}
                           className={`text-base px-2 py-1 rounded-lg transition-colors ${
-                            pathname === "/internships"
+                            pathname === "/talent-network"
                               ? "text-primary dark:text-accent font-semibold"
                               : "text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-accent"
                           }`}
                         >
-                          Internships
+                          Talent Network
                         </Link>
                       </motion.div>
                     )}

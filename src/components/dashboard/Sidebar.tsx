@@ -42,6 +42,7 @@ const NAV_GROUPS = [
       { label: "Clients Directory", href: "/admin/clients", icon: Users },
       { label: "Employees Directory", href: "/admin/employees", icon: ShieldCheck },
       { label: "Students Directory", href: "/admin/students", icon: GraduationCap },
+      { label: "Talent Network", href: "/admin/talent-network", icon: Users },
       { label: "Academic Requests", href: "/admin/academic-requests", icon: Award },
       { label: "Projects Pipeline", href: "/admin/projects", icon: Briefcase },
       { label: "Support Tickets", href: "/admin/tickets", icon: LifeBuoy },

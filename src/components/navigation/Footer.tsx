@@ -28,7 +28,7 @@ const COMPANY_LINKS = [
   { label: "Latest Blogs", href: "/blog" },
   { label: "Careers", href: "/careers" },
   { label: "Academic Projects", href: "/student-training" },
-  { label: "Internships", href: "/internships" },
+  { label: "Talent Network", href: "/talent-network" },
   { label: "Contact Us", href: "/contact" },
 ];
 

@@ -301,6 +301,7 @@ export default function AdminTalentNetworkPage() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20 text-xs font-bold uppercase tracking-wider text-slate-500">
+                  <th className="py-4 px-6 w-16">S.No.</th>
                   <th className="py-4 px-6">Name</th>
                   <th className="py-4 px-6">University</th>
                   <th className="py-4 px-6">Degree & Branch</th>
@@ -309,8 +310,11 @@ export default function AdminTalentNetworkPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
-                {filteredProfiles.map((profile) => (
+                {filteredProfiles.map((profile, index) => (
                   <tr key={profile.id} className="hover:bg-slate-50/30 dark:hover:bg-slate-900/10 transition-colors">
+                    <td className="py-4 px-6 text-sm font-semibold text-slate-500 dark:text-slate-400">
+                      {index + 1}
+                    </td>
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-3">
                         <div className="h-9 w-9 bg-slate-100 dark:bg-slate-850 rounded-full flex items-center justify-center shrink-0">

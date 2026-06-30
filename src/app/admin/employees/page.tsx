@@ -30,7 +30,8 @@ export const getRoleTheme = (roleName: string) => {
         glowTop: "bg-amber-500/10",
         glowBottom: "bg-yellow-500/10",
         label: "Executive Board",
-        badge: "bg-amber-500/10 border-amber-500/25 text-amber-400"
+        badge: "bg-amber-500/10 border-amber-500/25 text-amber-400",
+        qrColor: "d97706"
       };
     case "ADMIN":
       return {
@@ -40,7 +41,8 @@ export const getRoleTheme = (roleName: string) => {
         glowTop: "bg-slate-500/10",
         glowBottom: "bg-zinc-500/10",
         label: "Administration",
-        badge: "bg-slate-500/10 border-slate-500/25 text-slate-355"
+        badge: "bg-slate-500/10 border-slate-500/25 text-slate-355",
+        qrColor: "475569"
       };
     case "EMPLOYEE":
     default:
@@ -51,7 +53,8 @@ export const getRoleTheme = (roleName: string) => {
         glowTop: "bg-indigo-600/10",
         glowBottom: "bg-violet-600/10",
         label: "Staff Directory",
-        badge: "bg-indigo-500/10 border-indigo-500/25 text-indigo-400"
+        badge: "bg-indigo-500/10 border-indigo-500/25 text-indigo-400",
+        qrColor: "4f46e5"
       };
   }
 };
@@ -305,10 +308,9 @@ export default function AdminEmployeesPage() {
       : `https://sewacircle360tech.online/verify/${selectedEmp.id}`
     : "";
 
-  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(verificationUrl)}`;
-
-  // Fetch the custom layout colors based on selected employee's role
+  // Dynamic themed color QR code
   const activeTheme = selectedEmp ? getRoleTheme(selectedEmp.role?.name || "EMPLOYEE") : getRoleTheme("EMPLOYEE");
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&color=${activeTheme.qrColor}&data=${encodeURIComponent(verificationUrl)}`;
 
   // Local state stats calculation
   const activeCount = employees.filter(emp => emp.employeeId && (!emp.cardExpiryDate || new Date(emp.cardExpiryDate) > new Date())).length;
@@ -413,7 +415,7 @@ export default function AdminEmployeesPage() {
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-455 block">Expired Cards</span>
             <div className="flex items-baseline gap-1 mt-0.5">
               <span className="text-xl font-extrabold text-slate-900 dark:text-white leading-none font-display">{expiredCount}</span>
-              <span className="text-[10px] font-bold text-slate-500">needs renewal</span>
+              <span className="text-[10px] font-bold text-slate-550 font-semibold text-red-500">needs renewal</span>
             </div>
           </div>
         </div>
@@ -593,7 +595,7 @@ export default function AdminEmployeesPage() {
                       <td className="py-4 px-6 text-xs font-medium text-slate-600 dark:text-slate-400">
                         {emp.employeeId ? (
                           <div className="flex flex-col gap-0.5">
-                            <span className="font-bold text-slate-800 dark:text-slate-250 font-mono">{emp.employeeId}</span>
+                            <span className="font-bold text-slate-800 dark:text-slate-250 font-mono font-bold">{emp.employeeId}</span>
                             <span className="text-[10px] text-indigo-500 font-bold uppercase">{emp.designation || "Staff"}</span>
                           </div>
                         ) : (
@@ -1042,12 +1044,12 @@ export default function AdminEmployeesPage() {
 
                             <div className="flex flex-col gap-2 relative z-10 text-[9px] font-bold text-slate-300 my-3">
                               <div className="flex items-center justify-between border-b border-slate-950 pb-1">
-                                <span className="text-slate-500 font-semibold uppercase text-[8px]">Blood Group:</span>
+                                <span className="text-slate-550 font-semibold uppercase text-[8px]">Blood Group:</span>
                                 <span className={`${activeTheme.text} font-bold`}>{cardForm.bloodGroup || "N/A"}</span>
                               </div>
 
                               <div className="flex items-center justify-between border-b border-slate-950 pb-1">
-                                <span className="text-slate-500 font-semibold uppercase text-[8px]">Joining Date:</span>
+                                <span className="text-slate-555 font-semibold uppercase text-[8px]">Joining Date:</span>
                                 <span>
                                   {cardForm.joiningDate 
                                     ? new Date(cardForm.joiningDate).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
@@ -1057,7 +1059,7 @@ export default function AdminEmployeesPage() {
                               </div>
 
                               <div className="flex items-center justify-between border-b border-slate-950 pb-1">
-                                <span className="text-slate-500 font-semibold uppercase text-[8px]">Expiry Date:</span>
+                                <span className="text-slate-555 font-semibold uppercase text-[8px]">Expiry Date:</span>
                                 <span>
                                   {cardForm.cardExpiryDate 
                                     ? new Date(cardForm.cardExpiryDate).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
@@ -1067,12 +1069,12 @@ export default function AdminEmployeesPage() {
                               </div>
 
                               <div className="flex items-center justify-between border-b border-slate-950 pb-1">
-                                <span className="text-slate-500 font-semibold uppercase text-[8px]">Contact No:</span>
+                                <span className="text-slate-555 font-semibold uppercase text-[8px]">Contact No:</span>
                                 <span>{cardForm.phone || "N/A"}</span>
                               </div>
 
                               <div className="flex items-center justify-between border-b border-slate-950 pb-1">
-                                <span className="text-slate-500 font-semibold uppercase text-[8px]">Emergency Phone:</span>
+                                <span className="text-slate-555 font-semibold uppercase text-[8px]">Emergency Phone:</span>
                                 <span>{cardForm.emergencyContact || "N/A"}</span>
                               </div>
                             </div>
@@ -1197,12 +1199,12 @@ export default function AdminEmployeesPage() {
 
             <div className="flex flex-col gap-2 relative z-10 text-[9px] font-bold text-slate-300 my-3">
               <div className="flex items-center justify-between border-b border-slate-950 pb-1">
-                <span className="text-slate-500 font-semibold uppercase text-[8px]">Blood Group:</span>
+                <span className="text-slate-550 font-semibold uppercase text-[8px]">Blood Group:</span>
                 <span className={`${activeTheme.text} font-bold`}>{cardForm.bloodGroup || "N/A"}</span>
               </div>
 
               <div className="flex items-center justify-between border-b border-slate-950 pb-1">
-                <span className="text-slate-500 font-semibold uppercase text-[8px]">Joining Date:</span>
+                <span className="text-slate-555 font-semibold uppercase text-[8px]">Joining Date:</span>
                 <span>
                   {cardForm.joiningDate 
                     ? new Date(cardForm.joiningDate).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
@@ -1212,7 +1214,7 @@ export default function AdminEmployeesPage() {
               </div>
 
               <div className="flex items-center justify-between border-b border-slate-950 pb-1">
-                <span className="text-slate-500 font-semibold uppercase text-[8px]">Expiry Date:</span>
+                <span className="text-slate-555 font-semibold uppercase text-[8px]">Expiry Date:</span>
                 <span>
                   {cardForm.cardExpiryDate 
                     ? new Date(cardForm.cardExpiryDate).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
@@ -1222,12 +1224,12 @@ export default function AdminEmployeesPage() {
               </div>
 
               <div className="flex items-center justify-between border-b border-slate-950 pb-1">
-                <span className="text-slate-500 font-semibold uppercase text-[8px]">Contact No:</span>
+                <span className="text-slate-555 font-semibold uppercase text-[8px]">Contact No:</span>
                 <span>{cardForm.phone || "N/A"}</span>
               </div>
 
               <div className="flex items-center justify-between border-b border-slate-950 pb-1">
-                <span className="text-slate-500 font-semibold uppercase text-[8px]">Emergency Phone:</span>
+                <span className="text-slate-555 font-semibold uppercase text-[8px]">Emergency Phone:</span>
                 <span>{cardForm.emergencyContact || "N/A"}</span>
               </div>
             </div>
@@ -1261,8 +1263,8 @@ export default function AdminEmployeesPage() {
           const bulkVerificationUrl = typeof window !== "undefined"
             ? `${window.location.origin}/verify/${emp.id}`
             : `https://sewacircle360tech.online/verify/${emp.id}`;
-          const bulkQrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(bulkVerificationUrl)}`;
           const bulkTheme = getRoleTheme(emp.role?.name || "EMPLOYEE");
+          const bulkQrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&color=${bulkTheme.qrColor}&data=${encodeURIComponent(bulkVerificationUrl)}`;
           
           return (
             <div key={emp.id} className={`flex gap-4 p-4 border rounded-[28px] print-card-box bg-gradient-to-br ${bulkTheme.bg} text-slate-100 ${bulkTheme.border}`}>
@@ -1336,12 +1338,12 @@ export default function AdminEmployeesPage() {
 
                 <div className="flex flex-col gap-2 relative z-10 text-[9px] font-bold text-slate-300 my-3">
                   <div className="flex items-center justify-between border-b border-slate-950 pb-1">
-                    <span className="text-slate-500 font-semibold uppercase text-[8px]">Blood Group:</span>
+                    <span className="text-slate-550 font-semibold uppercase text-[8px]">Blood Group:</span>
                     <span className={`${bulkTheme.text} font-bold`}>{emp.bloodGroup || "N/A"}</span>
                   </div>
 
                   <div className="flex items-center justify-between border-b border-slate-950 pb-1">
-                    <span className="text-slate-500 font-semibold uppercase text-[8px]">Joining Date:</span>
+                    <span className="text-slate-555 font-semibold uppercase text-[8px]">Joining Date:</span>
                     <span>
                       {emp.joiningDate 
                         ? new Date(emp.joiningDate).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
@@ -1351,7 +1353,7 @@ export default function AdminEmployeesPage() {
                   </div>
 
                   <div className="flex items-center justify-between border-b border-slate-950 pb-1">
-                    <span className="text-slate-500 font-semibold uppercase text-[8px]">Expiry Date:</span>
+                    <span className="text-slate-555 font-semibold uppercase text-[8px]">Expiry Date:</span>
                     <span>
                       {emp.cardExpiryDate 
                         ? new Date(emp.cardExpiryDate).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
@@ -1361,19 +1363,19 @@ export default function AdminEmployeesPage() {
                   </div>
 
                   <div className="flex items-center justify-between border-b border-slate-950 pb-1">
-                    <span className="text-slate-500 font-semibold uppercase text-[8px]">Contact No:</span>
+                    <span className="text-slate-555 font-semibold uppercase text-[8px]">Contact No:</span>
                     <span>{emp.phone || "N/A"}</span>
                   </div>
 
                   <div className="flex items-center justify-between border-b border-slate-950 pb-1">
-                    <span className="text-slate-500 font-semibold uppercase text-[8px]">Emergency Phone:</span>
+                    <span className="text-slate-555 font-semibold uppercase text-[8px]">Emergency Phone:</span>
                     <span>{emp.emergencyContact || "N/A"}</span>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-4 justify-between bg-slate-950 p-2.5 rounded-xl border border-slate-900 mt-1 relative z-10">
                   <div className="flex flex-col gap-0.5 shrink-0">
-                    <span className="text-[7px] uppercase font-bold text-slate-550 font-display">Scan to Verify</span>
+                    <span className="text-[7px] uppercase font-bold text-slate-555 font-display">Scan to Verify</span>
                     <img src={bulkQrCodeUrl} alt="Verify QR" className="h-14 w-14 bg-white p-0.5 rounded border border-slate-800" />
                   </div>
                   

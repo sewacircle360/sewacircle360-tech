@@ -42,7 +42,7 @@ export function MyIdCard({ user }: MyIdCardProps) {
     ? `${window.location.origin}/verify/${user.id}`
     : `https://sewacircle360tech.online/verify/${user.id}`;
 
-  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(verificationUrl)}`;
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&color=${theme.qrColor}&data=${encodeURIComponent(verificationUrl)}`;
 
   const handleDownloadImage = async (elementId: string) => {
     try {
@@ -209,11 +209,11 @@ export function MyIdCard({ user }: MyIdCardProps) {
 
               <div className="border-t border-slate-800/60 pt-3 flex items-center justify-between mt-2 relative z-10">
                 <div className="flex flex-col items-start gap-0.5">
-                  <span className="text-[7px] uppercase font-bold text-slate-550 font-display">Holder Sign</span>
+                  <span className="text-[7px] uppercase font-bold text-slate-500 font-display">Holder Sign</span>
                   <div className="h-5 w-16 border-b border-dashed border-slate-800/80"></div>
                 </div>
                 <div className="flex flex-col items-end gap-0.5">
-                  <span className="text-[7px] uppercase font-bold text-slate-550 font-display">Authorized Sign</span>
+                  <span className="text-[7px] uppercase font-bold text-slate-500 font-display">Authorized Sign</span>
                   <div className="h-5 w-20 flex items-center justify-end relative">
                     {authorizedSignature ? (
                       <img src={authorizedSignature} alt="Signature" className="h-full w-auto object-contain invert dark:invert-0" />
@@ -278,7 +278,7 @@ export function MyIdCard({ user }: MyIdCardProps) {
               <div className="flex items-center gap-4 justify-between bg-slate-950/40 p-2.5 rounded-xl border border-slate-900 mt-1 relative z-10">
                 <div className="flex flex-col gap-0.5 shrink-0">
                   <span className="text-[7px] uppercase font-bold text-slate-550">Scan to Verify</span>
-                  <img src={qrCodeUrl} alt="Verify QR" className="h-14 w-14 bg-white p-0.5 rounded border border-slate-800" />
+                  <img src={qrCodeUrl} alt="Verify QR" className="h-14 w-14 bg-white p-0.5 rounded border border-slate-800" style={{ borderColor: `#${theme.qrColor}` }} />
                 </div>
                 
                 <div className="flex-1 flex flex-col items-center justify-center">
@@ -346,7 +346,7 @@ export function MyIdCard({ user }: MyIdCardProps) {
               <div className="h-5 w-16 border-b border-dashed border-slate-800"></div>
             </div>
             <div className="flex flex-col items-end gap-0.5">
-              <span className="text-[7px] uppercase font-bold text-slate-550 font-display">Authorized Sign</span>
+              <span className="text-[7px] uppercase font-bold text-slate-555 font-display">Authorized Sign</span>
               <div className="h-5 w-20 flex items-center justify-end relative">
                 {authorizedSignature ? (
                   <img src={authorizedSignature} alt="Signature" className="h-full w-auto object-contain invert" />
@@ -408,7 +408,7 @@ export function MyIdCard({ user }: MyIdCardProps) {
 
           <div className="flex items-center gap-4 justify-between bg-slate-950 p-2.5 rounded-xl border border-slate-900 mt-1 relative z-10">
             <div className="flex flex-col gap-0.5 shrink-0">
-              <span className="text-[7px] uppercase font-bold text-slate-550 font-display">Scan to Verify</span>
+              <span className="text-[7px] uppercase font-bold text-slate-555 font-display">Scan to Verify</span>
               <img src={qrCodeUrl} alt="Verify QR" className="h-14 w-14 bg-white p-0.5 rounded border border-slate-800" />
             </div>
             

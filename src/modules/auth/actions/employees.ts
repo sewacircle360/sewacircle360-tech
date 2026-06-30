@@ -69,16 +69,66 @@ export async function createEmployee(data: { name: string; email: string }) {
 
 export async function getEmployees() {
   try {
-    const employeeRole = await db.role.findUnique({ where: { name: "EMPLOYEE" } });
-    if (!employeeRole) return [];
+    const roles = await db.role.findMany({
+      where: {
+        name: { in: ["EMPLOYEE", "ADMIN", "SUPER_ADMIN"] }
+      }
+    });
+    const roleIds = roles.map(r => r.id);
 
     return await db.user.findMany({
-      where: { roleId: employeeRole.id },
+      where: { roleId: { in: roleIds } },
       orderBy: { createdAt: "desc" }
     });
   } catch (error) {
     console.error("getEmployees error:", error);
     return [];
+  }
+}
+
+export async function updateEmployeeIdCard(
+  id: string,
+  data: {
+    employeeId: string;
+    designation: string;
+    bloodGroup: string;
+    joiningDate: string;
+    emergencyContact: string;
+    phone: string;
+    image?: string;
+  }
+) {
+  try {
+    if (data.employeeId) {
+      const existing = await db.user.findFirst({
+        where: {
+          employeeId: data.employeeId,
+          id: { not: id }
+        }
+      });
+      if (existing) {
+        return { error: "This Employee ID is already assigned to another user." };
+      }
+    }
+
+    const updated = await db.user.update({
+      where: { id },
+      data: {
+        employeeId: data.employeeId || null,
+        designation: data.designation || null,
+        bloodGroup: data.bloodGroup || null,
+        joiningDate: data.joiningDate ? new Date(data.joiningDate) : null,
+        emergencyContact: data.emergencyContact || null,
+        phone: data.phone || null,
+        image: data.image || undefined,
+      }
+    });
+
+    revalidatePath("/admin/employees");
+    return { success: "ID Card details updated successfully!", employee: updated };
+  } catch (error) {
+    console.error("updateEmployeeIdCard error:", error);
+    return { error: "Failed to update ID Card details." };
   }
 }
 

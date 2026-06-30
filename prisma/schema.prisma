@@ -27,6 +27,14 @@ model User {
   otpCode            String?
   otpExpiry          DateTime?
 
+  // ID Card & Contact Details
+  employeeId         String?
+  designation        String?
+  bloodGroup         String?
+  joiningDate        DateTime?
+  emergencyContact   String?
+  phone              String?
+
   // Module Relationships
   blogs               BlogPost[]
   auditLogs           AuditLog[]

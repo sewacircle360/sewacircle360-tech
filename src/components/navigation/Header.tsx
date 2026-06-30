@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Logo } from "@/components/ui/Logo";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { Menu, X, Search, Calendar, ArrowRight } from "lucide-react";
+import { Menu, X, Search, Calendar, ArrowRight, ChevronDown } from "lucide-react";
 
 const NAV_LINKS = [
   { label: "Home", href: "/" },
@@ -15,16 +15,16 @@ const NAV_LINKS = [
   { label: "Products", href: "/products" },
   { label: "Portfolio", href: "/portfolio" },
   { label: "Blog", href: "/blog" },
-  { label: "Careers", href: "/careers" },
-  { label: "Academic Projects", href: "/student-training" },
-  { label: "Internships", href: "/internships" },
 ];
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isMobileDropdownOpen, setIsMobileDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  
   const pathname = usePathname();
   const router = useRouter();
 
@@ -43,8 +43,13 @@ export function Header() {
 
   // Close menus on route change
   useEffect(() => {
-    setIsMobileMenuOpen(false);
-    setIsSearchOpen(false);
+    const timer = setTimeout(() => {
+      setIsMobileMenuOpen(false);
+      setIsSearchOpen(false);
+      setIsDropdownOpen(false);
+      setIsMobileDropdownOpen(false);
+    }, 0);
+    return () => clearTimeout(timer);
   }, [pathname]);
 
   // Handle Search Submission
@@ -55,6 +60,8 @@ export function Header() {
       setIsSearchOpen(false);
     }
   };
+
+  const isStudentActive = pathname === "/student-training" || pathname === "/internships";
 
   return (
     <>
@@ -94,6 +101,63 @@ export function Header() {
                 </Link>
               );
             })}
+
+            {/* Desktop Student Programs Dropdown */}
+            <div
+              className="relative"
+              onMouseEnter={() => setIsDropdownOpen(true)}
+              onMouseLeave={() => setIsDropdownOpen(false)}
+            >
+              <button
+                className={`flex items-center gap-1 text-sm font-medium transition-colors duration-300 relative py-1 cursor-pointer outline-none ${
+                  isStudentActive
+                    ? "text-primary dark:text-accent"
+                    : "text-[#334155] dark:text-[#cbd5e1] hover:text-primary dark:hover:text-accent"
+                }`}
+              >
+                <span>Student Programs</span>
+                <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isDropdownOpen ? "rotate-180" : ""}`} />
+                {isStudentActive && (
+                  <motion.span
+                    layoutId="activeNavIndicator"
+                    className="absolute left-0 right-0 -bottom-1 h-0.5 bg-primary dark:bg-accent rounded-full"
+                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                  />
+                )}
+              </button>
+              
+              <AnimatePresence>
+                {isDropdownOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="absolute left-0 mt-2 w-48 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-2xl shadow-lg p-2 z-50"
+                  >
+                    <Link
+                      href="/student-training"
+                      className={`block px-4 py-2.5 text-sm rounded-xl transition-colors ${
+                        pathname === "/student-training"
+                          ? "bg-slate-100 dark:bg-slate-800 text-primary dark:text-accent font-semibold"
+                          : "text-slate-700 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-850"
+                      }`}
+                    >
+                      Academic Projects
+                    </Link>
+                    <Link
+                      href="/internships"
+                      className={`block px-4 py-2.5 text-sm rounded-xl transition-colors mt-0.5 ${
+                        pathname === "/internships"
+                          ? "bg-slate-100 dark:bg-slate-800 text-primary dark:text-accent font-semibold"
+                          : "text-slate-700 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-855"
+                      }`}
+                    >
+                      Internships
+                    </Link>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </nav>
 
           {/* Desktop Action Actions */}
@@ -171,7 +235,7 @@ export function Header() {
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
               className="fixed right-0 top-0 bottom-0 z-45 w-72 max-w-full bg-background border-l border-border/80 shadow-xl px-6 pt-24 pb-8 flex flex-col justify-between lg:hidden"
             >
-              <div className="flex flex-col gap-5">
+              <div className="flex flex-col gap-4">
                 {NAV_LINKS.map((link) => {
                   const isActive = pathname === link.href;
                   return (
@@ -189,7 +253,60 @@ export function Header() {
                     </Link>
                   );
                 })}
+
+                {/* Mobile Student Programs Dropdown */}
+                <div className="flex flex-col">
+                  <button
+                    onClick={() => setIsMobileDropdownOpen(!isMobileDropdownOpen)}
+                    className={`flex items-center justify-between w-full text-lg font-medium px-2 py-1.5 rounded-lg transition-colors cursor-pointer ${
+                      isStudentActive
+                        ? "text-primary dark:text-accent bg-primary/5 dark:bg-accent/5 font-semibold"
+                        : "text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-accent"
+                    }`}
+                  >
+                    <span>Student Programs</span>
+                    <ChevronDown
+                      className={`h-5 w-5 transition-transform duration-300 ${
+                        isMobileDropdownOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+                  <AnimatePresence>
+                    {isMobileDropdownOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="pl-4 flex flex-col gap-2 mt-1.5 overflow-hidden"
+                      >
+                        <Link
+                          href="/student-training"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          className={`text-base px-2 py-1 rounded-lg transition-colors ${
+                            pathname === "/student-training"
+                              ? "text-primary dark:text-accent font-semibold"
+                              : "text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-accent"
+                          }`}
+                        >
+                          Academic Projects
+                        </Link>
+                        <Link
+                          href="/internships"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          className={`text-base px-2 py-1 rounded-lg transition-colors ${
+                            pathname === "/internships"
+                              ? "text-primary dark:text-accent font-semibold"
+                              : "text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-accent"
+                          }`}
+                        >
+                          Internships
+                        </Link>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               </div>
+
               <div className="flex flex-col gap-3">
                 <Link
                   href="/auth/login"

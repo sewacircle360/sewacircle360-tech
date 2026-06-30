@@ -14,7 +14,7 @@ import {
 import { 
   Users, Mail, Trash2, Plus, Loader2, AlertCircle, CheckCircle2, 
   CreditCard, X, Printer, Image as ImageIcon, ShieldCheck, Edit3, 
-  ShieldAlert, Hourglass, Calendar, Phone, Activity
+  ShieldAlert, Hourglass, Calendar, Phone, Activity, Download
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -39,7 +39,7 @@ export const getRoleTheme = (roleName: string) => {
         glowTop: "bg-slate-500/10",
         glowBottom: "bg-zinc-500/10",
         label: "Administration",
-        badge: "bg-slate-500/10 border-slate-500/25 text-slate-350"
+        badge: "bg-slate-500/10 border-slate-500/25 text-slate-355"
       };
     case "EMPLOYEE":
     default:
@@ -246,6 +246,28 @@ export default function AdminEmployeesPage() {
     });
   };
 
+  const handleDownloadImage = async (elementId: string) => {
+    try {
+      const { toPng } = await import("html-to-image");
+      const element = document.getElementById(elementId);
+      if (!element) return;
+
+      const dataUrl = await toPng(element, {
+        cacheBust: true,
+        pixelRatio: 3,
+        backgroundColor: "transparent",
+      });
+
+      const link = document.createElement("a");
+      link.download = `${selectedEmp.name.replace(/\s+/g, "_")}_ID_${isFlipped ? "Back" : "Front"}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (err) {
+      console.error("Failed to export image:", err);
+      alert("Failed to export image due to cross-origin configuration. Please use Print / Save PDF option.");
+    }
+  };
+
   // Bulk Selection
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
@@ -364,7 +386,7 @@ export default function AdminEmployeesPage() {
             <Edit3 className="h-5 w-5" />
           </div>
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-450">Corporate Branding</h3>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-455">Corporate Branding</h3>
             <div className="flex items-center gap-3 mt-1.5">
               {authorizedSignature ? (
                 <div className="relative group h-8 w-24 bg-slate-50 dark:bg-slate-950 border dark:border-slate-800 rounded-lg overflow-hidden shrink-0">
@@ -574,7 +596,7 @@ export default function AdminEmployeesPage() {
                   </div>
                   <div>
                     <h3 className="font-bold text-base text-slate-900 dark:text-white font-display">ID Card Generator</h3>
-                    <p className="text-xs text-slate-450 mt-0.5">Edit details and live preview cards for {selectedEmp.name}</p>
+                    <p className="text-xs text-slate-455 mt-0.5">Edit details and live preview cards for {selectedEmp.name}</p>
                   </div>
                 </div>
                 <button
@@ -677,7 +699,7 @@ export default function AdminEmployeesPage() {
                               placeholder="SCT-2026-01"
                               value={cardForm.employeeId}
                               onChange={(e) => setCardForm({ ...cardForm, employeeId: e.target.value })}
-                              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:border-indigo-500"
+                              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-950/80 border border-slate-200/50 dark:border-slate-800 rounded-xl outline-none focus:border-indigo-500 font-mono font-bold"
                             />
                           </div>
 
@@ -689,7 +711,7 @@ export default function AdminEmployeesPage() {
                               placeholder="Founder / Web Developer"
                               value={cardForm.designation}
                               onChange={(e) => setCardForm({ ...cardForm, designation: e.target.value })}
-                              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:border-indigo-500"
+                              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-950/80 border border-slate-200/50 dark:border-slate-800 rounded-xl outline-none focus:border-indigo-500"
                             />
                           </div>
                         </div>
@@ -701,7 +723,7 @@ export default function AdminEmployeesPage() {
                               required
                               value={cardForm.bloodGroup}
                               onChange={(e) => setCardForm({ ...cardForm, bloodGroup: e.target.value })}
-                              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:border-indigo-500"
+                              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-950/80 border border-slate-200/50 dark:border-slate-800 rounded-xl outline-none focus:border-indigo-500"
                             >
                               <option value="">Select Group</option>
                               <option value="A+">A+</option>
@@ -722,7 +744,7 @@ export default function AdminEmployeesPage() {
                               required
                               value={cardForm.joiningDate}
                               onChange={(e) => setCardForm({ ...cardForm, joiningDate: e.target.value })}
-                              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:border-indigo-500"
+                              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-950/80 border border-slate-200/50 dark:border-slate-800 rounded-xl outline-none focus:border-indigo-500"
                             />
                           </div>
                         </div>
@@ -735,7 +757,7 @@ export default function AdminEmployeesPage() {
                               required
                               value={cardForm.cardExpiryDate}
                               onChange={(e) => setCardForm({ ...cardForm, cardExpiryDate: e.target.value })}
-                              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:border-indigo-500"
+                              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-950/80 border border-slate-200/50 dark:border-slate-800 rounded-xl outline-none focus:border-indigo-500"
                             />
                           </div>
 
@@ -747,7 +769,7 @@ export default function AdminEmployeesPage() {
                               placeholder="+91 9876543210"
                               value={cardForm.phone}
                               onChange={(e) => setCardForm({ ...cardForm, phone: e.target.value })}
-                              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:border-indigo-500"
+                              className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-950/80 border border-slate-200/50 dark:border-slate-800 rounded-xl outline-none focus:border-indigo-500"
                             />
                           </div>
                         </div>
@@ -760,7 +782,7 @@ export default function AdminEmployeesPage() {
                             placeholder="Emergency Contact"
                             value={cardForm.emergencyContact}
                             onChange={(e) => setCardForm({ ...cardForm, emergencyContact: e.target.value })}
-                            className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 rounded-xl outline-none focus:border-indigo-500"
+                            className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-950/80 border border-slate-200/50 dark:border-slate-800 rounded-xl outline-none focus:border-indigo-500"
                           />
                         </div>
 
@@ -819,7 +841,7 @@ export default function AdminEmployeesPage() {
                           <ShieldCheck className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
                           <div>
                             <h4 className="text-xs font-extrabold uppercase text-emerald-400 tracking-wider font-display">ID Card Active</h4>
-                            <p className="text-[10px] text-slate-500 mt-1 leading-normal font-sans">
+                            <p className="text-[10px] text-slate-555 mt-1 leading-normal font-sans">
                               This employee has an active and verified ID card. Scan the QR code or click below to print.
                             </p>
                           </div>
@@ -828,14 +850,14 @@ export default function AdminEmployeesPage() {
                         <div className="flex flex-col gap-2.5">
                           <button
                             onClick={() => window.print()}
-                            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 font-bold text-xs text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md transition-all cursor-pointer"
+                            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 font-bold text-xs text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md transition-all cursor-pointer font-sans"
                           >
                             <Printer className="h-3.5 w-3.5" /> Print / Save ID Card
                           </button>
 
                           <button
                             onClick={() => setViewMode("edit")}
-                            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 font-bold text-xs text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-850 hover:bg-slate-200 dark:hover:bg-slate-800 border dark:border-slate-800 rounded-xl transition-all cursor-pointer"
+                            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 font-bold text-xs text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-850 hover:bg-slate-200 dark:hover:bg-slate-800 border dark:border-slate-800 rounded-xl transition-all cursor-pointer font-sans"
                           >
                             <Edit3 className="h-3.5 w-3.5" /> Edit Card Credentials
                           </button>
@@ -843,7 +865,7 @@ export default function AdminEmployeesPage() {
                           <button
                             onClick={handleRevokeCard}
                             disabled={isCardPending}
-                            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 font-bold text-xs text-white bg-red-600 hover:bg-red-700 rounded-xl shadow-md transition-all cursor-pointer"
+                            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 font-bold text-xs text-white bg-red-600 hover:bg-red-700 rounded-xl shadow-md transition-all cursor-pointer font-sans"
                           >
                             {isCardPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ShieldAlert className="h-3.5 w-3.5" />}
                             Delete / Revoke ID Card
@@ -855,8 +877,8 @@ export default function AdminEmployeesPage() {
                     {/* ID Card 3D Live Preview & Print Section (7 Columns) */}
                     <div className="md:col-span-7 flex flex-col items-center justify-center gap-6">
                       
-                      {/* Flip Action Button */}
-                      <div className="flex gap-2">
+                      {/* Flip, Print & Export buttons */}
+                      <div className="flex gap-2 font-sans flex-wrap justify-center">
                         <button
                           type="button"
                           onClick={() => setIsFlipped(!isFlipped)}
@@ -872,6 +894,14 @@ export default function AdminEmployeesPage() {
                         >
                           <Printer className="h-3 w-3" /> Print / Save PDF
                         </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleDownloadImage(isFlipped ? "admin-card-back" : "admin-card-front")}
+                          className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-[10px] font-bold text-white rounded-xl transition-all shadow-sm cursor-pointer flex items-center gap-1"
+                        >
+                          <Download className="h-3 w-3" /> Download {isFlipped ? "Back" : "Front"} PNG
+                        </button>
                       </div>
 
                       {/* ID Card Flip Display Container */}
@@ -879,7 +909,7 @@ export default function AdminEmployeesPage() {
                         <div className={`w-full h-full relative transition-transform duration-500 transform-style-3d ${isFlipped ? "rotate-y-180" : ""}`}>
                           
                           {/* FRONT OF THE CARD */}
-                          <div className={`absolute inset-0 w-full h-full backface-hidden rounded-[24px] bg-gradient-to-br ${activeTheme.bg} border ${activeTheme.border} shadow-2xl p-6 flex flex-col justify-between overflow-hidden print-card-box`}>
+                          <div id="admin-card-front" className={`absolute inset-0 w-full h-full backface-hidden rounded-[24px] bg-gradient-to-br ${activeTheme.bg} border ${activeTheme.border} shadow-2xl p-6 flex flex-col justify-between overflow-hidden print-card-box`}>
                             <div className={`absolute -top-16 -left-16 w-36 h-36 ${activeTheme.glowTop} rounded-full blur-2xl pointer-events-none`}></div>
                             <div className={`absolute -bottom-20 -right-20 w-44 h-44 ${activeTheme.glowBottom} rounded-full blur-3xl pointer-events-none`}></div>
 
@@ -901,7 +931,7 @@ export default function AdminEmployeesPage() {
                                 {cardForm.image ? (
                                   <img src={cardForm.image} alt={selectedEmp.name} className="h-full w-full rounded-full object-cover border-2 border-slate-950" />
                                 ) : (
-                                  <div className="h-full w-full rounded-full bg-slate-900 border-2 border-slate-950 flex flex-col items-center justify-center text-xs text-slate-500 font-bold uppercase">
+                                  <div className="h-full w-full rounded-full bg-slate-900 border-2 border-slate-950 flex flex-col items-center justify-center text-xs text-slate-500 font-bold uppercase font-sans">
                                     <ImageIcon className="h-6 w-6 text-slate-650 mb-1" />
                                     No Photo
                                   </div>
@@ -923,11 +953,11 @@ export default function AdminEmployeesPage() {
 
                             <div className="border-t border-slate-800/60 pt-3 flex items-center justify-between mt-2 relative z-10">
                               <div className="flex flex-col items-start gap-0.5">
-                                <span className="text-[7px] uppercase font-bold text-slate-500 font-display">Holder Sign</span>
+                                <span className="text-[7px] uppercase font-bold text-slate-550 font-display">Holder Sign</span>
                                 <div className="h-5 w-16 border-b border-dashed border-slate-800/80"></div>
                               </div>
                               <div className="flex flex-col items-end gap-0.5">
-                                <span className="text-[7px] uppercase font-bold text-slate-500 font-display">Authorized Sign</span>
+                                <span className="text-[7px] uppercase font-bold text-slate-550 font-display">Authorized Sign</span>
                                 <div className="h-5 w-20 flex items-center justify-end relative">
                                   {authorizedSignature ? (
                                     <img src={authorizedSignature} alt="Authorized Sign" className="h-full w-auto object-contain invert" />
@@ -940,7 +970,7 @@ export default function AdminEmployeesPage() {
                           </div>
 
                           {/* BACK OF THE CARD */}
-                          <div className={`absolute inset-0 w-full h-full backface-hidden rounded-[24px] bg-gradient-to-br ${activeTheme.bg} border ${activeTheme.border} shadow-2xl p-6 flex flex-col justify-between overflow-hidden rotate-y-180 print-card-box`}>
+                          <div id="admin-card-back" className={`absolute inset-0 w-full h-full backface-hidden rounded-[24px] bg-gradient-to-br ${activeTheme.bg} border ${activeTheme.border} shadow-2xl p-6 flex flex-col justify-between overflow-hidden rotate-y-180 print-card-box`}>
                             <div className="absolute top-10 right-10 w-24 h-24 bg-violet-600/5 rounded-full blur-2xl pointer-events-none"></div>
 
                             <div className="text-center border-b border-slate-900 pb-2 relative z-10 flex flex-col gap-0.5">
@@ -999,7 +1029,7 @@ export default function AdminEmployeesPage() {
                                 <span className="text-[32px] font-normal leading-none font-mono tracking-widest text-slate-300 select-none block" style={{ fontFamily: "'Libre Barcode 39', sans-serif" }}>
                                   {cardForm.employeeId ? `*${cardForm.employeeId}*` : "*SCT-CARD*"}
                                 </span>
-                                <span className="text-[7.5px] font-bold text-slate-550 tracking-wider mt-1">
+                                <span className="text-[7.5px] font-bold text-slate-555 tracking-wider mt-1">
                                   {cardForm.employeeId || "PENDING"}
                                 </span>
                               </div>
@@ -1023,11 +1053,11 @@ export default function AdminEmployeesPage() {
               <div className="p-6 border-t dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-950/20 flex justify-between items-center">
                 <button
                   onClick={() => setSelectedEmp(null)}
-                  className="px-4 py-2 text-xs font-bold text-slate-500 hover:text-slate-700 bg-slate-100 dark:bg-slate-900 border rounded-xl hover:bg-slate-200 cursor-pointer"
+                  className="px-4 py-2 text-xs font-bold text-slate-500 hover:text-slate-700 bg-slate-100 dark:bg-slate-900 border rounded-xl hover:bg-slate-200 cursor-pointer font-sans"
                 >
                   Close Panel
                 </button>
-                <div className="flex items-center gap-2 text-xs font-bold text-indigo-500">
+                <div className="flex items-center gap-2 text-xs font-bold text-indigo-500 font-sans">
                   <ShieldCheck className="h-4 w-4 text-emerald-500" /> Secure Encryption QR
                 </div>
               </div>
@@ -1073,7 +1103,7 @@ export default function AdminEmployeesPage() {
               <span className={`text-[10px] font-bold ${activeTheme.text} tracking-wider uppercase truncate font-display`}>
                 {cardForm.designation || "Staff Member"}
               </span>
-              <span className="text-[9px] font-bold tracking-widest text-slate-450 mt-1 font-mono">
+              <span className="text-[9px] font-bold tracking-widest text-slate-455 mt-1 font-mono">
                 ID: {cardForm.employeeId || "PENDING"}
               </span>
             </div>
@@ -1154,7 +1184,7 @@ export default function AdminEmployeesPage() {
                 <span className="text-[32px] font-normal leading-none font-mono tracking-widest text-slate-300 select-none block" style={{ fontFamily: "'Libre Barcode 39', sans-serif" }}>
                   {cardForm.employeeId ? `*${cardForm.employeeId}*` : "*SCT-CARD*"}
                 </span>
-                <span className="text-[7.5px] font-bold text-slate-550 tracking-wider mt-1">
+                <span className="text-[7.5px] font-bold text-slate-555 tracking-wider mt-1">
                   {cardForm.employeeId || "PENDING"}
                 </span>
               </div>
@@ -1212,7 +1242,7 @@ export default function AdminEmployeesPage() {
                   <span className={`text-[10px] font-bold ${bulkTheme.text} tracking-wider uppercase truncate font-display`}>
                     {emp.designation || "Staff Member"}
                   </span>
-                  <span className="text-[9px] font-bold tracking-widest text-slate-450 mt-1 font-mono">
+                  <span className="text-[9px] font-bold tracking-widest text-slate-455 mt-1 font-mono">
                     ID: {emp.employeeId || "PENDING"}
                   </span>
                 </div>

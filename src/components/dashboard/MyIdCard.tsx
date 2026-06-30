@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { CreditCard, Printer, ShieldCheck, Image as ImageIcon, AlertTriangle } from "lucide-react";
+import { CreditCard, Printer, ShieldCheck, Image as ImageIcon, AlertTriangle, Download } from "lucide-react";
 import { getAuthorizedSignature } from "@/modules/auth/actions/employees";
 import { getRoleTheme } from "@/app/admin/employees/page";
 
@@ -43,6 +43,28 @@ export function MyIdCard({ user }: MyIdCardProps) {
     : `https://sewacircle360tech.online/verify/${user.id}`;
 
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(verificationUrl)}`;
+
+  const handleDownloadImage = async (elementId: string) => {
+    try {
+      const { toPng } = await import("html-to-image");
+      const element = document.getElementById(elementId);
+      if (!element) return;
+
+      const dataUrl = await toPng(element, {
+        cacheBust: true,
+        pixelRatio: 3,
+        backgroundColor: "transparent",
+      });
+
+      const link = document.createElement("a");
+      link.download = `${user.name?.replace(/\s+/g, "_") || "Employee"}_ID_${isFlipped ? "Back" : "Front"}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (err) {
+      console.error("Failed to export image:", err);
+      alert("Failed to export image due to cross-origin configuration. Please use Print Card option.");
+    }
+  };
 
   return (
     <div className="w-full max-w-2xl bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800 p-6 sm:p-8 rounded-3xl shadow-md backdrop-blur-sm relative font-sans">
@@ -98,7 +120,7 @@ export function MyIdCard({ user }: MyIdCardProps) {
         </div>
       )}
 
-      <div className="flex items-center justify-between pb-6 border-b border-border/80 dark:border-slate-800/80 mb-6 no-print">
+      <div className="flex items-center justify-between pb-6 border-b border-border/80 dark:border-slate-800/80 mb-6 no-print flex-wrap gap-4">
         <div className="flex items-center gap-3">
           <div className="p-2.5 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-xl">
             <CreditCard className="h-5 w-5" />
@@ -107,13 +129,13 @@ export function MyIdCard({ user }: MyIdCardProps) {
             <h3 className="text-lg font-bold text-slate-900 dark:text-white font-display">
               My Employee ID Card
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-sans">
               Verify your digital ID card details and download/print your copy.
             </p>
           </div>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 font-sans flex-wrap">
           <button
             onClick={() => setIsFlipped(!isFlipped)}
             className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-[10px] font-bold text-slate-700 dark:text-slate-300 rounded-xl transition-all border border-slate-200/50 dark:border-slate-800/50 cursor-pointer"
@@ -127,6 +149,13 @@ export function MyIdCard({ user }: MyIdCardProps) {
           >
             <Printer className="h-3 w-3" /> Print Card
           </button>
+
+          <button
+            onClick={() => handleDownloadImage(isFlipped ? "my-card-back" : "my-card-front")}
+            className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-[10px] font-bold text-white rounded-xl transition-all flex items-center gap-1 cursor-pointer"
+          >
+            <Download className="h-3 w-3" /> Download {isFlipped ? "Back" : "Front"} PNG
+          </button>
         </div>
       </div>
 
@@ -136,7 +165,7 @@ export function MyIdCard({ user }: MyIdCardProps) {
           <div className={`w-full h-full relative transition-transform duration-500 transform-style-3d ${isFlipped ? "rotate-y-180" : ""}`}>
             
             {/* FRONT OF THE CARD */}
-            <div className={`absolute inset-0 w-full h-full backface-hidden rounded-[24px] bg-gradient-to-br ${theme.bg} border ${theme.border} shadow-2xl p-6 flex flex-col justify-between overflow-hidden print-card-box ${isExpired ? "opacity-75" : ""}`}>
+            <div id="my-card-front" className={`absolute inset-0 w-full h-full backface-hidden rounded-[24px] bg-gradient-to-br ${theme.bg} border ${theme.border} shadow-2xl p-6 flex flex-col justify-between overflow-hidden print-card-box ${isExpired ? "opacity-75" : ""}`}>
               <div className={`absolute -top-16 -left-16 w-36 h-36 ${theme.glowTop} rounded-full blur-2xl pointer-events-none`}></div>
               <div className={`absolute -bottom-20 -right-20 w-44 h-44 ${theme.glowBottom} rounded-full blur-3xl pointer-events-none`}></div>
 
@@ -158,7 +187,7 @@ export function MyIdCard({ user }: MyIdCardProps) {
                   {user.image ? (
                     <img src={user.image} alt={user.name || "Employee"} className="h-full w-full rounded-full object-cover border-2 border-slate-950" />
                   ) : (
-                    <div className="h-full w-full rounded-full bg-slate-900 border-2 border-slate-950 flex flex-col items-center justify-center text-xs text-slate-500 font-bold uppercase">
+                    <div className="h-full w-full rounded-full bg-slate-900 border-2 border-slate-950 flex flex-col items-center justify-center text-xs text-slate-555 font-bold uppercase">
                       <ImageIcon className="h-6 w-6 text-slate-650 mb-1" />
                       No Photo
                     </div>
@@ -180,11 +209,11 @@ export function MyIdCard({ user }: MyIdCardProps) {
 
               <div className="border-t border-slate-800/60 pt-3 flex items-center justify-between mt-2 relative z-10">
                 <div className="flex flex-col items-start gap-0.5">
-                  <span className="text-[7px] uppercase font-bold text-slate-500 font-display">Holder Sign</span>
+                  <span className="text-[7px] uppercase font-bold text-slate-550 font-display">Holder Sign</span>
                   <div className="h-5 w-16 border-b border-dashed border-slate-800/80"></div>
                 </div>
                 <div className="flex flex-col items-end gap-0.5">
-                  <span className="text-[7px] uppercase font-bold text-slate-500 font-display">Authorized Sign</span>
+                  <span className="text-[7px] uppercase font-bold text-slate-550 font-display">Authorized Sign</span>
                   <div className="h-5 w-20 flex items-center justify-end relative">
                     {authorizedSignature ? (
                       <img src={authorizedSignature} alt="Signature" className="h-full w-auto object-contain invert dark:invert-0" />
@@ -197,7 +226,7 @@ export function MyIdCard({ user }: MyIdCardProps) {
             </div>
 
             {/* BACK OF THE CARD */}
-            <div className={`absolute inset-0 w-full h-full backface-hidden rounded-[24px] bg-gradient-to-br ${theme.bg} border ${theme.border} shadow-2xl p-6 flex flex-col justify-between overflow-hidden rotate-y-180 print-card-box`}>
+            <div id="my-card-back" className={`absolute inset-0 w-full h-full backface-hidden rounded-[24px] bg-gradient-to-br ${theme.bg} border ${theme.border} shadow-2xl p-6 flex flex-col justify-between overflow-hidden rotate-y-180 print-card-box`}>
               <div className="absolute top-10 right-10 w-24 h-24 bg-violet-600/5 rounded-full blur-2xl pointer-events-none"></div>
 
               <div className="text-center border-b border-slate-900 pb-2 relative z-10 flex flex-col gap-0.5">
@@ -256,7 +285,7 @@ export function MyIdCard({ user }: MyIdCardProps) {
                   <span className="text-[32px] font-normal leading-none font-mono tracking-widest text-slate-300 select-none block" style={{ fontFamily: "'Libre Barcode 39', sans-serif" }}>
                     {user.employeeId ? `*${user.employeeId}*` : "*SCT-CARD*"}
                   </span>
-                  <span className="text-[7.5px] font-bold text-slate-550 tracking-wider mt-1">
+                  <span className="text-[7.5px] font-bold text-slate-555 tracking-wider mt-1">
                     {user.employeeId || "PENDING"}
                   </span>
                 </div>

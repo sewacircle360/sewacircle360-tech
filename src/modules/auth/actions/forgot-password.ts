@@ -3,6 +3,12 @@
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/mail";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
+
+// Helper function to hash the OTP code before saving to the database
+function hashOtp(otp: string): string {
+  return crypto.createHash("sha256").update(otp).digest("hex");
+}
 
 export async function sendForgotPasswordOtpAction(email: string) {
   try {
@@ -20,11 +26,12 @@ export async function sendForgotPasswordOtpAction(email: string) {
 
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
     const otpExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 mins expiry
+    const hashedOtp = hashOtp(otpCode);
 
     await db.user.update({
       where: { id: user.id },
       data: {
-        otpCode,
+        otpCode: hashedOtp,
         otpExpiry,
       },
     });
@@ -84,7 +91,8 @@ export async function verifyOtpAndResetPasswordAction(data: {
       return { error: "User not found." };
     }
 
-    if (!user.otpCode || user.otpCode !== otpCode) {
+    const hashedInputOtp = hashOtp(otpCode);
+    if (!user.otpCode || user.otpCode !== hashedInputOtp) {
       return { error: "Invalid verification code entered." };
     }
 

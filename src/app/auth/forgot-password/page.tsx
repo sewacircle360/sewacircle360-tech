@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -14,7 +14,9 @@ import {
   Eye, 
   EyeOff, 
   AlertCircle, 
-  CheckCircle2 
+  CheckCircle2,
+  Check,
+  X
 } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { sendForgotPasswordOtpAction, verifyOtpAndResetPasswordAction } from "@/modules/auth/actions/forgot-password";
@@ -33,9 +35,19 @@ export default function ForgotPasswordPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [mockOtp, setMockOtp] = useState<string | null>(null);
+  const [cooldown, setCooldown] = useState(0);
 
   const [isPending, startTransition] = useTransition();
   const [isResending, startResend] = useTransition();
+
+  // Cooldown timer effect for Resend OTP button
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setTimeout(() => {
+      setCooldown((prev) => prev - 1);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [cooldown]);
 
   const handleRequestOtp = (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,12 +67,13 @@ export default function ForgotPasswordPage() {
           setMockOtp(result.mockOtp);
         }
         setStep(2);
+        setCooldown(60); // 60 seconds cooldown
       }
     });
   };
 
   const handleResendOtp = () => {
-    if (!email) return;
+    if (!email || cooldown > 0) return;
     setError(null);
     setSuccess(null);
     
@@ -73,6 +86,7 @@ export default function ForgotPasswordPage() {
         if (result.mockOtp) {
           setMockOtp(result.mockOtp);
         }
+        setCooldown(60); // Reset cooldown to 60 seconds
       }
     });
   };
@@ -92,6 +106,11 @@ export default function ForgotPasswordPage() {
       return;
     }
 
+    if (!allCriteriaMet) {
+      setError("Please ensure all password requirements are met.");
+      return;
+    }
+
     startTransition(async () => {
       const result = await verifyOtpAndResetPasswordAction({
         email,
@@ -108,6 +127,52 @@ export default function ForgotPasswordPage() {
         }, 2500);
       }
     });
+  };
+
+  // Password criteria variables
+  const hasMinLength = newPassword.length >= 6 && newPassword.length <= 30;
+  const hasLetter = /[A-Za-z]/.test(newPassword);
+  const hasNumber = /\d/.test(newPassword);
+  const hasSpecial = /[^A-Za-z0-9]/.test(newPassword);
+  const allCriteriaMet = hasMinLength && hasLetter && hasNumber && hasSpecial;
+
+  const criteria = [
+    { label: "6-30 characters", met: hasMinLength },
+    { label: "At least one letter", met: hasLetter },
+    { label: "At least one number", met: hasNumber },
+    { label: "At least one special character", met: hasSpecial },
+  ];
+
+  const strengthScore = criteria.filter((c) => c.met).length;
+
+  const getStrengthColor = () => {
+    switch (strengthScore) {
+      case 1:
+        return "bg-red-500";
+      case 2:
+        return "bg-amber-500";
+      case 3:
+        return "bg-yellow-500";
+      case 4:
+        return "bg-green-500";
+      default:
+        return "bg-slate-200 dark:bg-slate-800";
+    }
+  };
+
+  const getStrengthLabel = () => {
+    switch (strengthScore) {
+      case 1:
+        return "Weak";
+      case 2:
+        return "Fair";
+      case 3:
+        return "Good";
+      case 4:
+        return "Strong";
+      default:
+        return "Empty";
+    }
   };
 
   return (
@@ -261,6 +326,35 @@ export default function ForgotPasswordPage() {
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
+
+              {/* Password Strength Visual Meter */}
+              {newPassword.length > 0 && (
+                <div className="mt-2 space-y-1.5">
+                  <div className="flex justify-between items-center text-[10px] font-semibold text-slate-500">
+                    <span>Password Strength</span>
+                    <span className="uppercase tracking-wider font-bold">{getStrengthLabel()}</span>
+                  </div>
+                  <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800/80 rounded-full overflow-hidden flex gap-0.5">
+                    <div className={`h-full ${getStrengthColor()} transition-all duration-500`} style={{ width: `${(strengthScore / 4) * 100}%` }} />
+                  </div>
+                  
+                  {/* Criteria Checklist */}
+                  <div className="grid grid-cols-2 gap-x-2 gap-y-1 pt-1">
+                    {criteria.map((c, i) => (
+                      <div key={i} className="flex items-center gap-1.5 text-[10px]">
+                        {c.met ? (
+                          <Check className="h-3 w-3 text-green-500 shrink-0" />
+                        ) : (
+                          <X className="h-3 w-3 text-slate-300 dark:text-slate-700 shrink-0" />
+                        )}
+                        <span className={c.met ? "text-green-600 dark:text-green-500 font-medium" : "text-slate-400"}>
+                          {c.label}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Confirm Password */}
@@ -287,16 +381,22 @@ export default function ForgotPasswordPage() {
                   {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
-            </div>
 
-            {/* Password Validation Guidelines */}
-            <p className="text-[10px] text-slate-500 leading-relaxed dark:text-slate-400">
-              * Password must be between 6 and 30 characters, and contain at least one letter, one number, and one special character.
-            </p>
+              {confirmPassword.length > 0 && newPassword !== confirmPassword && (
+                <p className="text-[10px] text-red-500 mt-1 flex items-center gap-1">
+                  <X className="h-3 w-3" /> Passwords do not match
+                </p>
+              )}
+              {confirmPassword.length > 0 && newPassword === confirmPassword && (
+                <p className="text-[10px] text-green-500 mt-1 flex items-center gap-1">
+                  <Check className="h-3 w-3" /> Passwords match
+                </p>
+              )}
+            </div>
 
             <button
               type="submit"
-              disabled={isPending || !otpCode || !newPassword || !confirmPassword}
+              disabled={isPending || !otpCode || !allCriteriaMet || newPassword !== confirmPassword}
               className="w-full flex items-center justify-center gap-2 py-3 px-4 font-semibold text-white bg-primary hover:bg-primary/95 dark:bg-primary dark:hover:bg-primary/90 rounded-xl transition-all duration-300 shadow-md shadow-primary/10 hover:shadow-primary/20 hover:scale-[1.01] cursor-pointer disabled:opacity-70 disabled:pointer-events-none"
             >
               {isPending ? (
@@ -317,10 +417,13 @@ export default function ForgotPasswordPage() {
               <button
                 type="button"
                 onClick={handleResendOtp}
-                disabled={isResending || isPending}
-                className="text-xs font-semibold text-primary dark:text-accent hover:underline bg-transparent border-0 cursor-pointer disabled:opacity-50"
+                disabled={isResending || isPending || cooldown > 0}
+                className="text-xs font-semibold text-primary dark:text-accent hover:underline bg-transparent border-0 cursor-pointer disabled:opacity-50 disabled:no-underline"
               >
-                {isResending ? "Resending Code..." : "Resend Code"}
+                {cooldown > 0 
+                  ? `Resend Code (${cooldown}s)` 
+                  : (isResending ? "Resending Code..." : "Resend Code")
+                }
               </button>
               <button
                 type="button"

@@ -93,6 +93,7 @@ export async function updateEmployeeIdCard(
     designation: string;
     bloodGroup: string;
     joiningDate: string;
+    cardExpiryDate?: string;
     emergencyContact: string;
     phone: string;
     image?: string;
@@ -118,6 +119,7 @@ export async function updateEmployeeIdCard(
         designation: data.designation || null,
         bloodGroup: data.bloodGroup || null,
         joiningDate: data.joiningDate ? new Date(data.joiningDate) : null,
+        cardExpiryDate: data.cardExpiryDate ? new Date(data.cardExpiryDate) : null,
         emergencyContact: data.emergencyContact || null,
         phone: data.phone || null,
         image: data.image || undefined,
@@ -141,6 +143,7 @@ export async function revokeEmployeeIdCard(id: string) {
         designation: null,
         bloodGroup: null,
         joiningDate: null,
+        cardExpiryDate: null,
         emergencyContact: null,
         phone: null,
         image: null,
@@ -152,6 +155,45 @@ export async function revokeEmployeeIdCard(id: string) {
   } catch (error) {
     console.error("revokeEmployeeIdCard error:", error);
     return { error: "Failed to revoke and clear ID Card." };
+  }
+}
+
+export async function updateAuthorizedSignature(base64Image: string) {
+  try {
+    const setting = await db.systemSettings.upsert({
+      where: { key: "AUTHORIZED_SIGNATURE" },
+      update: { value: base64Image },
+      create: { key: "AUTHORIZED_SIGNATURE", value: base64Image }
+    });
+    revalidatePath("/admin/employees");
+    return { success: "Authorized signature updated successfully!", setting };
+  } catch (error) {
+    console.error("updateAuthorizedSignature error:", error);
+    return { error: "Failed to update authorized signature." };
+  }
+}
+
+export async function getAuthorizedSignature() {
+  try {
+    const setting = await db.systemSettings.findUnique({
+      where: { key: "AUTHORIZED_SIGNATURE" }
+    });
+    return setting?.value || null;
+  } catch (error) {
+    console.error("getAuthorizedSignature error:", error);
+    return null;
+  }
+}
+
+export async function getEmployeeScanLogs(userId: string) {
+  try {
+    return await db.verificationLog.findMany({
+      where: { userId },
+      orderBy: { scannedAt: "desc" }
+    });
+  } catch (error) {
+    console.error("getEmployeeScanLogs error:", error);
+    return [];
   }
 }
 

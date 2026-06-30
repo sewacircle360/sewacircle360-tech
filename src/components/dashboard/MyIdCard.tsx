@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { CreditCard, Printer, ShieldCheck, Image as ImageIcon } from "lucide-react";
+import { useState, useEffect } from "react";
+import { CreditCard, Printer, ShieldCheck, Image as ImageIcon, AlertTriangle } from "lucide-react";
+import { getAuthorizedSignature } from "@/modules/auth/actions/employees";
 
 interface MyIdCardProps {
   user: {
@@ -12,6 +13,7 @@ interface MyIdCardProps {
     designation: string | null;
     bloodGroup: string | null;
     joiningDate: Date | null;
+    cardExpiryDate: Date | null;
     phone: string | null;
     emergencyContact: string | null;
   };
@@ -19,8 +21,19 @@ interface MyIdCardProps {
 
 export function MyIdCard({ user }: MyIdCardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
+  const [authorizedSignature, setAuthorizedSignature] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchSignature = async () => {
+      const sig = await getAuthorizedSignature();
+      if (sig) setAuthorizedSignature(sig);
+    };
+    fetchSignature();
+  }, []);
 
   if (!user.employeeId) return null;
+
+  const isExpired = user.cardExpiryDate ? new Date() > new Date(user.cardExpiryDate) : false;
 
   const verificationUrl = typeof window !== "undefined"
     ? `${window.location.origin}/verify/${user.id}`
@@ -29,7 +42,7 @@ export function MyIdCard({ user }: MyIdCardProps) {
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(verificationUrl)}`;
 
   return (
-    <div className="w-full max-w-2xl bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800 p-6 sm:p-8 rounded-3xl shadow-md backdrop-blur-sm">
+    <div className="w-full max-w-2xl bg-white dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800 p-6 sm:p-8 rounded-3xl shadow-md backdrop-blur-sm relative">
       
       <link href="https://fonts.googleapis.com/css2?family=Libre+Barcode+39&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 
@@ -76,6 +89,13 @@ export function MyIdCard({ user }: MyIdCardProps) {
         }
       ` }} />
 
+      {isExpired && (
+        <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 flex items-center gap-2 text-xs font-bold no-print">
+          <AlertTriangle className="h-4 w-4 shrink-0" />
+          <span>This ID Card has expired. Please contact administration for renewal.</span>
+        </div>
+      )}
+
       <div className="flex items-center justify-between pb-6 border-b border-border/80 dark:border-slate-800/80 mb-6 no-print">
         <div className="flex items-center gap-3">
           <div className="p-2.5 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-xl">
@@ -114,7 +134,7 @@ export function MyIdCard({ user }: MyIdCardProps) {
           <div className={`w-full h-full relative transition-transform duration-500 transform-style-3d ${isFlipped ? "rotate-y-180" : ""}`}>
             
             {/* FRONT OF THE CARD */}
-            <div className="absolute inset-0 w-full h-full backface-hidden rounded-[24px] bg-gradient-to-br from-[#0b0c16] via-[#101430] to-[#04040a] border border-indigo-500/20 shadow-2xl p-6 flex flex-col justify-between overflow-hidden print-card-box">
+            <div className={`absolute inset-0 w-full h-full backface-hidden rounded-[24px] bg-gradient-to-br from-[#0b0c16] via-[#101430] to-[#04040a] border border-indigo-500/20 shadow-2xl p-6 flex flex-col justify-between overflow-hidden print-card-box ${isExpired ? "opacity-75" : ""}`}>
               <div className="absolute -top-16 -left-16 w-36 h-36 bg-indigo-600/10 rounded-full blur-2xl pointer-events-none"></div>
               <div className="absolute -bottom-20 -right-20 w-44 h-44 bg-violet-600/10 rounded-full blur-3xl pointer-events-none"></div>
 
@@ -126,7 +146,7 @@ export function MyIdCard({ user }: MyIdCardProps) {
                   </span>
                 </div>
                 <div className="mt-1 h-[1px] bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent w-full"></div>
-                <span className="text-[7.5px] font-extrabold text-indigo-400 tracking-[0.2em] uppercase block mt-1">
+                <span className="text-[7.5px] font-extrabold text-indigo-400 tracking-[0.2em] uppercase block mt-1 font-display">
                   Employee ID Card
                 </span>
               </div>
@@ -158,13 +178,17 @@ export function MyIdCard({ user }: MyIdCardProps) {
 
               <div className="border-t border-slate-800/60 pt-3 flex items-center justify-between mt-2 relative z-10">
                 <div className="flex flex-col items-start gap-0.5">
-                  <span className="text-[7px] uppercase font-bold text-slate-500">Holder Sign</span>
+                  <span className="text-[7px] uppercase font-bold text-slate-500 font-display">Holder Sign</span>
                   <div className="h-5 w-16 border-b border-dashed border-slate-800/80"></div>
                 </div>
                 <div className="flex flex-col items-end gap-0.5">
-                  <span className="text-[7px] uppercase font-bold text-slate-500">Authorized Sign</span>
+                  <span className="text-[7px] uppercase font-bold text-slate-500 font-display">Authorized Sign</span>
                   <div className="h-5 w-20 flex items-center justify-end relative">
-                    <span className="text-[8px] italic font-semibold text-indigo-400/90 font-display">SewaCircle360</span>
+                    {authorizedSignature ? (
+                      <img src={authorizedSignature} alt="Signature" className="h-full w-auto object-contain invert dark:invert-0" />
+                    ) : (
+                      <span className="text-[8px] italic font-semibold text-indigo-400/90 font-display">SewaCircle360</span>
+                    )}
                   </div>
                 </div>
               </div>
@@ -194,6 +218,16 @@ export function MyIdCard({ user }: MyIdCardProps) {
                   <span>
                     {user.joiningDate 
                       ? new Date(user.joiningDate).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
+                      : "N/A"
+                    }
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between border-b border-slate-950 pb-1">
+                  <span className="text-slate-500 font-semibold uppercase text-[8px]">Expiry Date:</span>
+                  <span className={isExpired ? "text-red-500" : ""}>
+                    {user.cardExpiryDate 
+                      ? new Date(user.cardExpiryDate).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
                       : "N/A"
                     }
                   </span>
@@ -246,7 +280,7 @@ export function MyIdCard({ user }: MyIdCardProps) {
               </span>
             </div>
             <div className="mt-1 h-[1px] bg-indigo-500 w-full"></div>
-            <span className="text-[7.5px] font-extrabold text-indigo-400 tracking-[0.2em] uppercase block mt-1">
+            <span className="text-[7.5px] font-extrabold text-indigo-400 tracking-[0.2em] uppercase block mt-1 font-display">
               Employee ID Card
             </span>
           </div>
@@ -277,13 +311,17 @@ export function MyIdCard({ user }: MyIdCardProps) {
 
           <div className="border-t border-slate-800 pt-3 flex items-center justify-between mt-2 relative z-10">
             <div className="flex flex-col items-start gap-0.5">
-              <span className="text-[7px] uppercase font-bold text-slate-500">Holder Sign</span>
+              <span className="text-[7px] uppercase font-bold text-slate-500 font-display">Holder Sign</span>
               <div className="h-5 w-16 border-b border-dashed border-slate-800"></div>
             </div>
             <div className="flex flex-col items-end gap-0.5">
-              <span className="text-[7px] uppercase font-bold text-slate-500">Authorized Sign</span>
+              <span className="text-[7px] uppercase font-bold text-slate-500 font-display">Authorized Sign</span>
               <div className="h-5 w-20 flex items-center justify-end relative">
-                <span className="text-[8px] italic font-semibold text-indigo-400 font-display">SewaCircle360</span>
+                {authorizedSignature ? (
+                  <img src={authorizedSignature} alt="Signature" className="h-full w-auto object-contain invert" />
+                ) : (
+                  <span className="text-[8px] italic font-semibold text-indigo-400 font-display">SewaCircle360</span>
+                )}
               </div>
             </div>
           </div>
@@ -317,6 +355,16 @@ export function MyIdCard({ user }: MyIdCardProps) {
             </div>
 
             <div className="flex items-center justify-between border-b border-slate-950 pb-1">
+              <span className="text-slate-500 font-semibold uppercase text-[8px]">Expiry Date:</span>
+              <span className={isExpired ? "text-red-500 font-bold" : ""}>
+                {user.cardExpiryDate 
+                  ? new Date(user.cardExpiryDate).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
+                  : "N/A"
+                }
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between border-b border-slate-950 pb-1">
               <span className="text-slate-500 font-semibold uppercase text-[8px]">Contact No:</span>
               <span>{user.phone || "N/A"}</span>
             </div>
@@ -329,7 +377,7 @@ export function MyIdCard({ user }: MyIdCardProps) {
 
           <div className="flex items-center gap-4 justify-between bg-slate-950 p-2.5 rounded-xl border border-slate-900 mt-1 relative z-10">
             <div className="flex flex-col gap-0.5 shrink-0">
-              <span className="text-[7px] uppercase font-bold text-slate-500">Scan to Verify</span>
+              <span className="text-[7px] uppercase font-bold text-slate-500 font-display">Scan to Verify</span>
               <img src={qrCodeUrl} alt="Verify QR" className="h-14 w-14 bg-white p-0.5 rounded border border-slate-800" />
             </div>
             

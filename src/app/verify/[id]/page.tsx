@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
-import { BadgeCheck, ShieldAlert, Calendar, Mail, User, Bookmark, ArrowRight, ShieldCheck } from "lucide-react";
+import { BadgeCheck, ShieldAlert, Calendar, Mail, User, Bookmark, ArrowRight, ShieldCheck, Hourglass } from "lucide-react";
 import Link from "next/link";
+import { headers } from "next/headers";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -11,6 +12,7 @@ export default async function VerifyEmployeePage({ params }: PageProps) {
 
   let employee = null;
   let isValid = false;
+  let isExpired = false;
 
   try {
     employee = await db.user.findUnique({
@@ -23,7 +25,28 @@ export default async function VerifyEmployeePage({ params }: PageProps) {
       ["EMPLOYEE", "ADMIN", "SUPER_ADMIN"].includes(employee.role.name) &&
       employee.status === "ACTIVE"
     ) {
-      isValid = true;
+      if (employee.cardExpiryDate && new Date() > new Date(employee.cardExpiryDate)) {
+        isExpired = true;
+      } else {
+        isValid = true;
+
+        // Log the scan to the database
+        try {
+          const headerList = await headers();
+          const ipAddress = headerList.get("x-forwarded-for")?.split(",")[0] || headerList.get("x-real-ip") || "Unknown IP";
+          const userAgent = headerList.get("user-agent") || "Unknown Browser";
+
+          await db.verificationLog.create({
+            data: {
+              userId: employee.id,
+              ipAddress,
+              userAgent,
+            },
+          });
+        } catch (logErr) {
+          console.error("Failed to log verification scan:", logErr);
+        }
+      }
     }
   } catch (error) {
     console.error("Verification DB query failed:", error);
@@ -140,6 +163,72 @@ export default async function VerifyEmployeePage({ params }: PageProps) {
             {/* Official Confirmation text */}
             <p className="text-[10px] text-slate-550 text-center leading-relaxed px-4">
               SewaCircle360Tech hereby certifies that the individual listed above is an authorized active member of our organization. For further queries, please reach out to admin support.
+            </p>
+
+          </div>
+        ) : isExpired && employee ? (
+          /* EXPIRED STATE: ID CARD HAS EXPIRED */
+          <div className="space-y-6">
+            
+            {/* Warning Expiry Badge */}
+            <div className="flex justify-center">
+              <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/25 px-4 py-2 rounded-full text-amber-500 shadow-sm animate-pulse">
+                <Hourglass className="h-5 w-5 shrink-0" />
+                <span className="text-xs font-black uppercase tracking-wider">ID Card Expired</span>
+              </div>
+            </div>
+
+            {/* Profile Photo */}
+            <div className="flex flex-col items-center opacity-60">
+              <div className="h-28 w-28 rounded-full p-[3px] bg-gradient-to-tr from-amber-500 to-orange-500 shadow-lg flex items-center justify-center">
+                {employee.image ? (
+                  <img
+                    src={employee.image}
+                    alt={employee.name || "Employee"}
+                    className="h-full w-full rounded-full object-cover border-2 border-slate-950"
+                  />
+                ) : (
+                  <div className="h-full w-full rounded-full bg-slate-950 flex items-center justify-center border-2 border-slate-950 text-slate-550 font-bold uppercase text-xl">
+                    <User className="h-10 w-10 text-slate-650" />
+                  </div>
+                )}
+              </div>
+              
+              <h2 className="text-xl font-extrabold text-white mt-4 text-center">
+                {employee.name}
+              </h2>
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-widest text-center mt-1">
+                {employee.designation || "Team Member"}
+              </span>
+            </div>
+
+            {/* Credentials Table (Marked as Expired) */}
+            <div className="bg-slate-950/40 border border-slate-800/60 rounded-2xl p-4 space-y-3.5 text-sm">
+              <div className="flex items-center justify-between border-b border-slate-900 pb-2">
+                <span className="font-semibold text-xs uppercase tracking-wider text-slate-500">Employee ID</span>
+                <span className="font-mono font-bold text-slate-400">{employee.employeeId || "N/A"}</span>
+              </div>
+              <div className="flex items-center justify-between border-b border-slate-900 pb-2">
+                <span className="font-semibold text-xs uppercase tracking-wider text-slate-500">Expiry Date</span>
+                <span className="font-bold text-red-500">
+                  {new Date(employee.cardExpiryDate!).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-xs uppercase tracking-wider text-slate-500">Status</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full bg-red-500"></span>
+                  <span className="font-bold text-red-500 text-xs uppercase tracking-wider">Expired</span>
+                </div>
+              </div>
+            </div>
+
+            <p className="text-[10px] text-slate-550 text-center leading-relaxed px-4">
+              ⚠️ <strong>Warning:</strong> The ID card credentials of this employee have expired and are no longer valid. The individual is not authorized to use this card for identification.
             </p>
 
           </div>

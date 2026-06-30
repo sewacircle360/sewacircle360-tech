@@ -58,6 +58,7 @@ export default async function AdminProfilePage() {
                 designation: dbUser.designation,
                 bloodGroup: dbUser.bloodGroup,
                 joiningDate: dbUser.joiningDate,
+                cardExpiryDate: dbUser.cardExpiryDate,
                 phone: dbUser.phone,
                 emergencyContact: dbUser.emergencyContact
               }}
